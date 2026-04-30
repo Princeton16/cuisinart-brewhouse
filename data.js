@@ -916,6 +916,21 @@ const DATA = {
     }
   ],
 
+  /* ---------------- Coffee Wall (community photo feed) ---------------- */
+  /* Like a feed of coffee photos. Anyone can post. */
+  wallPosts: [
+    { id: 'w1', author: 'Maya R.', initials: 'MR', avatarBg: 'linear-gradient(135deg, #C8762D 0%, #A85F1F 100%)', drink: 'V60 pour over', timeAgo: '8m ago', caption: 'Day 18 of pour over week. Onyx Monarch is brewing better every day.', photo: 'https://loremflickr.com/600/600/pourover,coffee?lock=51', likes: 47, comments: 6 },
+    { id: 'w2', author: 'Diego P.', initials: 'DP', avatarBg: 'linear-gradient(135deg, #2D4A3A 0%, #1d3327 100%)', drink: 'Latte', timeAgo: '34m ago', caption: 'First successful tulip after weeks of practice. The stretch is finally clicking.', photo: 'https://loremflickr.com/600/600/latte,art?lock=52', likes: 124, comments: 18 },
+    { id: 'w3', author: 'Tessa L.', initials: 'TL', avatarBg: 'linear-gradient(135deg, #C8762D 0%, #2A1A14 100%)', drink: 'Cortado', timeAgo: '1h ago', caption: 'Counter Culture Hologram on the EM-15. Thick crema, sweet finish.', photo: 'https://loremflickr.com/600/600/espresso,cortado?lock=53', likes: 89, comments: 11 },
+    { id: 'w4', author: 'Priya S.', initials: 'PS', avatarBg: 'linear-gradient(135deg, #C5962B 0%, #806017 100%)', drink: 'Iced latte', timeAgo: '2h ago', caption: 'Brown sugar oat milk over Brazilian Santos. Saturday morning ritual.', photo: 'https://loremflickr.com/600/600/iced,coffee?lock=54', likes: 203, comments: 24 },
+    { id: 'w5', author: 'Alex T.', initials: 'AT', avatarBg: 'linear-gradient(135deg, #5476A6 0%, #2c4869 100%)', drink: 'Drip', timeAgo: '3h ago', caption: 'DCC-3200 doing its thing. 12 cup batch for the office.', photo: 'https://loremflickr.com/600/600/coffee,morning?lock=55', likes: 31, comments: 3 },
+    { id: 'w6', author: 'Naomi K.', initials: 'NK', avatarBg: 'linear-gradient(135deg, #1F1410 0%, #4A3A30 100%)', drink: 'Pour over', timeAgo: '4h ago', caption: 'Trade Light & Lively, V60. Tea-like and lemony. Light roast forever.', photo: 'https://loremflickr.com/600/600/coffee,light?lock=56', likes: 64, comments: 7 },
+    { id: 'w7', author: 'Marcus B.', initials: 'MB', avatarBg: 'linear-gradient(135deg, #2D4A3A 0%, #C5962B 100%)', drink: 'Espresso', timeAgo: '6h ago', caption: 'First espresso shot that actually tasted like coffee instead of bitter water. Week 2 of practice.', photo: 'https://loremflickr.com/600/600/espresso,shot?lock=57', likes: 156, comments: 22 },
+    { id: 'w8', author: 'Jordan W.', initials: 'JW', avatarBg: 'linear-gradient(135deg, #6B5D54 0%, #3D2418 100%)', drink: 'Cold brew', timeAgo: '8h ago', caption: 'Started this batch yesterday morning. 1:8 concentrate. 20 hour steep.', photo: 'https://loremflickr.com/600/600/coldbrew,coffee?lock=58', likes: 78, comments: 9 },
+    { id: 'w9', author: 'Rafael H.', initials: 'RH', avatarBg: 'linear-gradient(135deg, #C5962B 0%, #806017 100%)', drink: 'French press', timeAgo: '12h ago', caption: 'French press with Brazilian Santos. Heavy body, low acid. Sunday morning sorted.', photo: 'https://loremflickr.com/600/600/frenchpress,coffee?lock=59', likes: 42, comments: 4 },
+    { id: 'w10', author: 'Sam K.', initials: 'SK', avatarBg: 'linear-gradient(135deg, #4A3A30 0%, #2A1A14 100%)', drink: 'Cappuccino', timeAgo: '1d ago', caption: 'Cinnamon dusted cappuccino. Whole milk. The classic.', photo: 'https://loremflickr.com/600/600/cappuccino,coffee?lock=60', likes: 91, comments: 12 }
+  ],
+
   /* ---------------- Latte Art submissions (leaderboard) ---------------- */
   latteArt: [
     { id: 'la1', member: 'Maya R.', initials: 'MR', pattern: 'Rosetta', machine: 'Espresso machine', votes: 412, daysAgo: 1, gradient: 'linear-gradient(135deg, #C8A982 0%, #6B4A2E 100%)', accent: '🌿', notes: 'Eight-leaf rosetta. Took me 200 attempts.' },

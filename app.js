@@ -254,7 +254,12 @@ function topRecipe() {
 }
 
 /* ---------------- Auth ---------------- */
-function signOut() {
+async function signOut() {
+  try {
+    await DB.signOut();
+  } catch (e) {
+    console.warn('Sign out error', e);
+  }
   state.user = null;
   state.profile = null;
   state.journal = [];
@@ -262,6 +267,9 @@ function signOut() {
   state.favorites = [];
   state.points = 0;
   state.joinedChallenges = [];
+  state.following = [];
+  state.completedClasses = [];
+  state.ownedProducts = [];
   localStorage.removeItem(STORE_KEY);
   window.location.href = 'index.html';
 }
@@ -291,6 +299,7 @@ const ROUTES = {
   'classes': renderClasses,
   'class': renderClassDetail,
   'latte-art': renderLatteArt,
+  'wall': renderWall,
   'sommelier': renderSommelier,
   'passport': renderPassport,
   'profile': renderYou,
@@ -563,17 +572,53 @@ function renderDashboard(main) {
     el('button', { class: 'btn btn-accent', onclick: () => navigate('recipe/' + top.id) }, 'Brew it →')
   ));
 
+  // Two-column: Coffee Wall + Latte Art Leaderboard CTAs
+  const ctaPair = el('div', { class: 'split', style: 'margin-bottom:32px' });
+
+  ctaPair.appendChild(el('div', {
+    class: 'card', style: 'padding:0;overflow:hidden;cursor:pointer',
+    onclick: () => navigate('wall')
+  },
+    el('div', { style: 'aspect-ratio:5/2;background:linear-gradient(135deg, var(--caramel) 0%, var(--caramel-deep) 100%);display:flex;align-items:center;justify-content:center;color:white' },
+      el('div', { style: 'text-align:center' },
+        el('div', { style: 'font-size:2.4rem' }, '☕'),
+        el('div', { style: 'font-family:var(--font-display);font-size:1.3rem;font-weight:500;margin-top:6px' }, 'Coffee Wall')
+      )
+    ),
+    el('div', { style: 'padding:18px 20px' },
+      el('div', { style: 'font-size:0.92rem;color:var(--ink-soft);margin-bottom:12px' }, 'Photos of brews from the community. Post yours.'),
+      el('button', { class: 'btn btn-secondary btn-sm' }, 'Open the wall →')
+    )
+  ));
+
+  ctaPair.appendChild(el('div', {
+    class: 'card', style: 'padding:0;overflow:hidden;cursor:pointer',
+    onclick: () => navigate('latte-art')
+  },
+    el('div', { style: 'aspect-ratio:5/2;background:linear-gradient(135deg, var(--espresso) 0%, #3D2418 100%);display:flex;align-items:center;justify-content:center;color:white' },
+      el('div', { style: 'text-align:center' },
+        el('div', { style: 'font-size:2.4rem' }, '🎨'),
+        el('div', { style: 'font-family:var(--font-display);font-size:1.3rem;font-weight:500;margin-top:6px' }, 'Latte Art Leaderboard')
+      )
+    ),
+    el('div', { style: 'padding:18px 20px' },
+      el('div', { style: 'font-size:0.92rem;color:var(--ink-soft);margin-bottom:12px' }, "This week's best member pours. Vote and submit yours."),
+      el('button', { class: 'btn btn-secondary btn-sm' }, 'Open leaderboard →')
+    )
+  ));
+  c.appendChild(ctaPair);
+
   // Recent community activity (social proof / FOMO)
   c.appendChild(el('div', { class: 'card' },
     el('div', { class: 'section-title' },
       el('h3', { class: 'h3' }, 'Just happened'),
-      el('a', { href: '#/discover' }, 'See more →')
+      el('a', { href: '#/wall' }, 'See more →')
     ),
     el('div', { class: 'list' },
       activityRow('🎨', 'Tessa L.', 'submitted a 12-leaf rosetta to the leaderboard', '4m ago'),
-      activityRow('🌍', 'Diego P.', 'collected the Yemen passport stamp', '12m ago'),
+      activityRow('☕', 'Diego P.', 'posted a tulip to the Coffee Wall', '12m ago'),
+      activityRow('🌍', 'Priya S.', 'collected the Yemen passport stamp', '36m ago'),
       activityRow('🏆', 'Maya R.', 'reached Specialty Brewer', '1h ago'),
-      activityRow('☕', 'Brew Lab Team', 'added a new origin: Vietnam', '2h ago'),
       activityRow('🎬', 'James H.', 'posted a new video on espresso channeling', '3h ago')
     )
   ));
@@ -1630,6 +1675,13 @@ function renderJournal(main) {
         if (state.journal.length >= 25 && !state.badges.includes('critic')) state.badges.push('critic');
         state.points += 10;
         save();
+        // Sync to Supabase if signed in
+        if (state.user && !state.user.isGuest) {
+          DB.addBrew(state.user.id, entry).then(saved => {
+            if (saved) entry.id = saved.id;
+          }).catch(e => console.warn('Sync brew failed', e));
+          syncProfile();
+        }
         toast('Brew logged. +10 pts');
         render();
       }
@@ -2230,6 +2282,171 @@ function maintenanceRow(icon, title, freq, due, status) {
   );
 }
 
+/* ----- Coffee Wall (community photo feed) ----- */
+function renderWall(main) {
+  main.innerHTML = '';
+  const c = el('div', { class: 'container' });
+  main.appendChild(c);
+
+  c.appendChild(el('div', { class: 'page-head' },
+    el('div', { class: 'eyebrow' }, '☕ Coffee Wall'),
+    el('h1', { class: 'h1' }, 'Show us your cup.'),
+    el('p', { style: 'max-width:580px' }, 'Photos of brews, gear, drinks, anything coffee. Like and comment. Share what you made today.')
+  ));
+
+  // Post your own CTA
+  c.appendChild(el('div', {
+    class: 'card', style: 'margin-bottom:32px;padding:20px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;background:var(--caramel-soft);border-color:rgba(216,90,42,0.25);cursor:pointer',
+    onclick: () => openWallPostModal()
+  },
+    el('div', { style: 'width:48px;height:48px;border-radius:50%;background:var(--caramel);color:white;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0' }, '+'),
+    el('div', { style: 'flex:1;min-width:200px' },
+      el('div', { style: 'font-weight:600;font-size:1.05rem;margin-bottom:2px' }, 'Post a coffee photo'),
+      el('div', { style: 'font-size:0.9rem;color:var(--ink-soft)' }, 'Drag in an image or pick from your library. Add a caption.')
+    ),
+    el('button', { class: 'btn btn-accent btn-sm', onclick: (e) => { e.stopPropagation(); openWallPostModal(); } }, 'Share →')
+  ));
+
+  // Posts grid (Pinterest-style 3-col)
+  c.appendChild(el('h3', { class: 'h3 mb' }, 'Latest posts'));
+  c.appendChild(el('div', { style: 'height:8px' }));
+
+  const userPosts = state.wallPosts || [];
+  const allPosts = [...userPosts, ...DATA.wallPosts];
+
+  const grid = el('div', { class: 'grid grid-3' });
+  allPosts.forEach(p => grid.appendChild(wallCard(p)));
+  c.appendChild(grid);
+}
+
+function wallCard(p) {
+  const liked = (state.wallLikes || []).includes(p.id);
+  const likes = p.likes + (liked ? 1 : 0);
+  return el('div', { class: 'card', style: 'padding:0;overflow:hidden;cursor:pointer' },
+    // Photo
+    el('div', { style: 'aspect-ratio:1;background:linear-gradient(135deg, var(--caramel) 0%, var(--caramel-deep) 100%);overflow:hidden;position:relative', onclick: () => toast('Opening full photo (demo)') },
+      p.photo ? el('img', { src: p.photo, alt: p.caption || '', style: 'width:100%;height:100%;object-fit:cover;display:block' }) : el('div', { style: 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:4rem;color:white' }, '☕'),
+      el('span', { style: 'position:absolute;top:12px;left:12px;background:rgba(255,255,255,0.95);color:var(--ink);padding:4px 10px;border-radius:999px;font-size:0.72rem;font-weight:600' }, p.drink)
+    ),
+    // Body
+    el('div', { style: 'padding:14px 16px' },
+      el('div', { style: 'display:flex;align-items:center;gap:10px;margin-bottom:10px' },
+        el('div', { style: 'width:32px;height:32px;border-radius:50%;background:' + p.avatarBg + ';color:white;font-size:0.78rem;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0' }, p.initials),
+        el('div', { style: 'flex:1;min-width:0' },
+          el('div', { style: 'font-weight:600;font-size:0.9rem' }, p.author),
+          el('div', { style: 'font-size:0.75rem;color:var(--ink-muted)' }, p.timeAgo)
+        )
+      ),
+      p.caption ? el('p', { style: 'font-size:0.88rem;color:var(--ink-soft);line-height:1.5;margin-bottom:12px' }, p.caption) : null,
+      el('div', { style: 'display:flex;gap:14px;align-items:center;font-size:0.82rem;color:var(--ink-muted)' },
+        el('button', {
+          class: 'btn btn-ghost btn-sm',
+          style: 'padding:4px 8px;font-size:0.82rem;color:' + (liked ? 'var(--caramel-deep)' : 'var(--ink-muted)') + ';font-weight:' + (liked ? '600' : '400'),
+          onclick: (e) => {
+            e.stopPropagation();
+            state.wallLikes = state.wallLikes || [];
+            if (liked) {
+              state.wallLikes = state.wallLikes.filter(x => x !== p.id);
+              toast('Unliked');
+            } else {
+              state.wallLikes.push(p.id);
+              state.points += 2;
+              toast('Liked. +2 pts');
+            }
+            save();
+            render();
+          }
+        }, (liked ? '♥' : '♡') + ' ' + likes),
+        el('span', {}, '💬 ' + p.comments),
+        el('span', { style: 'margin-left:auto;font-size:0.75rem' }, '↗ Share')
+      )
+    )
+  );
+}
+
+function openWallPostModal() {
+  const existing = document.getElementById('wallModal');
+  if (existing) existing.remove();
+
+  const backdrop = el('div', { class: 'modal-backdrop show', id: 'wallModal' });
+  const modal = el('div', { class: 'modal' },
+    el('div', { style: 'display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px' },
+      el('h3', { class: 'h3' }, 'Post a coffee photo'),
+      el('button', { class: 'btn btn-ghost btn-sm', onclick: () => backdrop.remove() }, '✕')
+    ),
+    el('p', { class: 'muted mt-sm', style: 'margin-bottom:24px' }, 'Show the community what you brewed.'),
+    // Photo upload area
+    el('div', { id: 'wallDrop', style: 'aspect-ratio:5/3;background:var(--bg-subtle);border:2px dashed var(--line);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:16px;cursor:pointer;color:var(--ink-muted)', onclick: () => document.getElementById('wallFile').click() },
+      el('div', { style: 'font-size:2.5rem;margin-bottom:8px' }, '📸'),
+      el('div', { style: 'font-size:0.92rem;font-weight:500' }, 'Drop a photo or click to upload'),
+      el('div', { style: 'font-size:0.78rem;margin-top:4px' }, 'JPG or PNG, ideally square')
+    ),
+    el('input', { id: 'wallFile', type: 'file', accept: 'image/*', style: 'display:none', onchange: (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const drop = document.getElementById('wallDrop');
+          drop.innerHTML = '';
+          drop.style.background = '#000';
+          drop.style.border = 'none';
+          drop.style.padding = '0';
+          drop.appendChild(el('img', { src: ev.target.result, style: 'width:100%;height:100%;object-fit:cover;display:block;border-radius:12px' }));
+          drop.dataset.image = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }}),
+    el('div', { class: 'field' },
+      el('label', { class: 'label' }, 'What are you drinking?'),
+      (() => {
+        const sel = el('select', { class: 'select', id: 'wallDrink' });
+        ['Drip', 'Espresso', 'Latte', 'Cappuccino', 'Cortado', 'Pour over', 'Cold brew', 'French press', 'AeroPress', 'Iced latte', 'Other'].forEach(d => sel.appendChild(el('option', { value: d }, d)));
+        return sel;
+      })()
+    ),
+    el('div', { class: 'field', style: 'margin-top:14px' },
+      el('label', { class: 'label' }, 'Caption (optional)'),
+      el('textarea', { class: 'textarea', id: 'wallCaption', placeholder: 'Tell us about it...' })
+    ),
+    el('div', { style: 'display:flex;gap:8px;margin-top:24px;justify-content:flex-end' },
+      el('button', { class: 'btn btn-ghost', onclick: () => backdrop.remove() }, 'Cancel'),
+      el('button', {
+        class: 'btn btn-accent',
+        onclick: () => {
+          const drink = document.getElementById('wallDrink').value;
+          const caption = document.getElementById('wallCaption').value.trim();
+          const drop = document.getElementById('wallDrop');
+          const photo = drop.dataset.image || ('https://loremflickr.com/600/600/coffee?lock=' + Date.now());
+          const post = {
+            id: 'w-' + Date.now(),
+            author: state.user?.name || 'You',
+            initials: initials(state.user?.name),
+            avatarBg: 'linear-gradient(135deg, var(--caramel) 0%, var(--caramel-deep) 100%)',
+            drink: drink,
+            timeAgo: 'just now',
+            caption: caption,
+            photo: photo,
+            likes: 0,
+            comments: 0,
+            isMine: true
+          };
+          state.wallPosts = state.wallPosts || [];
+          state.wallPosts.unshift(post);
+          state.points += 25;
+          save();
+          backdrop.remove();
+          toast('Posted to the wall. +25 pts');
+          render();
+        }
+      }, 'Post')
+    )
+  );
+  backdrop.appendChild(modal);
+  backdrop.addEventListener('click', (e) => { if (e.target === backdrop) backdrop.remove(); });
+  document.body.appendChild(backdrop);
+}
+
 /* ----- Sommelier Track ----- */
 function renderSommelier(main) {
   main.innerHTML = '';
@@ -2520,38 +2737,53 @@ function openSignupModal() {
   const backdrop = el('div', { class: 'modal-backdrop show', id: 'signupModal' });
   const modal = el('div', { class: 'modal' },
     el('div', { style: 'display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px' },
-      el('h3', { class: 'h3' }, 'Sign up free'),
+      el('h3', { class: 'h3' }, 'Sign in to Brew Lab'),
       el('button', { class: 'btn btn-ghost btn-sm', onclick: () => backdrop.remove() }, '✕')
     ),
-    el('p', { class: 'muted mt-sm', style: 'margin-bottom:24px' }, 'Save your brews, badges, and points across devices. No credit card. No spam.'),
+    el('p', { class: 'muted mt-sm', style: 'margin-bottom:24px' }, 'No password needed. We email you a one-click sign-in link. Your brews, badges, and friends sync across devices.'),
     el('div', { class: 'field' },
       el('label', { class: 'label' }, 'Your name'),
-      el('input', { class: 'input', id: 'suName', placeholder: 'Alex Brewer' })
+      el('input', { class: 'input', id: 'suName', placeholder: 'Alex Brewer', value: state.user?.isGuest ? '' : (state.user?.name || '') })
     ),
     el('div', { class: 'field', style: 'margin-top:14px' },
       el('label', { class: 'label' }, 'Email'),
       el('input', { class: 'input', id: 'suEmail', type: 'email', placeholder: 'alex@example.com' })
     ),
-    el('div', { style: 'display:flex;gap:8px;margin-top:24px;justify-content:flex-end' },
+    el('div', { id: 'suStatus', style: 'margin-top:14px;font-size:0.88rem;color:var(--ink-muted)' }),
+    el('div', { style: 'display:flex;gap:8px;margin-top:20px;justify-content:flex-end' },
       el('button', { class: 'btn btn-ghost', onclick: () => backdrop.remove() }, 'Cancel'),
       el('button', {
         class: 'btn btn-accent',
-        onclick: () => {
+        id: 'suSubmit',
+        onclick: async () => {
           const name = document.getElementById('suName').value.trim();
           const email = document.getElementById('suEmail').value.trim();
+          const status = document.getElementById('suStatus');
+          const btn = document.getElementById('suSubmit');
           if (!name || !email) {
-            toast('Please add your name and email');
+            status.textContent = 'Please add your name and email.';
+            status.style.color = 'var(--danger)';
             return;
           }
-          state.user = { name, email, joined: new Date().toISOString(), isGuest: false };
-          save();
-          backdrop.remove();
-          toast('Welcome to Brew Lab, ' + name.split(' ')[0]);
-          render();
+          btn.disabled = true;
+          btn.textContent = 'Sending...';
+          status.style.color = 'var(--ink-muted)';
+          status.textContent = '';
+          try {
+            await DB.signInWithEmail(email, name);
+            status.style.color = 'var(--success)';
+            status.textContent = '✓ Check your email. Click the link to sign in.';
+            btn.textContent = 'Sent';
+          } catch (e) {
+            status.style.color = 'var(--danger)';
+            status.textContent = e.message || 'Could not send link. Try again.';
+            btn.disabled = false;
+            btn.textContent = 'Send link';
+          }
         }
-      }, 'Create account')
+      }, 'Send link')
     ),
-    el('p', { style: 'margin-top:16px;text-align:center;font-size:0.78rem;color:var(--ink-muted)' }, 'Demo only. Your data stays in this browser.')
+    el('p', { style: 'margin-top:16px;text-align:center;font-size:0.78rem;color:var(--ink-muted)' }, 'No spam. Just the magic-link email.')
   );
   backdrop.appendChild(modal);
   backdrop.addEventListener('click', (e) => { if (e.target === backdrop) backdrop.remove(); });
@@ -3038,12 +3270,88 @@ function ensureGuest() {
   save();
 }
 
-function boot() {
+async function boot() {
   load();
-  ensureGuest();
+
+  // Try to load existing Supabase session before falling back to guest
+  try {
+    const session = await DB.getSession();
+    if (session?.user) {
+      await hydrateFromSupabase(session.user);
+    } else {
+      ensureGuest();
+    }
+  } catch (e) {
+    console.warn('Supabase session check failed, falling back to guest', e);
+    ensureGuest();
+  }
+
+  // Listen for sign-in / sign-out events (e.g. user clicks magic link)
+  DB.onAuthChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session?.user) {
+      await hydrateFromSupabase(session.user);
+      render();
+      toast('Signed in. Welcome.');
+    } else if (event === 'SIGNED_OUT') {
+      // Clear local state and go back to guest
+      Object.assign(state, { user: null, profile: null, journal: [], badges: [], following: [], points: 0, streak: 0, completedClasses: [], ownedProducts: [] });
+      ensureGuest();
+      render();
+    }
+  });
+
   ensureDailyState();
   mountAppShell();
   render();
+}
+
+// Pull profile + brews + follows for a signed-in user from Supabase into state
+async function hydrateFromSupabase(authUser) {
+  state.user = {
+    id: authUser.id,
+    name: authUser.user_metadata?.name || authUser.email.split('@')[0],
+    email: authUser.email,
+    joined: authUser.created_at,
+    isGuest: false
+  };
+  try {
+    const profile = await DB.getProfile(authUser.id);
+    if (profile) {
+      state.points = profile.points || 0;
+      state.streak = profile.streak || 0;
+      state.lastCheckIn = profile.last_check_in || null;
+      state.badges = profile.badges || [];
+      state.completedClasses = profile.completed_classes || [];
+      state.ownedProducts = profile.owned_products || [];
+      state.profile = profile.profile_data || state.profile || {
+        machine: 'espresso-machine', experience: 'curious', roast: 'medium',
+        flavors: ['chocolate', 'sweet'], milk: 'latte', goals: ['better']
+      };
+      if (profile.name && !state.user.name) state.user.name = profile.name;
+    }
+    state.journal = (await DB.listBrews(authUser.id)).map(b => ({
+      id: b.id, date: b.date, time: b.time, recipe: b.recipe_id, bean: b.bean_id,
+      method: b.method, rating: b.rating, notes: b.notes, flavors: b.flavors || []
+    }));
+    state.following = await DB.listFollowing(authUser.id);
+  } catch (e) {
+    console.warn('Hydrate from Supabase failed', e);
+  }
+  save();
+}
+
+// Sync key state changes to Supabase (best-effort, non-blocking)
+function syncProfile() {
+  if (!state.user || state.user.isGuest) return;
+  DB.updateProfile(state.user.id, {
+    points: state.points,
+    streak: state.streak,
+    last_check_in: state.lastCheckIn || null,
+    badges: state.badges,
+    completed_classes: state.completedClasses,
+    owned_products: state.ownedProducts,
+    profile_data: state.profile
+  }).catch(e => console.warn('syncProfile failed', e));
 }
 
 document.addEventListener('DOMContentLoaded', boot);
