@@ -3307,36 +3307,52 @@ function ensureGuest() {
 async function boot() {
   load();
 
-  // Try to load existing Supabase session before falling back to guest
-  try {
-    const session = await DB.getSession();
-    if (session?.user) {
-      await hydrateFromSupabase(session.user);
-    } else {
+  // Try to load existing Supabase session before falling back to guest.
+  // If Supabase is unavailable (CDN blocked, offline, etc.) we fall back to guest mode.
+  const dbReady = typeof DB !== 'undefined' && DB && typeof DB.getSession === 'function';
+  if (dbReady) {
+    try {
+      const session = await DB.getSession();
+      if (session?.user) {
+        await hydrateFromSupabase(session.user);
+      } else {
+        ensureGuest();
+      }
+    } catch (e) {
+      console.warn('Supabase session check failed, falling back to guest', e);
       ensureGuest();
     }
-  } catch (e) {
-    console.warn('Supabase session check failed, falling back to guest', e);
+
+    // Listen for sign-in / sign-out events
+    try {
+      DB.onAuthChange(async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          await hydrateFromSupabase(session.user);
+          render();
+          toast('Signed in. Welcome.');
+        } else if (event === 'SIGNED_OUT') {
+          Object.assign(state, { user: null, profile: null, journal: [], badges: [], following: [], points: 0, streak: 0, completedClasses: [], ownedProducts: [] });
+          ensureGuest();
+          render();
+        }
+      });
+    } catch (e) {
+      console.warn('Auth listener failed', e);
+    }
+  } else {
+    console.warn('Supabase SDK or db.js not loaded; running in local-only mode');
     ensureGuest();
   }
 
-  // Listen for sign-in / sign-out events (e.g. user clicks magic link)
-  DB.onAuthChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session?.user) {
-      await hydrateFromSupabase(session.user);
-      render();
-      toast('Signed in. Welcome.');
-    } else if (event === 'SIGNED_OUT') {
-      // Clear local state and go back to guest
-      Object.assign(state, { user: null, profile: null, journal: [], badges: [], following: [], points: 0, streak: 0, completedClasses: [], ownedProducts: [] });
-      ensureGuest();
-      render();
-    }
-  });
-
-  ensureDailyState();
-  mountAppShell();
-  render();
+  // App shell + first render — these MUST run even if Supabase failed
+  try {
+    ensureDailyState();
+    mountAppShell();
+    render();
+  } catch (e) {
+    console.error('Boot render failed', e);
+    document.body.innerHTML = '<div style="padding:48px;text-align:center;font-family:Inter,sans-serif"><h1>Something went wrong loading Brew Lab.</h1><p style="color:#666">Open the developer console for details. Reload to try again.</p><pre style="text-align:left;max-width:600px;margin:24px auto;padding:16px;background:#f5f5f5;border-radius:8px;font-size:12px;overflow:auto">' + (e?.stack || e?.message || String(e)) + '</pre></div>';
+  }
 }
 
 // Pull profile + brews + follows for a signed-in user from Supabase into state
