@@ -8,13 +8,15 @@
 const STORE_KEY = 'brewlab.v1';
 
 const state = {
-  user: null,         // { name, email, joined }
+  user: null,         // { name, email, joined, isGuest }
   profile: null,      // { machine, experience, roast, flavors[], milk, goals[] }
   journal: [],        // [{ date, time, recipe, bean, method, rating, notes, flavors[] }]
   badges: [],         // [badgeId]
   favorites: [],      // [recipeId]
   points: 0,
   joinedChallenges: [],
+  completedClasses: [], // [classId]
+  lattVotes: {},      // { pourId: true }
   isMember: true,     // demo: every signed-in user is a member
 };
 
@@ -76,6 +78,53 @@ function getMachine() {
 function getRecipe(id) { return DATA.recipes.find(r => r.id === id); }
 function getBean(id) { return DATA.beans.find(b => b.id === id); }
 function getOrigin(id) { return DATA.origins.find(o => o.id === id); }
+
+/* ---------------- Sommelier Tier helpers ---------------- */
+function uniqueOriginsTried() {
+  const set = new Set();
+  state.journal.forEach(e => {
+    const bean = getBean(e.bean);
+    if (bean && bean.originRef) set.add(bean.originRef);
+  });
+  return set.size;
+}
+
+function checkRequirement(req) {
+  const completed = state.completedClasses || [];
+  switch (req.type) {
+    case 'profile': return !!state.profile;
+    case 'class': return completed.includes(req.value);
+    case 'journal': return state.journal.length >= req.value;
+    case 'streak': return computeStreak(state.journal) >= req.value;
+    case 'origins': return uniqueOriginsTried() >= req.value;
+    case 'allClasses': return DATA.classes.every(c => completed.includes(c.id));
+    default: return false;
+  }
+}
+
+function tierComplete(tier) {
+  return tier.requirements.every(checkRequirement);
+}
+
+function computeTier() {
+  // Walk down from highest tier; first one whose requirements are all met is the user's current tier
+  for (let i = DATA.sommelierTiers.length - 1; i >= 0; i--) {
+    if (tierComplete(DATA.sommelierTiers[i])) return DATA.sommelierTiers[i];
+  }
+  return DATA.sommelierTiers[0];
+}
+
+function nextTier() {
+  const current = computeTier();
+  const idx = DATA.sommelierTiers.findIndex(t => t.id === current.id);
+  return DATA.sommelierTiers[idx + 1] || null;
+}
+
+function tierProgress(tier) {
+  const total = tier.requirements.length;
+  const met = tier.requirements.filter(checkRequirement).length;
+  return { met, total, pct: total ? Math.round((met / total) * 100) : 0 };
+}
 
 /* ---------------- Recommendation engine ---------------- */
 function recommendRecipes(limit = 4) {
@@ -154,6 +203,7 @@ const ROUTES = {
   'classes': renderClasses,
   'class': renderClassDetail,
   'latte-art': renderLatteArt,
+  'sommelier': renderSommelier,
   'profile': renderProfile,
   'onboard': renderOnboarding
 };
@@ -171,12 +221,6 @@ function navigate(path) {
 function render() {
   const { route, param } = parseRoute();
   const fn = ROUTES[route] || renderDashboard;
-
-  // Onboarding gate: if no profile and not on onboard route, push them there.
-  if (!state.profile && route !== 'onboard' && route !== 'profile') {
-    window.location.hash = '#/onboard';
-    return;
-  }
 
   const main = document.getElementById('main');
   if (!main) return;
@@ -239,8 +283,13 @@ function mountAppShell() {
           onclick: () => navigate('barista')
         }, '💬 Ask Barista'),
         (() => {
-          const a = el('a', { href: '#/profile', class: 'avatar', title: state.user?.name || 'You' }, initials(state.user?.name));
-          return a;
+          const tier = computeTier();
+          const wrap = el('a', { href: '#/profile', style: 'position:relative;display:inline-block', title: (state.user?.name || 'You') + ' · ' + tier.name });
+          wrap.appendChild(el('span', { class: 'avatar' }, initials(state.user?.name)));
+          wrap.appendChild(el('span', {
+            style: 'position:absolute;bottom:-4px;right:-4px;width:22px;height:22px;border-radius:50%;background:' + (tier.color === 'gold' ? 'linear-gradient(135deg, var(--gold) 0%, #806017 100%)' : tier.color === 'green' ? 'linear-gradient(135deg, var(--green) 0%, #1d3327 100%)' : 'linear-gradient(135deg, var(--caramel) 0%, var(--caramel-deep) 100%)') + ';display:flex;align-items:center;justify-content:center;font-size:0.78rem;border:2px solid var(--bg)'
+          }, tier.icon));
+          return wrap;
         })()
       )
     )
@@ -387,11 +436,30 @@ function renderDashboard(main) {
   const recentEntries = state.journal.slice(0, 3);
   const memberSince = state.user?.joined ? fmtDate(state.user.joined) : 'today';
 
+  // Guest banner
+  if (state.user?.isGuest) {
+    c.appendChild(el('div', { style: 'display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--caramel-soft);border:1px solid rgba(200,118,45,0.25);border-radius:12px;margin-bottom:24px;flex-wrap:wrap' },
+      el('span', { style: 'font-size:1.4rem' }, '👋'),
+      el('div', { style: 'flex:1;min-width:200px;font-size:0.92rem' },
+        el('strong', {}, "You're browsing as a guest. "),
+        el('span', { style: 'color:var(--ink-soft)' }, 'Sign up free to save your brews, badges, and points across devices.')
+      ),
+      el('button', {
+        class: 'btn btn-accent btn-sm',
+        onclick: () => openSignupModal()
+      }, 'Sign up free'),
+      el('button', {
+        class: 'btn btn-ghost btn-sm',
+        onclick: () => navigate('onboard')
+      }, 'Take taste quiz')
+    ));
+  }
+
   // Greeting
   c.appendChild(el('div', { class: 'page-head' },
-    el('div', { class: 'eyebrow' }, `Welcome back${state.user ? ', ' + state.user.name.split(' ')[0] : ''}`),
+    el('div', { class: 'eyebrow' }, `Welcome${state.user?.isGuest ? '' : ' back'}${state.user && !state.user.isGuest ? ', ' + state.user.name.split(' ')[0] : ''}`),
     el('h1', { class: 'h1' }, "Today's brew"),
-    el('p', {}, `Member since ${memberSince}. ${state.points.toLocaleString()} brew points.`)
+    el('p', {}, state.user?.isGuest ? 'Try the demo. Take the taste quiz any time to personalize.' : `Member since ${memberSince}. ${state.points.toLocaleString()} brew points.`)
   ));
 
   // Spotlight
@@ -409,6 +477,29 @@ function renderDashboard(main) {
   );
   c.appendChild(spotlight);
   c.appendChild(el('div', { style: 'height: 32px' }));
+
+  // Sommelier rank card
+  const tier = computeTier();
+  const next = nextTier();
+  const tProgress = next ? tierProgress(next) : null;
+  const rankCard = el('div', { class: 'card', style: 'margin-bottom:32px;padding:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;cursor:pointer', onclick: () => navigate('sommelier') },
+    el('div', { style: 'width:72px;height:72px;border-radius:50%;background:' + (tier.color === 'gold' ? 'linear-gradient(135deg, var(--gold) 0%, #806017 100%)' : tier.color === 'green' ? 'linear-gradient(135deg, var(--green) 0%, #1d3327 100%)' : 'linear-gradient(135deg, var(--caramel) 0%, var(--caramel-deep) 100%)') + ';display:flex;align-items:center;justify-content:center;font-size:2.2rem;color:white;flex-shrink:0;box-shadow:var(--shadow-sm)' }, tier.icon),
+    el('div', { style: 'flex:1;min-width:200px' },
+      el('div', { class: 'eyebrow', style: 'margin-bottom:4px' }, 'Your rank'),
+      el('div', { style: 'font-family:var(--font-display);font-size:1.4rem;font-weight:500;letter-spacing:-0.01em;margin-bottom:8px' }, tier.name),
+      next ? el('div', {},
+        el('div', { style: 'display:flex;justify-content:space-between;font-size:0.8rem;color:var(--ink-muted);margin-bottom:6px' },
+          el('span', {}, 'Next: ' + next.name),
+          el('span', { class: 'mono' }, tProgress.met + '/' + tProgress.total)
+        ),
+        el('div', { class: 'progress' },
+          el('div', { class: 'progress-bar', style: 'width:' + tProgress.pct + '%' })
+        )
+      ) : el('span', { class: 'pill pill-gold' }, '🏆 Top tier reached')
+    ),
+    el('button', { class: 'btn btn-secondary', onclick: (e) => { e.stopPropagation(); navigate('sommelier'); } }, 'See path →')
+  );
+  c.appendChild(rankCard);
 
   // Three column row: Featured challenge | Machine | Member perks
   const row = el('div', { class: 'grid grid-3' });
@@ -1571,6 +1662,123 @@ function partRow(icon, name, price, recommended) {
   );
 }
 
+/* ----- Sommelier Track ----- */
+function renderSommelier(main) {
+  main.innerHTML = '';
+  const c = el('div', { class: 'container' });
+  main.appendChild(c);
+
+  const current = computeTier();
+  const next = nextTier();
+
+  c.appendChild(el('div', { class: 'page-head' },
+    el('div', { class: 'eyebrow' }, '🏆 Sommelier Track'),
+    el('h1', { class: 'h1' }, 'From Apprentice to Sommelier.'),
+    el('p', {}, 'A real certification path. Five tiers. Each unlocked by completing classes, logging brews, and exploring origins. Climb the path. Become the coffee expert in your friend group.')
+  ));
+
+  // Current rank spotlight
+  c.appendChild(tierSpotlight(current, next));
+  c.appendChild(el('div', { style: 'height:48px' }));
+
+  // Track visual
+  c.appendChild(el('h3', { class: 'h3 mb' }, 'The full path'));
+  c.appendChild(el('div', { style: 'height:8px' }));
+
+  DATA.sommelierTiers.forEach((tier, idx) => {
+    const isCurrent = tier.id === current.id;
+    const isComplete = tierComplete(tier);
+    const isLocked = idx > 0 && !tierComplete(DATA.sommelierTiers[idx - 1]);
+
+    c.appendChild(tierCard(tier, idx + 1, isCurrent, isComplete, isLocked));
+  });
+}
+
+function tierSpotlight(current, next) {
+  const progress = next ? tierProgress(next) : { met: current.requirements.length, total: current.requirements.length, pct: 100 };
+  const sp = el('div', { class: 'spotlight' },
+    el('div', { class: 'spotlight-eyebrow' }, '★ Your current rank'),
+    el('div', { style: 'display:flex;align-items:center;gap:24px;margin-bottom:20px;flex-wrap:wrap' },
+      el('div', { style: 'width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg, var(--caramel) 0%, var(--caramel-deep) 100%);display:flex;align-items:center;justify-content:center;font-size:3.5rem;box-shadow:0 8px 24px rgba(200,118,45,0.4)' }, current.icon),
+      el('div', { style: 'flex:1;min-width:200px' },
+        el('h2', { class: 'h2' }, current.name),
+        el('p', { style: 'margin-top:6px;color:rgba(250,246,241,0.8)' }, current.desc)
+      )
+    ),
+    next ? el('div', {},
+      el('div', { style: 'display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px' },
+        el('div', { style: 'font-size:0.85rem;color:rgba(250,246,241,0.7);font-weight:500' }, 'Progress to ' + next.name),
+        el('div', { style: 'font-family:var(--font-mono);font-size:0.85rem;color:var(--crema)' }, progress.met + ' / ' + progress.total)
+      ),
+      el('div', { class: 'progress', style: 'background:rgba(255,255,255,0.15);margin-bottom:16px' },
+        el('div', { class: 'progress-bar', style: 'background:var(--crema);width:' + progress.pct + '%' })
+      ),
+      el('button', { class: 'btn btn-accent', onclick: () => { document.querySelectorAll('.tier-' + next.id)[0]?.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }, 'Show what I need →')
+    ) : el('div', { class: 'pill pill-gold', style: 'font-size:0.95rem;padding:8px 16px' }, '🏆 Top tier reached. You are a Sommelier.')
+  );
+  return sp;
+}
+
+function tierCard(tier, num, isCurrent, isComplete, isLocked) {
+  const progress = tierProgress(tier);
+  const card = el('div', {
+    class: 'card tier-' + tier.id,
+    style: 'margin-bottom:16px;padding:24px;' +
+      (isCurrent ? 'border-color:var(--caramel);border-width:2px;background:var(--caramel-soft);' :
+       isComplete ? 'border-color:var(--success);background:var(--green-soft);' :
+       isLocked ? 'opacity:0.55;' : '')
+  });
+
+  card.appendChild(el('div', { style: 'display:grid;grid-template-columns:80px 1fr auto;gap:20px;align-items:flex-start;flex-wrap:wrap' },
+    // Tier icon
+    el('div', { style: 'width:72px;height:72px;border-radius:50%;background:' + (tier.color === 'gold' ? 'linear-gradient(135deg, var(--gold) 0%, #806017 100%)' : tier.color === 'green' ? 'linear-gradient(135deg, var(--green) 0%, #1d3327 100%)' : 'linear-gradient(135deg, var(--caramel) 0%, var(--caramel-deep) 100%)') + ';display:flex;align-items:center;justify-content:center;font-size:2.4rem;color:white;box-shadow:var(--shadow-sm)' }, tier.icon),
+    // Title block
+    el('div', {},
+      el('div', { style: 'display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px' },
+        el('span', { class: 'eyebrow' }, 'Tier 0' + num),
+        isCurrent ? el('span', { class: 'pill pill-accent' }, '★ You are here') : null,
+        isComplete && !isCurrent ? el('span', { class: 'pill pill-green' }, '✓ Completed') : null,
+        isLocked ? el('span', { class: 'pill' }, '🔒 Locked') : null
+      ),
+      el('h3', { class: 'h3' }, tier.name),
+      el('p', { class: 'mt-sm muted', style: 'font-size:0.95rem' }, tier.desc),
+      el('div', { class: 'mt', style: 'font-size:0.8rem;color:var(--ink-muted)' }, tier.memberCount.toLocaleString() + ' members at this tier')
+    ),
+    // Progress
+    el('div', { style: 'text-align:right;min-width:120px' },
+      el('div', { class: 'stat-num', style: 'font-size:1.6rem' }, progress.met + '/' + progress.total),
+      el('div', { class: 'stat-label' }, 'requirements met')
+    )
+  ));
+
+  // Requirements + perks columns
+  card.appendChild(el('div', { class: 'split', style: 'margin-top:20px;border-top:1px solid var(--line-soft);padding-top:20px' },
+    el('div', {},
+      el('div', { class: 'eyebrow', style: 'margin-bottom:10px' }, 'Requirements'),
+      el('div', {},
+        tier.requirements.map(req => {
+          const met = checkRequirement(req);
+          return el('div', { style: 'display:flex;align-items:center;gap:10px;padding:6px 0;font-size:0.92rem' },
+            el('span', { style: 'font-size:1.1rem;color:' + (met ? 'var(--success)' : 'var(--ink-muted)') }, met ? '✓' : '○'),
+            el('span', { style: 'color:' + (met ? 'var(--ink)' : 'var(--ink-soft)') + ';' + (met ? 'text-decoration:line-through;text-decoration-color:var(--success)' : '') }, req.label)
+          );
+        })
+      )
+    ),
+    el('div', {},
+      el('div', { class: 'eyebrow', style: 'margin-bottom:10px' }, 'Perks unlocked'),
+      el('div', {},
+        tier.perks.map(perk => el('div', { style: 'display:flex;align-items:center;gap:10px;padding:6px 0;font-size:0.92rem;color:var(--ink-soft)' },
+          el('span', { style: 'color:var(--caramel-deep)' }, '★'),
+          el('span', {}, perk)
+        ))
+      )
+    )
+  ));
+
+  return card;
+}
+
 /* ----- Latte Art Leaderboard ----- */
 function renderLatteArt(main) {
   main.innerHTML = '';
@@ -1737,6 +1945,51 @@ function voteRow(p) {
   );
 }
 
+function openSignupModal() {
+  const existing = document.getElementById('signupModal');
+  if (existing) existing.remove();
+
+  const backdrop = el('div', { class: 'modal-backdrop show', id: 'signupModal' });
+  const modal = el('div', { class: 'modal' },
+    el('div', { style: 'display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px' },
+      el('h3', { class: 'h3' }, 'Sign up free'),
+      el('button', { class: 'btn btn-ghost btn-sm', onclick: () => backdrop.remove() }, '✕')
+    ),
+    el('p', { class: 'muted mt-sm', style: 'margin-bottom:24px' }, 'Save your brews, badges, and points across devices. No credit card. No spam.'),
+    el('div', { class: 'field' },
+      el('label', { class: 'label' }, 'Your name'),
+      el('input', { class: 'input', id: 'suName', placeholder: 'Alex Brewer' })
+    ),
+    el('div', { class: 'field', style: 'margin-top:14px' },
+      el('label', { class: 'label' }, 'Email'),
+      el('input', { class: 'input', id: 'suEmail', type: 'email', placeholder: 'alex@example.com' })
+    ),
+    el('div', { style: 'display:flex;gap:8px;margin-top:24px;justify-content:flex-end' },
+      el('button', { class: 'btn btn-ghost', onclick: () => backdrop.remove() }, 'Cancel'),
+      el('button', {
+        class: 'btn btn-accent',
+        onclick: () => {
+          const name = document.getElementById('suName').value.trim();
+          const email = document.getElementById('suEmail').value.trim();
+          if (!name || !email) {
+            toast('Please add your name and email');
+            return;
+          }
+          state.user = { name, email, joined: new Date().toISOString(), isGuest: false };
+          save();
+          backdrop.remove();
+          toast('Welcome to Brew Lab, ' + name.split(' ')[0]);
+          render();
+        }
+      }, 'Create account')
+    ),
+    el('p', { style: 'margin-top:16px;text-align:center;font-size:0.78rem;color:var(--ink-muted)' }, 'Demo only. Your data stays in this browser.')
+  );
+  backdrop.appendChild(modal);
+  backdrop.addEventListener('click', (e) => { if (e.target === backdrop) backdrop.remove(); });
+  document.body.appendChild(backdrop);
+}
+
 function openSubmitModal() {
   const existing = document.getElementById('submitModal');
   if (existing) existing.remove();
@@ -1810,7 +2063,19 @@ function renderClasses(main) {
   c.appendChild(el('div', { class: 'page-head' },
     el('div', { class: 'eyebrow' }, 'Brew School'),
     el('h1', { class: 'h1' }, 'Learn from people who actually know.'),
-    el('p', {}, 'Latte art, milk steaming, espresso fundamentals, cupping. Short lessons taught by working professionals. Free for Brew Lab members.')
+    el('p', {}, 'Each class counts toward the Sommelier Track. Complete the path and earn a real Coffee Sommelier certification.')
+  ));
+
+  // Sommelier Track shortcut
+  const tier = computeTier();
+  const next = nextTier();
+  c.appendChild(el('div', { class: 'card card-dark', style: 'margin-bottom:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:24px;cursor:pointer', onclick: () => navigate('sommelier') },
+    el('div', { style: 'font-size:2.4rem' }, tier.icon),
+    el('div', { style: 'flex:1;min-width:200px' },
+      el('div', { class: 'eyebrow', style: 'color:var(--crema);margin-bottom:4px' }, 'Your rank: ' + tier.name),
+      el('div', { style: 'font-size:0.95rem;color:rgba(250,246,241,0.8)' }, next ? 'Complete the right classes to reach ' + next.name + '. ' + (state.completedClasses || []).length + ' / ' + DATA.classes.length + ' classes done.' : 'You have completed every Brew School class.')
+    ),
+    el('button', { class: 'btn btn-accent btn-sm', onclick: (e) => { e.stopPropagation(); navigate('sommelier'); } }, 'View Sommelier path →')
   ));
 
   // Latte Art Leaderboard CTA
@@ -1844,13 +2109,20 @@ function renderClasses(main) {
 
   const grid = el('div', { class: 'grid grid-3' });
   DATA.classes.forEach(cls => {
-    grid.appendChild(el('div', {
+    const isCompleted = (state.completedClasses || []).includes(cls.id);
+    // Find which tier requires this class
+    const requiredFor = DATA.sommelierTiers.find(t => t.requirements.some(r => r.type === 'class' && r.value === cls.id));
+    const tile = el('div', {
       class: 'tile',
-      onclick: () => navigate('class/' + cls.id)
+      onclick: () => navigate('class/' + cls.id),
+      style: isCompleted ? 'border-color:var(--success)' : ''
     },
-      el('div', { class: cls.thumbClass || 'tile-thumb' },
+      el('div', { class: cls.thumbClass || 'tile-thumb', style: 'position:relative' },
         el('span', { style: 'font-size:3.5rem' }, cls.icon),
-        el('span', { class: 'tile-thumb-tag' }, cls.level)
+        el('span', { class: 'tile-thumb-tag' }, cls.level),
+        isCompleted ? el('span', {
+          style: 'position:absolute;top:12px;right:12px;background:var(--success);color:white;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:0.95rem'
+        }, '✓') : null
       ),
       el('div', { class: 'tile-body' },
         el('div', { class: 'tile-title' }, cls.name),
@@ -1860,9 +2132,15 @@ function renderClasses(main) {
           el('span', {}, cls.duration),
           el('span', {}, '•'),
           el('span', {}, pluralize(cls.lessons, 'lesson'))
-        )
+        ),
+        requiredFor ? el('div', { class: 'mt-sm', style: 'margin-top:8px' },
+          el('span', { class: 'pill ' + (requiredFor.color === 'gold' ? 'pill-gold' : requiredFor.color === 'green' ? 'pill-green' : 'pill-accent'), style: 'font-size:0.72rem' },
+            requiredFor.icon + ' Required for ' + requiredFor.name
+          )
+        ) : null
       )
-    ));
+    );
+    grid.appendChild(tile);
   });
   c.appendChild(grid);
 }
@@ -1961,23 +2239,37 @@ function renderClassDetail(main, id) {
           cls.requires.map(req => el('li', {}, '✓ ' + req))
         )
       ),
-      el('button', {
-        class: 'btn btn-accent btn-block mt-lg',
-        style: 'margin-top:24px',
-        onclick: () => {
-          if (cls.id === 'latte-art-101' && !state.badges.includes('latte-artist')) {
-            state.badges.push('latte-artist');
-            state.points += 100;
-            save();
-            toast('Latte Art 101 started. Latte Artist badge unlocked.');
-          } else {
-            state.points += 25;
-            save();
-            toast('Class enrolled. +25 pts');
-          }
-          render();
-        }
-      }, 'Start class')
+      (() => {
+        const isCompleted = (state.completedClasses || []).includes(cls.id);
+        return el('div', { style: 'margin-top:24px;display:flex;flex-direction:column;gap:8px' },
+          el('button', {
+            class: 'btn btn-accent btn-block',
+            onclick: () => toast('Starting lesson 1 (demo)')
+          }, '▶ Start class'),
+          el('button', {
+            class: 'btn ' + (isCompleted ? 'btn-secondary' : 'btn-secondary') + ' btn-block',
+            onclick: () => {
+              state.completedClasses = state.completedClasses || [];
+              if (isCompleted) {
+                state.completedClasses = state.completedClasses.filter(x => x !== cls.id);
+                toast('Class marked incomplete');
+              } else {
+                state.completedClasses.push(cls.id);
+                state.points += 200;
+                if (cls.id === 'latte-art-101' && !state.badges.includes('latte-artist')) {
+                  state.badges.push('latte-artist');
+                }
+                // Check if this completion advances tier
+                const newTier = computeTier();
+                save();
+                toast('Class completed. +200 pts. Current rank: ' + newTier.name);
+              }
+              save();
+              render();
+            }
+          }, isCompleted ? '✓ Completed (click to undo)' : '☐ Mark as completed')
+        );
+      })()
     )
   ));
 }
@@ -1985,36 +2277,131 @@ function renderClassDetail(main, id) {
 /* ----- Profile ----- */
 function renderProfile(main) {
   main.innerHTML = '';
-  const c = el('div', { class: 'container-narrow', style: 'max-width:780px' });
+  const c = el('div', { class: 'container' });
   main.appendChild(c);
 
-  c.appendChild(el('div', { class: 'page-head' },
-    el('div', { class: 'eyebrow' }, 'Your profile'),
-    el('h1', { class: 'h1' }, state.user?.name || 'Guest'),
-    el('p', {}, state.user?.email || 'Not signed in')
+  const tier = computeTier();
+  const next = nextTier();
+  const progress = next ? tierProgress(next) : null;
+  const streak = computeStreak(state.journal);
+  const origins = uniqueOriginsTried();
+  const completedCount = (state.completedClasses || []).length;
+
+  // ---- Profile header card (the big identity block) ----
+  const header = el('div', { class: 'card', style: 'margin-bottom:24px;padding:0;overflow:hidden' },
+    // Banner
+    el('div', { style: 'height:140px;background:linear-gradient(135deg, var(--espresso) 0%, #3D2418 50%, var(--caramel-deep) 100%);position:relative' },
+      el('div', { style: 'position:absolute;bottom:-48px;left:32px' },
+        el('div', { style: 'width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg, var(--caramel) 0%, var(--caramel-deep) 100%);display:flex;align-items:center;justify-content:center;font-size:2.4rem;font-weight:600;color:white;border:5px solid var(--bg);box-shadow:var(--shadow)' }, initials(state.user?.name))
+      ),
+      el('div', { style: 'position:absolute;top:16px;right:16px;display:flex;gap:8px' },
+        state.user?.isGuest ? el('button', { class: 'btn btn-accent btn-sm', onclick: () => openSignupModal() }, 'Sign up free') : null,
+        !state.user?.isGuest ? el('button', { class: 'btn btn-secondary btn-sm', style: 'background:rgba(255,255,255,0.95)', onclick: () => { if (confirm('Sign out and clear demo data?')) signOut(); } }, 'Sign out') : null
+      )
+    ),
+    // Body
+    el('div', { style: 'padding:64px 32px 28px' },
+      el('div', { style: 'display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap' },
+        el('div', {},
+          el('h1', { class: 'h1', style: 'font-size:2.2rem' }, state.user?.name || 'Guest'),
+          el('div', { class: 'muted', style: 'margin-top:4px;font-size:0.95rem' },
+            state.user?.email || 'Browsing as guest',
+            state.user?.joined && !state.user?.isGuest ? ' · Member since ' + fmtDate(state.user.joined) : ''
+          ),
+          el('div', { style: 'margin-top:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap' },
+            el('span', { class: 'pill ' + (tier.color === 'gold' ? 'pill-gold' : tier.color === 'green' ? 'pill-green' : 'pill-accent'), style: 'font-size:0.88rem;padding:6px 14px;font-weight:600' },
+              tier.icon + ' ' + tier.name
+            ),
+            getMachine() ? el('span', { class: 'pill' }, getMachine().icon + ' ' + getMachine().name.replace('Cuisinart ', '')) : null
+          )
+        ),
+        el('div', { style: 'display:flex;gap:16px;flex-wrap:wrap' },
+          stat(state.points.toLocaleString(), 'pts'),
+          stat(state.journal.length, 'brews'),
+          stat(state.badges.length, 'badges'),
+          stat(completedCount, 'classes')
+        )
+      )
+    )
+  );
+  c.appendChild(header);
+
+  // ---- Sommelier track progress ----
+  const sommCard = el('div', { class: 'card', style: 'margin-bottom:24px' },
+    el('div', { class: 'section-title' },
+      el('h3', { class: 'h3' }, '🏆 Sommelier Track'),
+      el('button', { onclick: () => navigate('sommelier') }, 'See full path →')
+    ),
+    el('div', { style: 'display:flex;align-items:center;gap:20px;margin-top:16px;flex-wrap:wrap' },
+      el('div', { style: 'width:80px;height:80px;border-radius:50%;background:' + (tier.color === 'gold' ? 'linear-gradient(135deg, var(--gold) 0%, #806017 100%)' : tier.color === 'green' ? 'linear-gradient(135deg, var(--green) 0%, #1d3327 100%)' : 'linear-gradient(135deg, var(--caramel) 0%, var(--caramel-deep) 100%)') + ';display:flex;align-items:center;justify-content:center;font-size:2.4rem;color:white;flex-shrink:0' }, tier.icon),
+      el('div', { style: 'flex:1;min-width:200px' },
+        el('div', { style: 'font-family:var(--font-display);font-size:1.5rem;font-weight:500;letter-spacing:-0.01em' }, tier.name),
+        el('div', { class: 'muted mt-sm', style: 'font-size:0.92rem' }, tier.desc),
+        next ? el('div', { class: 'mt' },
+          el('div', { style: 'display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:6px' },
+            el('span', { style: 'color:var(--ink-soft);font-weight:500' }, 'Next: ' + next.name),
+            el('span', { class: 'mono', style: 'color:var(--ink-muted)' }, progress.met + ' / ' + progress.total)
+          ),
+          el('div', { class: 'progress' },
+            el('div', { class: 'progress-bar', style: 'width:' + progress.pct + '%' })
+          )
+        ) : el('div', { class: 'mt' },
+          el('span', { class: 'pill pill-gold' }, '🏆 Top tier reached')
+        )
+      )
+    )
+  );
+  // Show concrete next-step requirements
+  if (next) {
+    const remaining = next.requirements.filter(r => !checkRequirement(r));
+    sommCard.appendChild(el('div', { class: 'mt-lg', style: 'margin-top:20px;padding:16px;background:var(--surface-2);border-radius:10px' },
+      el('div', { class: 'eyebrow', style: 'margin-bottom:10px' }, "What's left to reach " + next.name),
+      el('div', {},
+        remaining.map(r => el('div', { style: 'display:flex;align-items:center;gap:10px;padding:5px 0;font-size:0.92rem' },
+          el('span', { style: 'color:var(--ink-muted)' }, '○'),
+          el('span', {}, r.label)
+        ))
+      )
+    ));
+  }
+  c.appendChild(sommCard);
+
+  // ---- Achievement stats grid ----
+  c.appendChild(el('div', { class: 'grid grid-4 mb-lg', style: 'margin-bottom:24px' },
+    statCard('🔥', streak, 'Day streak'),
+    statCard('🌍', origins, 'Origins tried'),
+    statCard('📚', completedCount + ' / ' + DATA.classes.length, 'Classes done'),
+    statCard('⭐', state.journal.length ? (state.journal.reduce((s, e) => s + e.rating, 0) / state.journal.length).toFixed(1) : '—', 'Avg rating')
   ));
 
-  if (!state.user) {
-    c.appendChild(el('button', { class: 'btn btn-accent', onclick: () => window.location.href = 'index.html' }, 'Sign in'));
-    return;
-  }
+  // ---- Two columns: Badges + Taste profile ----
+  const split = el('div', { class: 'split' });
 
-  // Stats summary
-  const stats = el('div', { class: 'grid grid-3 mb-lg' });
-  [
-    ['Brew points', state.points.toLocaleString()],
-    ['Brews logged', state.journal.length],
-    ['Badges earned', state.badges.length]
-  ].forEach(([l, v]) => stats.appendChild(el('div', { class: 'card text-center' },
-    el('div', { class: 'stat-num' }, String(v)),
-    el('div', { class: 'stat-label' }, l)
-  )));
-  c.appendChild(stats);
+  // Badges
+  const badgeCard = el('div', { class: 'card' });
+  badgeCard.appendChild(el('div', { class: 'section-title' },
+    el('h3', { class: 'h3' }, 'Badges'),
+    el('span', { style: 'font-size:0.85rem;color:var(--ink-muted)' }, state.badges.length + ' / ' + DATA.badges.length + ' earned')
+  ));
+  const wall = el('div', { class: 'badge-wall' });
+  DATA.badges.forEach(b => {
+    const earned = state.badges.includes(b.id);
+    wall.appendChild(el('div', { class: 'badge-card' + (earned ? '' : ' locked') },
+      el('div', { class: 'badge-icon ' + (b.color || 'gold') }, b.icon),
+      el('div', { class: 'badge-name' }, b.name),
+      el('div', { class: 'badge-desc' }, earned ? b.desc : 'Locked')
+    ));
+  });
+  badgeCard.appendChild(wall);
+  split.appendChild(badgeCard);
 
   // Taste profile
   const p = state.profile || {};
-  c.appendChild(el('div', { class: 'card mb-lg' },
-    el('div', { class: 'section-title' }, el('h3', { class: 'h3' }, 'Taste profile'), el('button', { onclick: () => navigate('onboard') }, 'Retake quiz')),
+  split.appendChild(el('div', { class: 'card' },
+    el('div', { class: 'section-title' },
+      el('h3', { class: 'h3' }, 'Taste profile'),
+      el('button', { onclick: () => navigate('onboard') }, 'Retake quiz')
+    ),
     el('div', { class: 'list' },
       profileRow('Machine', getMachine()?.name || '—'),
       profileRow('Experience', p.experience || '—'),
@@ -2025,8 +2412,22 @@ function renderProfile(main) {
     )
   ));
 
-  // Sign out
-  c.appendChild(el('button', { class: 'btn btn-secondary', onclick: () => { if (confirm('Sign out and clear demo data?')) signOut(); } }, 'Sign out'));
+  c.appendChild(split);
+}
+
+function stat(value, label) {
+  return el('div', { style: 'text-align:center;min-width:64px' },
+    el('div', { class: 'stat-num', style: 'font-size:1.5rem' }, String(value)),
+    el('div', { class: 'stat-label', style: 'font-size:0.78rem' }, label)
+  );
+}
+
+function statCard(icon, value, label) {
+  return el('div', { class: 'card text-center', style: 'padding:20px' },
+    el('div', { style: 'font-size:1.8rem;margin-bottom:6px' }, icon),
+    el('div', { class: 'stat-num', style: 'font-size:1.6rem' }, String(value)),
+    el('div', { class: 'stat-label' }, label)
+  );
 }
 
 function profileRow(label, value) {
@@ -2042,13 +2443,36 @@ function profileRow(label, value) {
    BOOT
    ============================================================ */
 
+function ensureGuest() {
+  // If no user, auto-create a guest session with a default profile so users
+  // see content immediately. They can take the taste quiz to personalize,
+  // or sign up to save progress across devices.
+  if (!state.user) {
+    state.user = { name: 'Guest', email: '', joined: new Date().toISOString(), isGuest: true };
+    state.points = 100;
+  }
+  if (!state.profile) {
+    state.profile = {
+      machine: 'em-15',
+      experience: 'curious',
+      roast: 'medium',
+      flavors: ['chocolate', 'sweet', 'nutty'],
+      milk: 'latte',
+      goals: ['better', 'art', 'discover']
+    };
+  }
+  if (!state.journal || !state.journal.length) {
+    state.journal = JSON.parse(JSON.stringify(DATA.seedJournal));
+  }
+  if (!state.badges || !state.badges.length) {
+    state.badges = ['beta', 'taste-profile', 'machine-master', 'first-brew'];
+  }
+  save();
+}
+
 function boot() {
   load();
-  if (!state.user) {
-    // not signed in -> push to landing
-    window.location.href = 'index.html';
-    return;
-  }
+  ensureGuest();
   mountAppShell();
   render();
 }

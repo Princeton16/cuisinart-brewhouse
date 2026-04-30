@@ -698,6 +698,109 @@ const DATA = {
     }
   ],
 
+  /* ---------------- Sommelier Track (5 tiers) ---------------- */
+  sommelierTiers: [
+    {
+      id: 'apprentice',
+      name: 'Apprentice Brewer',
+      icon: '🌱',
+      color: 'caramel',
+      minPoints: 0,
+      desc: 'Welcome to the path. Every coffee journey starts here.',
+      requirements: [
+        { type: 'profile', label: 'Complete your taste profile' }
+      ],
+      perks: [
+        'Personalized recipe recommendations',
+        'Brew journal with pattern insights',
+        'Access to community feed and challenges'
+      ],
+      memberCount: 28430
+    },
+    {
+      id: 'home-barista',
+      name: 'Home Barista',
+      icon: '☕',
+      color: 'caramel',
+      minPoints: 500,
+      desc: 'You can pull a shot. You know what microfoam is.',
+      requirements: [
+        { type: 'class', value: 'espresso-fundamentals', label: 'Complete Espresso Fundamentals' },
+        { type: 'class', value: 'milk-steaming', label: 'Complete Milk Steaming Fundamentals' },
+        { type: 'journal', value: 10, label: 'Log 10 brews' }
+      ],
+      perks: [
+        'Members-only product drops',
+        '10% off all bean partners',
+        'Verified Home Barista flair on profile'
+      ],
+      memberCount: 9120
+    },
+    {
+      id: 'specialty',
+      name: 'Specialty Brewer',
+      icon: '🌊',
+      color: 'green',
+      minPoints: 1500,
+      desc: 'Pour over and latte art are part of your morning routine.',
+      requirements: [
+        { type: 'class', value: 'pour-over-mastery', label: 'Complete Pour Over Mastery' },
+        { type: 'class', value: 'latte-art-101', label: 'Complete Latte Art 101' },
+        { type: 'journal', value: 25, label: 'Log 25 brews' }
+      ],
+      perks: [
+        '15% off bean partners',
+        'Early access to new product drops',
+        'Submit your own recipes for community review',
+        'Specialty Brewer profile badge'
+      ],
+      memberCount: 3140
+    },
+    {
+      id: 'connoisseur',
+      name: 'Coffee Connoisseur',
+      icon: '🎯',
+      color: 'gold',
+      minPoints: 3000,
+      desc: 'You taste differences other people cannot describe.',
+      requirements: [
+        { type: 'class', value: 'cupping', label: 'Complete Cupping: How to Taste Coffee' },
+        { type: 'journal', value: 50, label: 'Log 50 brews' },
+        { type: 'origins', value: 5, label: 'Try beans from 5 different origins' }
+      ],
+      perks: [
+        '18% off bean partners',
+        'Quarterly AMA invites with featured creators',
+        'Connoisseur badge across Brew Lab',
+        'Vote on monthly bean box selections'
+      ],
+      memberCount: 870
+    },
+    {
+      id: 'sommelier',
+      name: 'Coffee Sommelier',
+      icon: '🏆',
+      color: 'gold',
+      minPoints: 5000,
+      desc: 'The final tier. You know coffee at a level few do.',
+      requirements: [
+        { type: 'class', value: 'latte-art-201', label: 'Complete Latte Art 201' },
+        { type: 'allClasses', label: 'Complete all Brew School classes' },
+        { type: 'journal', value: 100, label: 'Log 100 brews' },
+        { type: 'streak', value: 30, label: 'Maintain a 30-day brew streak' },
+        { type: 'origins', value: 5, label: 'Try 5+ different origins' }
+      ],
+      perks: [
+        'Free Brew Lab merch annually',
+        'Co-host a creator AMA',
+        'Sommelier flair (gold) across Brew Lab',
+        'Direct line to the Cuisinart product team',
+        'Annual Sommelier dinner with the team'
+      ],
+      memberCount: 142
+    }
+  ],
+
   /* ---------------- Latte Art submissions (leaderboard) ---------------- */
   latteArt: [
     { id: 'la1', member: 'Maya R.', initials: 'MR', pattern: 'Rosetta', machine: 'EM-15', votes: 412, daysAgo: 1, gradient: 'linear-gradient(135deg, #C8A982 0%, #6B4A2E 100%)', accent: '🌿', notes: 'Eight-leaf rosetta. Took me 200 attempts.' },
