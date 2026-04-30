@@ -66,5 +66,45 @@ Modern coffee specialty look with a subtle Cuisinart green accent. Designed to a
 
 - No real backend. All data is in localStorage and resets if you clear it.
 - Sign-in is simulated. Anyone can pretend to be anyone.
-- Images use placeholder gradients and emoji rather than photography.
+- Images use placeholder gradients and emoji unless you add real photos (see below).
 - Mobile responsive but optimized for desktop demos.
+
+## Adding real photos (replacing the emojis)
+
+Every recipe, bean, product, class, and origin in `data.js` accepts an optional `photo` field. When set, the site renders an actual `<img>` tag instead of the emoji. When not set, it falls back to the emoji.
+
+### Step-by-step
+
+1. **Create a folder** named `images/` at the top level of this project (next to `index.html`).
+
+2. **Add your photos to that folder.** Name them anything you want. Recommended names: `bean-onyx-monarch.jpg`, `recipe-morning-classic.jpg`, `product-em-15.jpg`, etc.
+
+3. **Edit `data.js`.** Find the item you want to add a photo to and add a `photo:` field that points to your image. Example for a bean:
+
+```js
+{
+  id: 'onyx-monarch',
+  name: 'Onyx Monarch Blend',
+  // ... existing fields ...
+  icon: '🍫',
+  photo: 'images/bean-onyx-monarch.jpg'   // <-- add this line
+}
+```
+
+The site will render the JPG/PNG instead of the emoji.
+
+### Where to find good photos
+
+- **Unsplash** (unsplash.com) — free, high-quality, no attribution required
+- **Pexels** (pexels.com) — same idea
+- **Cuisinart product pages** for product photography (right-click the image, Save Image As)
+
+### Recommended sizes
+
+- Tile photos: 800x600px (4:3) — works for recipes, beans, products
+- Origin photos: 1200x600px (16:7) for the hero on origin detail
+- Class thumbnails: 800x600px
+
+### Quick batch tip
+
+Drop all your photos into the `images/` folder, then in `data.js` use a search-and-replace to add `photo:` lines to all 12 beans / 8 products / etc. at once.

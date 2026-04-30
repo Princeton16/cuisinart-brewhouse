@@ -91,6 +91,21 @@ const DATA = {
     { id: 'rising-star', icon: '🌟', title: 'Rising Star', winner: 'Marcus B.', desc: 'Reached Specialty Brewer in 60 days. Fastest of the month.', month: 'April 2026' }
   ],
 
+  /* ---------------- Mock community members (for friends + leaderboard) ---------------- */
+  /* In production these would come from a real social graph. */
+  members: [
+    { id: 'maya-r', name: 'Maya R.', initials: 'MR', tier: 'specialty', tierIcon: '🌊', points: 4830, streak: 28, brews: 312, location: 'Portland, OR', personality: 'methodical', bio: 'Pour over obsessed. V60 evangelist.', avatarBg: 'linear-gradient(135deg, #C8762D 0%, #A85F1F 100%)' },
+    { id: 'diego-p', name: 'Diego P.', initials: 'DP', tier: 'specialty', tierIcon: '🌊', points: 4210, streak: 41, brews: 298, location: 'Mexico City', personality: 'creator', bio: 'Latte art every morning. Try my hibiscus syrup.', avatarBg: 'linear-gradient(135deg, #2D4A3A 0%, #1d3327 100%)' },
+    { id: 'priya-s', name: 'Priya S.', initials: 'PS', tier: 'connoisseur', tierIcon: '🎯', points: 3905, streak: 67, brews: 421, location: 'London, UK', personality: 'explorer', bio: 'First in the community to collect all 12 origin stamps.', avatarBg: 'linear-gradient(135deg, #C5962B 0%, #806017 100%)' },
+    { id: 'alex-t', name: 'Alex T.', initials: 'AT', tier: 'home-barista', tierIcon: '☕', points: 3120, streak: 14, brews: 187, location: 'Brooklyn, NY', personality: 'comfort', bio: 'Same DCC-3200 every morning. No notes.', avatarBg: 'linear-gradient(135deg, #5476A6 0%, #2c4869 100%)' },
+    { id: 'sam-k', name: 'Sam K.', initials: 'SK', tier: 'home-barista', tierIcon: '☕', points: 2890, streak: 8, brews: 142, location: 'Toronto, ON', personality: 'creator', bio: 'Day 14 of 30 Days of Latte Art. Hearts holding steady.', avatarBg: 'linear-gradient(135deg, #4A3A30 0%, #2A1A14 100%)' },
+    { id: 'jordan-w', name: 'Jordan W.', initials: 'JW', tier: 'home-barista', tierIcon: '☕', points: 2540, streak: 21, brews: 156, location: 'Austin, TX', personality: 'social', bio: 'Coffee shop tour videos. Brooklyn next month.', avatarBg: 'linear-gradient(135deg, #6B5D54 0%, #3D2418 100%)' },
+    { id: 'tessa-l', name: 'Tessa L.', initials: 'TL', tier: 'specialty', tierIcon: '🌊', points: 3680, streak: 32, brews: 224, location: 'Berlin, DE', personality: 'creator', bio: '12-leaf rosetta queen. Three weekly leaderboards.', avatarBg: 'linear-gradient(135deg, #C8762D 0%, #2A1A14 100%)' },
+    { id: 'marcus-b', name: 'Marcus B.', initials: 'MB', tier: 'apprentice', tierIcon: '🌱', points: 1840, streak: 4, brews: 38, location: 'Chicago, IL', personality: 'methodical', bio: 'Just got my first espresso machine. Learning fast.', avatarBg: 'linear-gradient(135deg, #2D4A3A 0%, #C5962B 100%)' },
+    { id: 'naomi-k', name: 'Naomi K.', initials: 'NK', tier: 'home-barista', tierIcon: '☕', points: 2280, streak: 19, brews: 124, location: 'Tokyo, JP', personality: 'purist', bio: 'Light roast pour over. Black, always.', avatarBg: 'linear-gradient(135deg, #1F1410 0%, #4A3A30 100%)' },
+    { id: 'rafael-h', name: 'Rafael H.', initials: 'RH', tier: 'apprentice', tierIcon: '🌱', points: 920, streak: 2, brews: 22, location: 'São Paulo, BR', personality: 'comfort', bio: 'New to specialty coffee. Big French press fan.', avatarBg: 'linear-gradient(135deg, #C5962B 0%, #806017 100%)' }
+  ],
+
   /* ---------------- Skill tree structure ---------------- */
   /* Visual progression: each node is a class. Tier branches converge to Sommelier. */
   skillTree: {

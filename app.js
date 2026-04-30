@@ -18,6 +18,7 @@ const state = {
   completedClasses: [], // [classId]
   lattVotes: {},      // { pourId: true }
   ownedProducts: [],  // [productId]
+  following: ['maya-r', 'diego-p', 'tessa-l'], // [memberId] - seeded with 3 friends so leaderboard is populated
   streak: 0,          // current daily streak
   lastCheckIn: null,  // YYYY-MM-DD of last check-in
   todayQuestId: null, // id of today's quest
@@ -361,11 +362,6 @@ function mountAppShell() {
         })()
       ),
       el('div', { class: 'user-menu' },
-        el('button', {
-          class: 'btn btn-ghost btn-sm',
-          title: 'Ask the Virtual Barista',
-          onclick: () => navigate('barista')
-        }, '💬 Ask Barista'),
         (() => {
           const tier = computeTier();
           const wrap = el('a', { href: '#/profile', style: 'position:relative;display:inline-block', title: (state.user?.name || 'You') + ' · ' + tier.name });
@@ -742,12 +738,17 @@ function renderProducts(main) {
 
 function productTile(p) {
   const owned = (state.ownedProducts || []).includes(p.id);
+  const thumb = el('div', { style: 'aspect-ratio:4/3;background:' + p.bg + ';color:white;display:flex;align-items:center;justify-content:center;font-size:4rem;position:relative;overflow:hidden' });
+  if (p.photo) {
+    thumb.appendChild(el('img', { src: p.photo, alt: p.name, style: 'width:100%;height:100%;object-fit:cover;display:block' }));
+  } else {
+    thumb.appendChild(el('span', {}, p.icon));
+  }
+  if (owned) thumb.appendChild(el('span', { style: 'position:absolute;top:12px;right:12px;background:var(--success);color:white;padding:4px 10px;border-radius:999px;font-size:0.72rem;font-weight:600' }, '✓ Owned'));
+  thumb.appendChild(el('span', { style: 'position:absolute;top:12px;left:12px;background:rgba(255,255,255,0.95);color:var(--ink);padding:4px 10px;border-radius:4px;font-size:0.72rem;font-weight:600;letter-spacing:0.04em' }, p.model));
+
   return el('div', { class: 'card', style: 'padding:0;overflow:hidden;cursor:pointer', onclick: () => navigate('product/' + p.id) },
-    el('div', { style: 'aspect-ratio:4/3;background:' + p.bg + ';color:white;display:flex;align-items:center;justify-content:center;font-size:4rem;position:relative' },
-      el('span', {}, p.icon),
-      owned ? el('span', { style: 'position:absolute;top:12px;right:12px;background:var(--success);color:white;padding:4px 10px;border-radius:999px;font-size:0.72rem;font-weight:600' }, '✓ Owned') : null,
-      el('span', { style: 'position:absolute;top:12px;left:12px;background:rgba(255,255,255,0.95);color:var(--ink);padding:4px 10px;border-radius:4px;font-size:0.72rem;font-weight:600;letter-spacing:0.04em' }, p.model)
-    ),
+    thumb,
     el('div', { style: 'padding:18px' },
       el('div', { class: 'eyebrow', style: 'margin-bottom:4px' }, p.category),
       el('div', { class: 'h4' }, p.name),
@@ -1012,43 +1013,116 @@ function renderYou(main) {
     )
   ));
 
-  // Two columns: Leaderboard + Awards
-  const split = el('div', { class: 'split' });
+  // Virtual Barista card
+  c.appendChild(el('div', { class: 'card', style: 'margin-bottom:32px;padding:24px;background:linear-gradient(135deg, var(--caramel-soft) 0%, #FAEDD7 100%);border-color:rgba(200,118,45,0.25)' },
+    el('div', { style: 'display:flex;align-items:flex-start;gap:18px;margin-bottom:16px;flex-wrap:wrap' },
+      el('div', { style: 'width:64px;height:64px;border-radius:50%;background:var(--espresso);color:var(--crema);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0' }, '☕'),
+      el('div', { style: 'flex:1;min-width:200px' },
+        el('div', { class: 'eyebrow', style: 'color:var(--caramel-deep);margin-bottom:4px' }, '💬 Virtual Barista'),
+        el('div', { style: 'font-family:var(--font-display);font-size:1.4rem;font-weight:500;letter-spacing:-0.01em' }, 'Ask anything coffee'),
+        el('div', { style: 'font-size:0.9rem;color:var(--ink-soft);margin-top:4px' }, 'Trained on your machine, your taste profile, and your last 30 brews.')
+      )
+    ),
+    el('div', { style: 'display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px' },
+      DATA.baristaPrompts.slice(0, 4).map(p => el('button', {
+        class: 'pill',
+        style: 'cursor:pointer;background:var(--surface);border-color:var(--line);font-size:0.82rem',
+        onclick: () => { navigate('barista'); setTimeout(() => sendBaristaMsg(p), 200); }
+      }, p))
+    ),
+    el('button', { class: 'btn btn-primary', onclick: () => navigate('barista') }, 'Open full chat →')
+  ));
 
-  // Leaderboard
-  const lbCard = el('div', { class: 'card' });
+  // Leaderboard with tabs (Global / Friends)
+  const lbCard = el('div', { class: 'card', style: 'margin-bottom:32px' });
   lbCard.appendChild(el('div', { class: 'section-title' }, el('h3', { class: 'h3' }, '📈 Leaderboard'), null));
-  const lbList = [
-    ['1', 'Maya R.', 4830],
-    ['2', 'Diego P.', 4210],
-    ['3', 'Priya S.', 3905],
-    ['4', state.user?.name || 'You', state.points + 3000],
-    ['5', 'Alex T.', 3120]
-  ];
-  lbList.forEach(([rank, name, score]) => {
-    const isYou = name === state.user?.name || name === 'You';
-    lbCard.appendChild(el('div', { class: 'lb-row', style: isYou ? 'background:var(--caramel-soft);margin:0 -12px;padding:12px;border-radius:8px' : '' },
-      el('div', { class: 'lb-rank top-' + rank }, rank),
-      el('div', { class: 'lb-name' }, name + (isYou ? ' (you)' : '')),
-      el('div', { class: 'lb-score' }, score.toLocaleString() + ' pts')
-    ));
+
+  let lbMode = 'global';
+  const lbTabs = el('div', { class: 'tabs', style: 'margin-bottom:16px' });
+  ['global', 'friends'].forEach(mode => {
+    lbTabs.appendChild(el('button', {
+      class: 'tab' + (mode === lbMode ? ' active' : ''),
+      onclick: () => { lbMode = mode; paintLb(); }
+    }, mode === 'global' ? 'Global' : 'Friends (' + (state.following || []).length + ')'));
   });
-  split.appendChild(lbCard);
+  lbCard.appendChild(lbTabs);
+  const lbBody = el('div', { id: 'lbBody' });
+  lbCard.appendChild(lbBody);
+
+  function paintLb() {
+    document.querySelectorAll('#lbBody').forEach(b => b.innerHTML = '');
+    lbBody.innerHTML = '';
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active',
+      (lbMode === 'global' && t.textContent === 'Global') ||
+      (lbMode === 'friends' && t.textContent.startsWith('Friends'))));
+
+    let pool;
+    if (lbMode === 'friends') {
+      pool = DATA.members.filter(m => (state.following || []).includes(m.id));
+      pool.push({ id: 'you', name: state.user?.name || 'You', initials: initials(state.user?.name), points: state.points + 1500, streak: state.streak, isMe: true, tierIcon: computeTier().icon, avatarBg: 'linear-gradient(135deg, var(--caramel) 0%, var(--caramel-deep) 100%)' });
+    } else {
+      pool = DATA.members.slice();
+      pool.push({ id: 'you', name: state.user?.name || 'You', initials: initials(state.user?.name), points: state.points + 1500, streak: state.streak, isMe: true, tierIcon: computeTier().icon, avatarBg: 'linear-gradient(135deg, var(--caramel) 0%, var(--caramel-deep) 100%)' });
+    }
+    pool.sort((a, b) => b.points - a.points);
+
+    if (pool.length === 0 || (lbMode === 'friends' && pool.length === 1)) {
+      lbBody.appendChild(el('div', { class: 'empty' },
+        el('div', { class: 'empty-icon' }, '👥'),
+        el('p', {}, 'No friends yet. Add some below to compare progress.'),
+      ));
+      return;
+    }
+
+    pool.slice(0, 8).forEach((m, idx) => {
+      const rank = idx + 1;
+      lbBody.appendChild(el('div', {
+        class: 'lb-row',
+        style: m.isMe ? 'background:var(--caramel-soft);margin:0 -12px;padding:12px;border-radius:8px;border:1px solid rgba(200,118,45,0.25)' : ''
+      },
+        el('div', { class: 'lb-rank top-' + rank }, String(rank)),
+        el('div', { style: 'width:36px;height:36px;border-radius:50%;background:' + (m.avatarBg || 'var(--bg-subtle)') + ';color:white;display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:600;flex-shrink:0' }, m.initials),
+        el('div', { class: 'lb-name', style: 'display:flex;align-items:center;gap:8px' },
+          el('span', {}, m.name + (m.isMe ? ' (you)' : '')),
+          m.tierIcon ? el('span', { style: 'font-size:1rem' }, m.tierIcon) : null
+        ),
+        el('div', { class: 'lb-score' }, m.points.toLocaleString() + ' pts')
+      ));
+    });
+  }
+
+  c.appendChild(lbCard);
+  setTimeout(paintLb, 0);
+
+  // Friends / Connections section
+  c.appendChild(el('div', { class: 'card', style: 'margin-bottom:32px' },
+    el('div', { class: 'section-title' },
+      el('h3', { class: 'h3' }, '👥 Friends & connections'),
+      el('span', { style: 'font-size:0.85rem;color:var(--ink-muted)' }, (state.following || []).length + ' following')
+    ),
+    el('p', { class: 'muted mt-sm', style: 'margin-bottom:16px;font-size:0.92rem' }, 'Add other members to see their progress on your friends leaderboard.'),
+    (() => {
+      const list = el('div', { class: 'list' });
+      DATA.members.slice(0, 6).forEach(m => list.appendChild(memberRow(m)));
+      return list;
+    })(),
+    el('button', { class: 'btn btn-secondary btn-sm mt-lg', style: 'margin-top:14px', onclick: () => toast('Opening member directory (demo)') }, 'Browse all members →')
+  ));
 
   // Awards
-  const awardsCard = el('div', { class: 'card' });
-  awardsCard.appendChild(el('div', { class: 'section-title' }, el('h3', { class: 'h3' }, '🏅 Community awards'), el('span', { style: 'font-size:0.78rem;color:var(--ink-muted)' }, DATA.communityAwards[0].month)));
-  DATA.communityAwards.slice(0, 4).forEach(a => {
-    awardsCard.appendChild(el('div', { class: 'list-item' },
+  c.appendChild(el('div', { class: 'card', style: 'margin-bottom:32px' },
+    el('div', { class: 'section-title' },
+      el('h3', { class: 'h3' }, '🏅 Community awards'),
+      el('span', { style: 'font-size:0.78rem;color:var(--ink-muted)' }, DATA.communityAwards[0].month)
+    ),
+    DATA.communityAwards.map(a => el('div', { class: 'list-item' },
       el('div', { class: 'list-item-thumb' }, a.icon),
       el('div', { class: 'list-item-body' },
-        el('div', { class: 'list-item-title' }, a.title),
-        el('div', { class: 'list-item-meta' }, 'Awarded to ' + a.winner)
+        el('div', { class: 'list-item-title' }, a.title + ' · ' + a.winner),
+        el('div', { class: 'list-item-meta' }, a.desc)
       )
-    ));
-  });
-  split.appendChild(awardsCard);
-  c.appendChild(split);
+    ))
+  ));
 
   // Badges and Brew profile
   const split2 = el('div', { class: 'split', style: 'margin-top:32px' });
@@ -1087,6 +1161,37 @@ function renderYou(main) {
     )
   ));
   c.appendChild(split2);
+}
+
+function memberRow(m) {
+  const following = (state.following || []).includes(m.id);
+  return el('div', { class: 'list-item' },
+    el('div', { style: 'width:48px;height:48px;border-radius:50%;background:' + m.avatarBg + ';color:white;display:flex;align-items:center;justify-content:center;font-size:0.95rem;font-weight:600;flex-shrink:0' }, m.initials),
+    el('div', { class: 'list-item-body' },
+      el('div', { class: 'list-item-title', style: 'display:flex;align-items:center;gap:8px' },
+        el('span', {}, m.name),
+        el('span', { class: 'pill', style: 'font-size:0.7rem' }, m.tierIcon + ' ' + m.tier.charAt(0).toUpperCase() + m.tier.slice(1).replace('-', ' '))
+      ),
+      el('div', { class: 'list-item-meta' }, m.bio + ' · ' + m.location)
+    ),
+    el('button', {
+      class: 'btn btn-sm ' + (following ? 'btn-secondary' : 'btn-accent'),
+      style: 'flex-shrink:0',
+      onclick: () => {
+        state.following = state.following || [];
+        if (following) {
+          state.following = state.following.filter(x => x !== m.id);
+          toast('Unfollowed ' + m.name);
+        } else {
+          state.following.push(m.id);
+          state.points += 5;
+          toast('Following ' + m.name + '. +5 pts');
+        }
+        save();
+        render();
+      }
+    }, following ? '✓ Following' : '+ Follow')
+  );
 }
 
 /* ----- Coffee Passport (full view) ----- */
@@ -1159,15 +1264,33 @@ function renderPassport(main) {
 }
 
 /* ----- Tiles / rows ----- */
+
+/* mediaThumb: returns an <img> if item.photo is set, else a styled emoji block.
+   Add a photo by setting `photo: 'images/your-file.jpg'` on the data item.
+   Place the file in the images/ folder of the repo. */
+function mediaThumb(item, opts = {}) {
+  const cls = opts.class || item.thumbClass || 'tile-thumb';
+  const tag = opts.tag;
+  const wrap = el('div', { class: cls, style: 'position:relative' });
+  if (item.photo) {
+    wrap.appendChild(el('img', {
+      src: item.photo,
+      alt: item.name || '',
+      style: 'width:100%;height:100%;object-fit:cover;display:block'
+    }));
+  } else {
+    wrap.appendChild(el('span', {}, item.icon || '☕'));
+  }
+  if (tag) wrap.appendChild(el('span', { class: 'tile-thumb-tag' }, tag));
+  return wrap;
+}
+
 function recipeTile(r) {
   return el('div', {
     class: 'tile',
     onclick: () => navigate('recipe/' + r.id)
   },
-    el('div', { class: r.thumbClass || 'tile-thumb' },
-      el('span', {}, r.icon),
-      el('span', { class: 'tile-thumb-tag' }, r.method)
-    ),
+    mediaThumb(r, { tag: r.method }),
     el('div', { class: 'tile-body' },
       el('div', { class: 'tile-title' }, r.name),
       el('div', { class: 'tile-meta' },
@@ -1184,9 +1307,7 @@ function beanTile(b) {
     class: 'tile',
     onclick: () => navigate('beans')
   },
-    el('div', { class: 'tile-thumb' },
-      el('span', {}, b.icon)
-    ),
+    mediaThumb(b),
     el('div', { class: 'tile-body' },
       el('div', { class: 'tile-title' }, b.name),
       el('div', { class: 'tile-meta' },
