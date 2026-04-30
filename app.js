@@ -382,6 +382,19 @@ function mountAppShell() {
 
   document.body.appendChild(header);
   document.body.appendChild(main);
+
+  // Floating Ask Barista button (always visible, bottom-right)
+  const fab = el('button', {
+    id: 'baristaFab',
+    style: 'position:fixed;bottom:24px;right:24px;z-index:60;background:var(--espresso);color:var(--crema);width:auto;height:auto;padding:14px 20px;border-radius:999px;box-shadow:0 8px 24px rgba(31,20,16,0.2);display:flex;align-items:center;gap:10px;font-weight:600;font-size:0.92rem;cursor:pointer;transition:transform 0.15s, box-shadow 0.15s',
+    onmouseover: (e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(31,20,16,0.28)'; },
+    onmouseout: (e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(31,20,16,0.2)'; },
+    onclick: () => navigate('barista')
+  },
+    el('span', { style: 'font-size:1.2rem' }, '☕'),
+    el('span', {}, 'Ask Barista')
+  );
+  document.body.appendChild(fab);
 }
 
 /* ============================================================

@@ -3,16 +3,16 @@
    ============================================================ */
 
 :root {
-  /* Palette */
-  --bg: #FAF6F1;
-  --bg-subtle: #F3ECE2;
+  /* Palette - clean, refined, with warm coffee accents */
+  --bg: #FFFFFF;
+  --bg-subtle: #F5F4F1;
   --surface: #FFFFFF;
-  --surface-2: #FBF8F3;
-  --ink: #1F1410;
-  --ink-soft: #4A3A30;
-  --ink-muted: #8A7A6F;
-  --line: #E8DFD2;
-  --line-soft: #F0E8DC;
+  --surface-2: #FAFAF7;
+  --ink: #1A1614;
+  --ink-soft: #4A4039;
+  --ink-muted: #8C857E;
+  --line: #ECE7DF;
+  --line-soft: #F4EFE6;
 
   /* Brand accents */
   --espresso: #2A1A14;

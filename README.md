@@ -69,42 +69,43 @@ Modern coffee specialty look with a subtle Cuisinart green accent. Designed to a
 - Images use placeholder gradients and emoji unless you add real photos (see below).
 - Mobile responsive but optimized for desktop demos.
 
-## Adding real photos (replacing the emojis)
+## Photos
 
-Every recipe, bean, product, class, and origin in `data.js` accepts an optional `photo` field. When set, the site renders an actual `<img>` tag instead of the emoji. When not set, it falls back to the emoji.
+The site already shows real coffee photos for every recipe, bean, and product. They come from **loremflickr.com**, a free public service that serves Creative Commons photos from Flickr by keyword.
+
+If you want to swap to your own photography, here is the workflow.
 
 ### Step-by-step
 
 1. **Create a folder** named `images/` at the top level of this project (next to `index.html`).
 
-2. **Add your photos to that folder.** Name them anything you want. Recommended names: `bean-onyx-monarch.jpg`, `recipe-morning-classic.jpg`, `product-em-15.jpg`, etc.
+2. **Drop your photos in.** Name them anything (e.g. `bean-onyx-monarch.jpg`, `recipe-morning-classic.jpg`).
 
-3. **Edit `data.js`.** Find the item you want to add a photo to and add a `photo:` field that points to your image. Example for a bean:
+3. **Edit `data.js`.** Replace the `photo:` URL on the item with your local file path:
 
 ```js
 {
   id: 'onyx-monarch',
   name: 'Onyx Monarch Blend',
-  // ... existing fields ...
-  icon: '🍫',
-  photo: 'images/bean-onyx-monarch.jpg'   // <-- add this line
+  // ...
+  photo: 'images/bean-onyx-monarch.jpg'   // was a loremflickr URL
 }
 ```
 
-The site will render the JPG/PNG instead of the emoji.
+That's it. Save, refresh, the new photo loads. If a photo is missing, the emoji fallback shows.
 
-### Where to find good photos
+### Where to find good free photos
 
-- **Unsplash** (unsplash.com) — free, high-quality, no attribution required
+- **Unsplash** (unsplash.com) — free, high quality, no attribution required
 - **Pexels** (pexels.com) — same idea
-- **Cuisinart product pages** for product photography (right-click the image, Save Image As)
+- **Cuisinart product pages** for product photography (right-click → Save Image As)
 
 ### Recommended sizes
 
-- Tile photos: 800x600px (4:3) — works for recipes, beans, products
-- Origin photos: 1200x600px (16:7) for the hero on origin detail
-- Class thumbnails: 800x600px
+- Tile photos: 800×600 (4:3) — recipes, beans, products
+- Origin photos: 1200×600 (16:7) for hero
+- Class thumbnails: 800×600
 
-### Quick batch tip
+### Tip
 
-Drop all your photos into the `images/` folder, then in `data.js` use a search-and-replace to add `photo:` lines to all 12 beans / 8 products / etc. at once.
+Don't want to download files? Replace any `photo:` URL with a direct `https://...` link to any image on the web. Unsplash's CDN URLs (`https://images.unsplash.com/photo-XXX...`) work fine.

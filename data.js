@@ -18,31 +18,33 @@ const DATA = {
   ],
 
   /* ---------------- Roasters / Beans (curated, global) ---------------- */
+  /* Photos use loremflickr.com — public service that serves Creative Commons photos
+     from Flickr by keyword. Replace `photo:` URLs with your own files in /images/ later. */
   beans: [
-    { id: 'onyx-monarch', name: 'Onyx Monarch Blend', roaster: 'Onyx Coffee Lab', origin: 'Ethiopia + Colombia', originRef: 'ethiopia', roast: 'Medium', tags: ['fruity', 'sweet', 'balanced'], icon: '🍫', flavors: ['Milk chocolate', 'Strawberry', 'Honey'], rating: 4.7, brewedBy: 12340, notes: 'A staple blend that anchors many home setups.' },
-    { id: 'counter-hologram', name: 'Counter Culture Hologram', roaster: 'Counter Culture Coffee', origin: 'Latin America', originRef: 'colombia', roast: 'Medium-light', tags: ['balanced', 'sweet', 'classic'], icon: '✨', flavors: ['Caramel', 'Almond', 'Apple'], rating: 4.6, brewedBy: 9180, notes: 'A cleanly-roasted Latin American blend.' },
-    { id: 'blue-bottle-bella', name: 'Blue Bottle Bella Donovan', roaster: 'Blue Bottle Coffee', origin: 'Africa + Indonesia', originRef: 'sumatra', roast: 'Medium-dark', tags: ['rich', 'bold', 'chocolatey'], icon: '🌀', flavors: ['Dark chocolate', 'Plum', 'Toasted oak'], rating: 4.5, brewedBy: 7820, notes: 'Weighty and chocolatey, holds up to milk drinks.' },
-    { id: 'trade-light', name: 'Trade Light & Lively', roaster: 'Trade Coffee', origin: 'Curated rotating', originRef: 'kenya', roast: 'Light', tags: ['bright', 'fruity', 'tea-like'], icon: '🌿', flavors: ['Jasmine', 'Lemon', 'Berries'], rating: 4.4, brewedBy: 5410, notes: 'Light roast curation, fruit-forward African coffees.' },
-    { id: 'atlas-curated', name: 'Atlas Subscription Pick', roaster: 'Atlas Coffee Club', origin: 'Single origin, rotating', originRef: 'guatemala', roast: 'Medium', tags: ['adventure', 'single origin'], icon: '🌍', flavors: ['Varies by month'], rating: 4.3, brewedBy: 4250, notes: 'Rotating single origins. Exposure to regions you would not pick.' },
-    { id: 'kona-direct', name: 'Hawaiian Kona Estate', roaster: 'Kona Direct', origin: 'Hawaii, USA', originRef: 'hawaii', roast: 'Medium', tags: ['rare', 'smooth', 'mellow'], icon: '🌺', flavors: ['Brown sugar', 'Macadamia', 'Vanilla'], rating: 4.8, brewedBy: 1820, notes: 'Rare and expensive. Mellow, with a clean finish.' },
-    { id: 'yemen-mokha', name: 'Yemeni Mokha Matari', roaster: 'Mokha Bunn', origin: 'Yemen', originRef: 'yemen', roast: 'Medium', tags: ['rare', 'complex', 'wild'], icon: '🏔️', flavors: ['Cardamom', 'Dark berry', 'Wine'], rating: 4.6, brewedBy: 980, notes: 'The original coffee. Wild, complex, unmistakable.' },
-    { id: 'jamaican-blue', name: 'Jamaican Blue Mountain', roaster: 'Wallenford Estate', origin: 'Jamaica', originRef: 'jamaica', roast: 'Medium', tags: ['rare', 'balanced', 'smooth'], icon: '🏝️', flavors: ['Mild', 'Floral', 'Clean'], rating: 4.7, brewedBy: 1240, notes: 'Among the worlds rarest. Bright, balanced, and clean.' },
-    { id: 'sumatra-mandheling', name: 'Sumatra Mandheling', roaster: 'Stumptown', origin: 'Indonesia', originRef: 'sumatra', roast: 'Dark', tags: ['earthy', 'bold', 'chocolatey'], icon: '🌑', flavors: ['Dark cocoa', 'Cedar', 'Tobacco'], rating: 4.4, brewedBy: 6820, notes: 'Heavy body, low acidity, earthy. The dark roast classic.' },
-    { id: 'kenyan-aa', name: 'Kenyan AA Nyeri', roaster: 'Tegu Estate', origin: 'Kenya', originRef: 'kenya', roast: 'Light', tags: ['bright', 'fruity', 'wine-like'], icon: '⚡', flavors: ['Blackcurrant', 'Tomato', 'Citrus'], rating: 4.7, brewedBy: 3940, notes: 'High-grown Kenyan AA. Bright, vibrant, structured.' },
-    { id: 'costa-rica-tarrazu', name: 'Costa Rican Tarrazú', roaster: 'Hacienda La Minita', origin: 'Costa Rica', originRef: 'costa-rica', roast: 'Medium', tags: ['balanced', 'clean', 'sweet'], icon: '🌅', flavors: ['Apple', 'Honey', 'Almond'], rating: 4.5, brewedBy: 4720, notes: 'Bright, clean, and consistent. The reliable choice.' },
-    { id: 'brazilian-santos', name: 'Brazilian Santos', roaster: 'Daterra', origin: 'Brazil', originRef: 'brazil', roast: 'Medium-dark', tags: ['nutty', 'low-acid', 'classic'], icon: '🌰', flavors: ['Hazelnut', 'Caramel', 'Chocolate'], rating: 4.3, brewedBy: 8920, notes: 'Low acid, nutty body. The foundation of most espresso blends.' }
+    { id: 'onyx-monarch', name: 'Onyx Monarch Blend', roaster: 'Onyx Coffee Lab', origin: 'Ethiopia + Colombia', originRef: 'ethiopia', roast: 'Medium', tags: ['fruity', 'sweet', 'balanced'], icon: '🍫', photo: 'https://loremflickr.com/800/600/coffee,beans,bag?lock=11', flavors: ['Milk chocolate', 'Strawberry', 'Honey'], rating: 4.7, brewedBy: 12340, notes: 'A staple blend that anchors many home setups.' },
+    { id: 'counter-hologram', name: 'Counter Culture Hologram', roaster: 'Counter Culture Coffee', origin: 'Latin America', originRef: 'colombia', roast: 'Medium-light', tags: ['balanced', 'sweet', 'classic'], icon: '✨', photo: 'https://loremflickr.com/800/600/coffee,roasting?lock=12', flavors: ['Caramel', 'Almond', 'Apple'], rating: 4.6, brewedBy: 9180, notes: 'A cleanly-roasted Latin American blend.' },
+    { id: 'blue-bottle-bella', name: 'Blue Bottle Bella Donovan', roaster: 'Blue Bottle Coffee', origin: 'Africa + Indonesia', originRef: 'sumatra', roast: 'Medium-dark', tags: ['rich', 'bold', 'chocolatey'], icon: '🌀', photo: 'https://loremflickr.com/800/600/coffee,dark?lock=13', flavors: ['Dark chocolate', 'Plum', 'Toasted oak'], rating: 4.5, brewedBy: 7820, notes: 'Weighty and chocolatey, holds up to milk drinks.' },
+    { id: 'trade-light', name: 'Trade Light & Lively', roaster: 'Trade Coffee', origin: 'Curated rotating', originRef: 'kenya', roast: 'Light', tags: ['bright', 'fruity', 'tea-like'], icon: '🌿', photo: 'https://loremflickr.com/800/600/coffee,light?lock=14', flavors: ['Jasmine', 'Lemon', 'Berries'], rating: 4.4, brewedBy: 5410, notes: 'Light roast curation, fruit-forward African coffees.' },
+    { id: 'atlas-curated', name: 'Atlas Subscription Pick', roaster: 'Atlas Coffee Club', origin: 'Single origin, rotating', originRef: 'guatemala', roast: 'Medium', tags: ['adventure', 'single origin'], icon: '🌍', photo: 'https://loremflickr.com/800/600/coffee,bag?lock=15', flavors: ['Varies by month'], rating: 4.3, brewedBy: 4250, notes: 'Rotating single origins.' },
+    { id: 'kona-direct', name: 'Hawaiian Kona Estate', roaster: 'Kona Direct', origin: 'Hawaii, USA', originRef: 'hawaii', roast: 'Medium', tags: ['rare', 'smooth', 'mellow'], icon: '🌺', photo: 'https://loremflickr.com/800/600/coffee,plantation?lock=16', flavors: ['Brown sugar', 'Macadamia', 'Vanilla'], rating: 4.8, brewedBy: 1820, notes: 'Rare and expensive. Mellow, with a clean finish.' },
+    { id: 'yemen-mokha', name: 'Yemeni Mokha Matari', roaster: 'Mokha Bunn', origin: 'Yemen', originRef: 'yemen', roast: 'Medium', tags: ['rare', 'complex', 'wild'], icon: '🏔️', photo: 'https://loremflickr.com/800/600/coffee,arabica?lock=17', flavors: ['Cardamom', 'Dark berry', 'Wine'], rating: 4.6, brewedBy: 980, notes: 'The original coffee. Wild, complex, unmistakable.' },
+    { id: 'jamaican-blue', name: 'Jamaican Blue Mountain', roaster: 'Wallenford Estate', origin: 'Jamaica', originRef: 'jamaica', roast: 'Medium', tags: ['rare', 'balanced', 'smooth'], icon: '🏝️', photo: 'https://loremflickr.com/800/600/coffee,mountain?lock=18', flavors: ['Mild', 'Floral', 'Clean'], rating: 4.7, brewedBy: 1240, notes: 'Among the worlds rarest. Bright, balanced, and clean.' },
+    { id: 'sumatra-mandheling', name: 'Sumatra Mandheling', roaster: 'Stumptown', origin: 'Indonesia', originRef: 'sumatra', roast: 'Dark', tags: ['earthy', 'bold', 'chocolatey'], icon: '🌑', photo: 'https://loremflickr.com/800/600/coffee,beans?lock=19', flavors: ['Dark cocoa', 'Cedar', 'Tobacco'], rating: 4.4, brewedBy: 6820, notes: 'Heavy body, low acidity, earthy.' },
+    { id: 'kenyan-aa', name: 'Kenyan AA Nyeri', roaster: 'Tegu Estate', origin: 'Kenya', originRef: 'kenya', roast: 'Light', tags: ['bright', 'fruity', 'wine-like'], icon: '⚡', photo: 'https://loremflickr.com/800/600/coffee,kenya?lock=20', flavors: ['Blackcurrant', 'Tomato', 'Citrus'], rating: 4.7, brewedBy: 3940, notes: 'High-grown Kenyan AA. Bright, vibrant, structured.' },
+    { id: 'costa-rica-tarrazu', name: 'Costa Rican Tarrazú', roaster: 'Hacienda La Minita', origin: 'Costa Rica', originRef: 'costa-rica', roast: 'Medium', tags: ['balanced', 'clean', 'sweet'], icon: '🌅', photo: 'https://loremflickr.com/800/600/coffee,farm?lock=21', flavors: ['Apple', 'Honey', 'Almond'], rating: 4.5, brewedBy: 4720, notes: 'Bright, clean, and consistent.' },
+    { id: 'brazilian-santos', name: 'Brazilian Santos', roaster: 'Daterra', origin: 'Brazil', originRef: 'brazil', roast: 'Medium-dark', tags: ['nutty', 'low-acid', 'classic'], icon: '🌰', photo: 'https://loremflickr.com/800/600/coffee,brazil?lock=22', flavors: ['Hazelnut', 'Caramel', 'Chocolate'], rating: 4.3, brewedBy: 8920, notes: 'Low acid, nutty body. The foundation of most espresso blends.' }
   ],
 
   /* ---------------- Cuisinart / Conair products ---------------- */
   products: [
-    { id: 'dgb-2', name: 'Grind & Brew Coffeemaker', model: 'DGB-2', category: 'Coffee maker', icon: '☕', bg: 'linear-gradient(135deg, #2A1A14 0%, #3D2418 100%)', tagline: 'Built-in burr grinder. 12 cups.', desc: 'Grinds beans on demand and brews automatically. Programmable timer for waking up to fresh coffee.', tags: ['drip', 'grinder', '12-cup'], owners: 18420 },
-    { id: 'em-15', name: 'Espresso Maker', model: 'EM-15', category: 'Espresso', icon: '🫘', bg: 'linear-gradient(135deg, #2D4A3A 0%, #1d3327 100%)', tagline: '15-bar pump. Steam wand.', desc: 'Cafe-style espresso at home. Manual steam wand for milk drinks and latte art practice.', tags: ['espresso', 'milk drinks'], owners: 9240 },
-    { id: 'dcc-3200', name: 'PerfecTemp Coffeemaker', model: 'DCC-3200', category: 'Coffee maker', icon: '☕', bg: 'linear-gradient(135deg, #C8762D 0%, #A85F1F 100%)', tagline: '14-cup. Brewing temp control.', desc: 'Adjustable brew temperature lets you tune extraction to your beans. Brew strength control.', tags: ['drip', '14-cup'], owners: 24180 },
-    { id: 'dcb-10', name: 'Automatic Cold Brew', model: 'DCB-10', category: 'Cold brew', icon: '🧊', bg: 'linear-gradient(135deg, #5476A6 0%, #2c4869 100%)', tagline: 'Cold brew in 25 minutes.', desc: 'Spins grounds through cold water for rapid extraction. Concentrate or full-strength.', tags: ['cold brew'], owners: 7820 },
-    { id: 'cpo-800', name: 'PurePrecision Pour Over', model: 'CPO-800', category: 'Pour over', icon: '🌊', bg: 'linear-gradient(135deg, #C5962B 0%, #806017 100%)', tagline: 'Automated pour over. 8 cups.', desc: 'Variable pulse and pour timing. Replicates the manual pour over technique automatically.', tags: ['pour over', '8-cup'], owners: 4120 },
-    { id: 'fp-3', name: 'Classic French Press', model: 'FP-3', category: 'French press', icon: '💪', bg: 'linear-gradient(135deg, #4A3A30 0%, #2A1A14 100%)', tagline: '32oz. Stainless mesh.', desc: 'Double-walled stainless. Keeps coffee hot. Mesh filter for full body.', tags: ['french press'], owners: 12480 },
-    { id: 'dbm-8', name: 'Burr Mill Grinder', model: 'DBM-8', category: 'Grinder', icon: '⚙️', bg: 'linear-gradient(135deg, #6B5D54 0%, #3D2418 100%)', tagline: '18 grind settings.', desc: 'Burr grinding from espresso fine to French press coarse. Removable hopper for clean storage.', tags: ['grinder'], owners: 14820 },
-    { id: 'em-350', name: 'Touchscreen Espresso', model: 'EM-350', category: 'Espresso', icon: '📱', bg: 'linear-gradient(135deg, #C8762D 0%, #2A1A14 100%)', tagline: 'Touchscreen. Auto milk frother.', desc: 'One-touch espresso, latte, cappuccino. Built-in milk frother. The all-in-one.', tags: ['espresso', 'automatic'], owners: 5680 }
+    { id: 'dgb-2', name: 'Grind & Brew Coffeemaker', model: 'DGB-2', category: 'Coffee maker', icon: '☕', photo: 'https://loremflickr.com/800/600/coffeemaker?lock=41', bg: 'linear-gradient(135deg, #2A1A14 0%, #3D2418 100%)', tagline: 'Built-in burr grinder. 12 cups.', desc: 'Grinds beans on demand and brews automatically. Programmable timer for waking up to fresh coffee.', tags: ['drip', 'grinder', '12-cup'], owners: 18420 },
+    { id: 'em-15', name: 'Espresso Maker', model: 'EM-15', category: 'Espresso', icon: '🫘', photo: 'https://loremflickr.com/800/600/espresso,machine?lock=42', bg: 'linear-gradient(135deg, #2D4A3A 0%, #1d3327 100%)', tagline: '15-bar pump. Steam wand.', desc: 'Cafe-style espresso at home. Manual steam wand for milk drinks and latte art practice.', tags: ['espresso', 'milk drinks'], owners: 9240 },
+    { id: 'dcc-3200', name: 'PerfecTemp Coffeemaker', model: 'DCC-3200', category: 'Coffee maker', icon: '☕', photo: 'https://loremflickr.com/800/600/coffeemaker,kitchen?lock=43', bg: 'linear-gradient(135deg, #C8762D 0%, #A85F1F 100%)', tagline: '14-cup. Brewing temp control.', desc: 'Adjustable brew temperature lets you tune extraction to your beans. Brew strength control.', tags: ['drip', '14-cup'], owners: 24180 },
+    { id: 'dcb-10', name: 'Automatic Cold Brew', model: 'DCB-10', category: 'Cold brew', icon: '🧊', photo: 'https://loremflickr.com/800/600/coldbrew,coffee?lock=44', bg: 'linear-gradient(135deg, #5476A6 0%, #2c4869 100%)', tagline: 'Cold brew in 25 minutes.', desc: 'Spins grounds through cold water for rapid extraction. Concentrate or full-strength.', tags: ['cold brew'], owners: 7820 },
+    { id: 'cpo-800', name: 'PurePrecision Pour Over', model: 'CPO-800', category: 'Pour over', icon: '🌊', photo: 'https://loremflickr.com/800/600/pourover,coffee?lock=45', bg: 'linear-gradient(135deg, #C5962B 0%, #806017 100%)', tagline: 'Automated pour over. 8 cups.', desc: 'Variable pulse and pour timing. Replicates the manual pour over technique automatically.', tags: ['pour over', '8-cup'], owners: 4120 },
+    { id: 'fp-3', name: 'Classic French Press', model: 'FP-3', category: 'French press', icon: '💪', photo: 'https://loremflickr.com/800/600/frenchpress?lock=46', bg: 'linear-gradient(135deg, #4A3A30 0%, #2A1A14 100%)', tagline: '32oz. Stainless mesh.', desc: 'Double-walled stainless. Keeps coffee hot. Mesh filter for full body.', tags: ['french press'], owners: 12480 },
+    { id: 'dbm-8', name: 'Burr Mill Grinder', model: 'DBM-8', category: 'Grinder', icon: '⚙️', photo: 'https://loremflickr.com/800/600/coffee,grinder?lock=47', bg: 'linear-gradient(135deg, #6B5D54 0%, #3D2418 100%)', tagline: '18 grind settings.', desc: 'Burr grinding from espresso fine to French press coarse. Removable hopper for clean storage.', tags: ['grinder'], owners: 14820 },
+    { id: 'em-350', name: 'Touchscreen Espresso', model: 'EM-350', category: 'Espresso', icon: '📱', photo: 'https://loremflickr.com/800/600/espresso,latte?lock=48', bg: 'linear-gradient(135deg, #C8762D 0%, #2A1A14 100%)', tagline: 'Touchscreen. Auto milk frother.', desc: 'One-touch espresso, latte, cappuccino. Built-in milk frother. The all-in-one.', tags: ['espresso', 'automatic'], owners: 5680 }
   ],
 
   /* ---------------- Coffee Passport regions ---------------- */
@@ -347,6 +349,7 @@ const DATA = {
       machineCompat: ['drip-auto', 'pod'],
       method: 'Drip',
       icon: '☀️',
+      photo: 'https://loremflickr.com/800/600/coffee,morning,cup?lock=31',
       thumbClass: 'tile-thumb',
       time: '6 min',
       difficulty: 'Easy',
@@ -371,6 +374,7 @@ const DATA = {
       machineCompat: ['espresso-machine'],
       method: 'Espresso',
       icon: '🥛',
+      photo: 'https://loremflickr.com/800/600/latte,art?lock=32',
       thumbClass: 'tile-thumb-dark',
       time: '4 min',
       difficulty: 'Medium',
@@ -394,6 +398,7 @@ const DATA = {
       machineCompat: ['cold-brew', 'french-press'],
       method: 'Cold brew',
       icon: '🧊',
+      photo: 'https://loremflickr.com/800/600/iced,coffee?lock=33',
       thumbClass: 'tile-thumb-green',
       time: '20 hr',
       difficulty: 'Easy',
@@ -418,6 +423,7 @@ const DATA = {
       machineCompat: ['pour-over'],
       method: 'Pour over',
       icon: '🌊',
+      photo: 'https://loremflickr.com/800/600/pourover,coffee?lock=34',
       thumbClass: 'tile-thumb',
       time: '5 min',
       difficulty: 'Hard',
@@ -442,6 +448,7 @@ const DATA = {
       machineCompat: ['espresso-machine'],
       method: 'Espresso',
       icon: '🍦',
+      photo: 'https://loremflickr.com/800/600/iced,latte?lock=35',
       thumbClass: 'tile-thumb-gold',
       time: '5 min',
       difficulty: 'Easy',
@@ -465,6 +472,7 @@ const DATA = {
       machineCompat: ['french-press'],
       method: 'French press',
       icon: '💪',
+      photo: 'https://loremflickr.com/800/600/frenchpress,coffee?lock=36',
       thumbClass: 'tile-thumb',
       time: '8 min',
       difficulty: 'Easy',
