@@ -6,105 +6,115 @@
 
 const DATA = {
 
-  /* ---------------- Machines ---------------- */
+  /* ---------------- Brew methods (machine-agnostic) ---------------- */
   machines: [
-    { id: 'dgb-2', name: 'Cuisinart Grind & Brew DGB-2', kind: 'Drip', icon: '☕', blurb: '12-cup automatic with built-in burr grinder. Workhorse for daily drinkers.', bestFor: ['drip', 'cold brew'], tier: 'Mid' },
-    { id: 'em-15', name: 'Cuisinart EM-15 Espresso', kind: 'Espresso', icon: '🫘', blurb: '15-bar pump espresso with steam wand. The all-rounder for espresso curious owners.', bestFor: ['espresso', 'cappuccino', 'latte'], tier: 'Mid' },
-    { id: 'ss-pro', name: 'Cuisinart SS-Pro Single Serve', kind: 'Pod / Single-Serve', icon: '⚡', blurb: 'Pod and ground compatible. Fastest cup in the lineup.', bestFor: ['drip', 'pod'], tier: 'Entry' },
-    { id: 'pour-over', name: 'Cuisinart PourOver PO-50', kind: 'Manual / Pour Over', icon: '🌊', blurb: 'Hands-on brewer for the third-wave curious. Pre-infusion bloom and gooseneck pour.', bestFor: ['pour over'], tier: 'Premium' },
-    { id: 'dcc-1200', name: 'Cuisinart DCC-1200 Brew Central', kind: 'Drip', icon: '☕', blurb: 'Iconic 12-cup drip. The one your parents owned.', bestFor: ['drip'], tier: 'Entry' },
-    { id: 'cold-brew', name: 'Cuisinart Automatic Cold Brew', kind: 'Cold brew', icon: '🧊', blurb: 'On-demand cold brew in 25 minutes instead of 12 hours.', bestFor: ['cold brew'], tier: 'Mid' }
+    { id: 'drip-auto', name: 'Drip / automatic brewer', kind: 'Drip', icon: '☕', blurb: 'Standard 8-12 cup automatic. The most common home setup.', bestFor: ['drip', 'cold brew'] },
+    { id: 'espresso-machine', name: 'Espresso machine', kind: 'Espresso', icon: '🫘', blurb: 'Pump espresso with a steam wand. The all-rounder for milk drinks and shots.', bestFor: ['espresso', 'cappuccino', 'latte'] },
+    { id: 'pour-over', name: 'Pour over', kind: 'Manual', icon: '🌊', blurb: 'V60, Kalita, Origami, or any cone. Manual control, third-wave classic.', bestFor: ['pour over'] },
+    { id: 'french-press', name: 'French press', kind: 'Immersion', icon: '💪', blurb: 'Full immersion. Bold body. The starter brewer most people own.', bestFor: ['french press'] },
+    { id: 'pod', name: 'Single-serve pods', kind: 'Pod', icon: '⚡', blurb: 'Keurig, Nespresso, or similar. Fast and consistent.', bestFor: ['pod'] },
+    { id: 'cold-brew', name: 'Cold brew', kind: 'Cold brew', icon: '🧊', blurb: 'Slow steep or rapid extraction. Low acid, smooth.', bestFor: ['cold brew'] },
+    { id: 'aeropress', name: 'AeroPress', kind: 'Pressure-immersion', icon: '🎯', blurb: 'Hybrid pressure and immersion. Forgiving and travel-friendly.', bestFor: ['aeropress'] }
   ],
 
-  /* ---------------- Roasters / Beans (with price comparison) ---------------- */
+  /* ---------------- Roasters / Beans (curated, global) ---------------- */
   beans: [
-    {
-      id: 'onyx-monarch',
-      name: 'Onyx Monarch Blend',
-      roaster: 'Onyx Coffee Lab',
-      origin: 'Ethiopia + Colombia',
-      originRef: 'ethiopia',
-      roast: 'Medium',
-      tags: ['fruity', 'sweet', 'balanced'],
-      icon: '🍫',
-      flavors: ['Milk chocolate', 'Strawberry', 'Honey'],
-      sizeOz: 12,
-      prices: [
-        { retailer: 'Onyx Coffee Lab', kind: 'Roaster direct', price: 19.50, shipping: 'Free $35+' },
-        { retailer: 'Trade Coffee', kind: 'Curated marketplace', price: 18.99, shipping: 'Free $30+' },
-        { retailer: 'Amazon', kind: 'Marketplace', price: 22.95, shipping: 'Prime' },
-        { retailer: 'Cuisinart Brew Lab', kind: 'Member price', price: 17.50, shipping: 'Free for members', memberOnly: true }
-      ]
-    },
-    {
-      id: 'counter-hologram',
-      name: 'Counter Culture Hologram',
-      roaster: 'Counter Culture Coffee',
-      origin: 'Latin America',
-      originRef: 'colombia',
-      roast: 'Medium-light',
-      tags: ['balanced', 'sweet', 'classic'],
-      icon: '✨',
-      flavors: ['Caramel', 'Almond', 'Apple'],
-      sizeOz: 12,
-      prices: [
-        { retailer: 'Counter Culture', kind: 'Roaster direct', price: 17.95, shipping: 'Free $25+' },
-        { retailer: 'Whole Foods', kind: 'Grocery', price: 19.99, shipping: 'In store' },
-        { retailer: 'Amazon', kind: 'Marketplace', price: 21.50, shipping: 'Prime' },
-        { retailer: 'Cuisinart Brew Lab', kind: 'Member price', price: 16.20, shipping: 'Free for members', memberOnly: true }
-      ]
-    },
-    {
-      id: 'blue-bottle-bella',
-      name: 'Blue Bottle Bella Donovan',
-      roaster: 'Blue Bottle Coffee',
-      origin: 'Africa + Indonesia',
-      originRef: 'sumatra',
-      roast: 'Medium-dark',
-      tags: ['rich', 'bold', 'chocolatey'],
-      icon: '🌀',
-      flavors: ['Dark chocolate', 'Plum', 'Toasted oak'],
-      sizeOz: 12,
-      prices: [
-        { retailer: 'Blue Bottle', kind: 'Roaster direct', price: 22.00, shipping: 'Free $35+' },
-        { retailer: 'Amazon', kind: 'Marketplace', price: 21.99, shipping: 'Prime' },
-        { retailer: 'Target', kind: 'Grocery', price: 23.49, shipping: 'In store' },
-        { retailer: 'Cuisinart Brew Lab', kind: 'Member price', price: 19.75, shipping: 'Free for members', memberOnly: true }
-      ]
-    },
-    {
-      id: 'trade-light',
-      name: 'Trade Light & Lively',
-      roaster: 'Trade Coffee',
-      origin: 'Curated rotating',
-      originRef: 'kenya',
-      roast: 'Light',
-      tags: ['bright', 'fruity', 'tea-like'],
-      icon: '🌿',
-      flavors: ['Jasmine', 'Lemon', 'Berries'],
-      sizeOz: 12,
-      prices: [
-        { retailer: 'Trade Coffee', kind: 'Subscription', price: 16.50, shipping: 'Free with sub' },
-        { retailer: 'Cuisinart Brew Lab', kind: 'Member price', price: 14.95, shipping: 'Free for members', memberOnly: true }
-      ]
-    },
-    {
-      id: 'atlas-curated',
-      name: 'Atlas Subscription Pick',
-      roaster: 'Atlas Coffee Club',
-      origin: 'Single origin, rotating',
-      originRef: 'guatemala',
-      roast: 'Medium',
-      tags: ['adventure', 'single origin'],
-      icon: '🌍',
-      flavors: ['Varies by month'],
-      sizeOz: 12,
-      prices: [
-        { retailer: 'Atlas Coffee Club', kind: 'Subscription', price: 14.00, shipping: 'Included' },
-        { retailer: 'Cuisinart Brew Lab', kind: 'Member price', price: 12.50, shipping: 'Free for members', memberOnly: true }
-      ]
-    }
+    { id: 'onyx-monarch', name: 'Onyx Monarch Blend', roaster: 'Onyx Coffee Lab', origin: 'Ethiopia + Colombia', originRef: 'ethiopia', roast: 'Medium', tags: ['fruity', 'sweet', 'balanced'], icon: '🍫', flavors: ['Milk chocolate', 'Strawberry', 'Honey'], rating: 4.7, brewedBy: 12340, notes: 'A staple blend that anchors many home setups.' },
+    { id: 'counter-hologram', name: 'Counter Culture Hologram', roaster: 'Counter Culture Coffee', origin: 'Latin America', originRef: 'colombia', roast: 'Medium-light', tags: ['balanced', 'sweet', 'classic'], icon: '✨', flavors: ['Caramel', 'Almond', 'Apple'], rating: 4.6, brewedBy: 9180, notes: 'A cleanly-roasted Latin American blend.' },
+    { id: 'blue-bottle-bella', name: 'Blue Bottle Bella Donovan', roaster: 'Blue Bottle Coffee', origin: 'Africa + Indonesia', originRef: 'sumatra', roast: 'Medium-dark', tags: ['rich', 'bold', 'chocolatey'], icon: '🌀', flavors: ['Dark chocolate', 'Plum', 'Toasted oak'], rating: 4.5, brewedBy: 7820, notes: 'Weighty and chocolatey, holds up to milk drinks.' },
+    { id: 'trade-light', name: 'Trade Light & Lively', roaster: 'Trade Coffee', origin: 'Curated rotating', originRef: 'kenya', roast: 'Light', tags: ['bright', 'fruity', 'tea-like'], icon: '🌿', flavors: ['Jasmine', 'Lemon', 'Berries'], rating: 4.4, brewedBy: 5410, notes: 'Light roast curation, fruit-forward African coffees.' },
+    { id: 'atlas-curated', name: 'Atlas Subscription Pick', roaster: 'Atlas Coffee Club', origin: 'Single origin, rotating', originRef: 'guatemala', roast: 'Medium', tags: ['adventure', 'single origin'], icon: '🌍', flavors: ['Varies by month'], rating: 4.3, brewedBy: 4250, notes: 'Rotating single origins. Exposure to regions you would not pick.' },
+    { id: 'kona-direct', name: 'Hawaiian Kona Estate', roaster: 'Kona Direct', origin: 'Hawaii, USA', originRef: 'hawaii', roast: 'Medium', tags: ['rare', 'smooth', 'mellow'], icon: '🌺', flavors: ['Brown sugar', 'Macadamia', 'Vanilla'], rating: 4.8, brewedBy: 1820, notes: 'Rare and expensive. Mellow, with a clean finish.' },
+    { id: 'yemen-mokha', name: 'Yemeni Mokha Matari', roaster: 'Mokha Bunn', origin: 'Yemen', originRef: 'yemen', roast: 'Medium', tags: ['rare', 'complex', 'wild'], icon: '🏔️', flavors: ['Cardamom', 'Dark berry', 'Wine'], rating: 4.6, brewedBy: 980, notes: 'The original coffee. Wild, complex, unmistakable.' },
+    { id: 'jamaican-blue', name: 'Jamaican Blue Mountain', roaster: 'Wallenford Estate', origin: 'Jamaica', originRef: 'jamaica', roast: 'Medium', tags: ['rare', 'balanced', 'smooth'], icon: '🏝️', flavors: ['Mild', 'Floral', 'Clean'], rating: 4.7, brewedBy: 1240, notes: 'Among the worlds rarest. Bright, balanced, and clean.' },
+    { id: 'sumatra-mandheling', name: 'Sumatra Mandheling', roaster: 'Stumptown', origin: 'Indonesia', originRef: 'sumatra', roast: 'Dark', tags: ['earthy', 'bold', 'chocolatey'], icon: '🌑', flavors: ['Dark cocoa', 'Cedar', 'Tobacco'], rating: 4.4, brewedBy: 6820, notes: 'Heavy body, low acidity, earthy. The dark roast classic.' },
+    { id: 'kenyan-aa', name: 'Kenyan AA Nyeri', roaster: 'Tegu Estate', origin: 'Kenya', originRef: 'kenya', roast: 'Light', tags: ['bright', 'fruity', 'wine-like'], icon: '⚡', flavors: ['Blackcurrant', 'Tomato', 'Citrus'], rating: 4.7, brewedBy: 3940, notes: 'High-grown Kenyan AA. Bright, vibrant, structured.' },
+    { id: 'costa-rica-tarrazu', name: 'Costa Rican Tarrazú', roaster: 'Hacienda La Minita', origin: 'Costa Rica', originRef: 'costa-rica', roast: 'Medium', tags: ['balanced', 'clean', 'sweet'], icon: '🌅', flavors: ['Apple', 'Honey', 'Almond'], rating: 4.5, brewedBy: 4720, notes: 'Bright, clean, and consistent. The reliable choice.' },
+    { id: 'brazilian-santos', name: 'Brazilian Santos', roaster: 'Daterra', origin: 'Brazil', originRef: 'brazil', roast: 'Medium-dark', tags: ['nutty', 'low-acid', 'classic'], icon: '🌰', flavors: ['Hazelnut', 'Caramel', 'Chocolate'], rating: 4.3, brewedBy: 8920, notes: 'Low acid, nutty body. The foundation of most espresso blends.' }
   ],
+
+  /* ---------------- Cuisinart / Conair products ---------------- */
+  products: [
+    { id: 'dgb-2', name: 'Grind & Brew Coffeemaker', model: 'DGB-2', category: 'Coffee maker', icon: '☕', bg: 'linear-gradient(135deg, #2A1A14 0%, #3D2418 100%)', tagline: 'Built-in burr grinder. 12 cups.', desc: 'Grinds beans on demand and brews automatically. Programmable timer for waking up to fresh coffee.', tags: ['drip', 'grinder', '12-cup'], owners: 18420 },
+    { id: 'em-15', name: 'Espresso Maker', model: 'EM-15', category: 'Espresso', icon: '🫘', bg: 'linear-gradient(135deg, #2D4A3A 0%, #1d3327 100%)', tagline: '15-bar pump. Steam wand.', desc: 'Cafe-style espresso at home. Manual steam wand for milk drinks and latte art practice.', tags: ['espresso', 'milk drinks'], owners: 9240 },
+    { id: 'dcc-3200', name: 'PerfecTemp Coffeemaker', model: 'DCC-3200', category: 'Coffee maker', icon: '☕', bg: 'linear-gradient(135deg, #C8762D 0%, #A85F1F 100%)', tagline: '14-cup. Brewing temp control.', desc: 'Adjustable brew temperature lets you tune extraction to your beans. Brew strength control.', tags: ['drip', '14-cup'], owners: 24180 },
+    { id: 'dcb-10', name: 'Automatic Cold Brew', model: 'DCB-10', category: 'Cold brew', icon: '🧊', bg: 'linear-gradient(135deg, #5476A6 0%, #2c4869 100%)', tagline: 'Cold brew in 25 minutes.', desc: 'Spins grounds through cold water for rapid extraction. Concentrate or full-strength.', tags: ['cold brew'], owners: 7820 },
+    { id: 'cpo-800', name: 'PurePrecision Pour Over', model: 'CPO-800', category: 'Pour over', icon: '🌊', bg: 'linear-gradient(135deg, #C5962B 0%, #806017 100%)', tagline: 'Automated pour over. 8 cups.', desc: 'Variable pulse and pour timing. Replicates the manual pour over technique automatically.', tags: ['pour over', '8-cup'], owners: 4120 },
+    { id: 'fp-3', name: 'Classic French Press', model: 'FP-3', category: 'French press', icon: '💪', bg: 'linear-gradient(135deg, #4A3A30 0%, #2A1A14 100%)', tagline: '32oz. Stainless mesh.', desc: 'Double-walled stainless. Keeps coffee hot. Mesh filter for full body.', tags: ['french press'], owners: 12480 },
+    { id: 'dbm-8', name: 'Burr Mill Grinder', model: 'DBM-8', category: 'Grinder', icon: '⚙️', bg: 'linear-gradient(135deg, #6B5D54 0%, #3D2418 100%)', tagline: '18 grind settings.', desc: 'Burr grinding from espresso fine to French press coarse. Removable hopper for clean storage.', tags: ['grinder'], owners: 14820 },
+    { id: 'em-350', name: 'Touchscreen Espresso', model: 'EM-350', category: 'Espresso', icon: '📱', bg: 'linear-gradient(135deg, #C8762D 0%, #2A1A14 100%)', tagline: 'Touchscreen. Auto milk frother.', desc: 'One-touch espresso, latte, cappuccino. Built-in milk frother. The all-in-one.', tags: ['espresso', 'automatic'], owners: 5680 }
+  ],
+
+  /* ---------------- Coffee Passport regions ---------------- */
+  /* Stamps the user collects by trying beans from each origin */
+  passportRegions: [
+    { id: 'ethiopia', name: 'Ethiopia', flag: '🇪🇹', region: 'Africa' },
+    { id: 'kenya', name: 'Kenya', flag: '🇰🇪', region: 'Africa' },
+    { id: 'rwanda', name: 'Rwanda', flag: '🇷🇼', region: 'Africa' },
+    { id: 'yemen', name: 'Yemen', flag: '🇾🇪', region: 'Middle East' },
+    { id: 'colombia', name: 'Colombia', flag: '🇨🇴', region: 'South America' },
+    { id: 'brazil', name: 'Brazil', flag: '🇧🇷', region: 'South America' },
+    { id: 'guatemala', name: 'Guatemala', flag: '🇬🇹', region: 'Central America' },
+    { id: 'costa-rica', name: 'Costa Rica', flag: '🇨🇷', region: 'Central America' },
+    { id: 'jamaica', name: 'Jamaica', flag: '🇯🇲', region: 'Caribbean' },
+    { id: 'hawaii', name: 'Hawaii', flag: '🌺', region: 'Pacific' },
+    { id: 'sumatra', name: 'Indonesia', flag: '🇮🇩', region: 'Asia Pacific' },
+    { id: 'vietnam', name: 'Vietnam', flag: '🇻🇳', region: 'Asia Pacific' }
+  ],
+
+  /* ---------------- Daily quests (rotating) ---------------- */
+  dailyQuests: [
+    { id: 'q1', icon: '☕', title: 'Brew and rate', desc: 'Log a brew with a tasting note today', reward: 30 },
+    { id: 'q2', icon: '🌍', title: 'Try a new origin', desc: 'Brew a bean from an origin you have never tried', reward: 50 },
+    { id: 'q3', icon: '🎬', title: 'Watch and learn', desc: 'Watch one creator video', reward: 20 },
+    { id: 'q4', icon: '💬', title: 'Ask the Barista', desc: 'Ask one question to the Virtual Barista', reward: 15 },
+    { id: 'q5', icon: '🎨', title: 'Vote on a pour', desc: 'Vote on a Latte Art Leaderboard submission', reward: 10 },
+    { id: 'q6', icon: '📚', title: 'Continue your class', desc: 'Spend at least one lesson on any class', reward: 25 }
+  ],
+
+  /* ---------------- Brew personalities (assigned based on profile) ---------------- */
+  brewPersonalities: [
+    { id: 'methodical', name: 'The Methodical Barista', icon: '⚖️', desc: 'Weighs beans, times shots, owns a refractometer. Coffee is a craft to perfect.' },
+    { id: 'explorer', name: 'The Adventurous Explorer', icon: '🌍', desc: 'Tries every new origin. Bored of the same bean two weeks in a row.' },
+    { id: 'creator', name: 'The Cafe Creator', icon: '🎨', desc: 'Latte art, syrups, drinks they invented. Coffee is creative expression.' },
+    { id: 'purist', name: 'The Purist', icon: '⚫', desc: 'Black coffee, light roast, pour over. Lets the bean speak for itself.' },
+    { id: 'comfort', name: 'The Comfort Drinker', icon: '🛋️', desc: 'Same brew every morning. The ritual matters more than the variety.' },
+    { id: 'social', name: 'The Cafe Social', icon: '☕', desc: 'Coffee is connection. Loves the third place as much as the cup.' }
+  ],
+
+  /* ---------------- Community awards (rotating monthly) ---------------- */
+  communityAwards: [
+    { id: 'best-journal', icon: '📓', title: 'Brewer of the Month', winner: 'Maya R.', desc: 'For 31 consecutive days of brews logged with detailed tasting notes.', month: 'April 2026' },
+    { id: 'most-helpful', icon: '🤝', title: 'Most Helpful', winner: 'Diego P.', desc: 'Answered 47 questions in the community feed this month.', month: 'April 2026' },
+    { id: 'pour-champ', icon: '🎨', title: 'Latte Art Champ', winner: 'Tessa L.', desc: 'Won three weekly leaderboards in a row with her rosetta variations.', month: 'April 2026' },
+    { id: 'origin-quest', icon: '🌍', title: 'Coffee Passport Master', winner: 'Priya S.', desc: 'First member to collect stamps from all 12 origins this year.', month: 'April 2026' },
+    { id: 'rising-star', icon: '🌟', title: 'Rising Star', winner: 'Marcus B.', desc: 'Reached Specialty Brewer in 60 days. Fastest of the month.', month: 'April 2026' }
+  ],
+
+  /* ---------------- Skill tree structure ---------------- */
+  /* Visual progression: each node is a class. Tier branches converge to Sommelier. */
+  skillTree: {
+    branches: [
+      {
+        id: 'foundations',
+        name: 'Foundations',
+        color: 'caramel',
+        nodes: ['milk-steaming', 'espresso-fundamentals']
+      },
+      {
+        id: 'craft',
+        name: 'Craft',
+        color: 'green',
+        nodes: ['latte-art-101', 'pour-over-mastery']
+      },
+      {
+        id: 'mastery',
+        name: 'Mastery',
+        color: 'gold',
+        nodes: ['cupping', 'latte-art-201']
+      }
+    ]
+  },
 
   /* ---------------- Origins / Farmer profiles ---------------- */
   origins: [
@@ -225,7 +235,92 @@ const DATA = {
       story: 'That deep, earthy, syrupy cup that anchors most dark roast blends.',
       videoTitle: 'Wet-hulled: the Sumatran method',
       videoDuration: '5:10',
-      partners: ['Blue Bottle']
+      partners: ['Blue Bottle', 'Stumptown']
+    },
+    {
+      id: 'hawaii',
+      country: 'USA',
+      region: 'Kona, Hawaii',
+      x: 14, y: 56,
+      farmer: 'Ku\'ulei Nakamura',
+      farmName: 'Mauna Loa Estate',
+      photoIcon: '🌺',
+      bio: 'Ku\'ulei works a 6-acre Kona estate on volcanic slopes. The only US-grown specialty coffee with global recognition.',
+      altitude: '600m',
+      varietal: 'Typica',
+      processing: 'Washed',
+      story: 'Smooth, mellow, with brown sugar and macadamia. The most accessible cup in our lineup.',
+      videoTitle: 'Coffee on a volcano',
+      videoDuration: '4:30',
+      partners: ['Kona Direct']
+    },
+    {
+      id: 'yemen',
+      country: 'Yemen',
+      region: 'Bani Matar, Mokha',
+      x: 60, y: 56,
+      farmer: 'Mokhtar Alkhanshali',
+      farmName: 'Mokha Bunn',
+      photoIcon: '🏔️',
+      bio: 'Mokhtar revived Yemeni coffee single-handedly, smuggling samples out during conflict to bring Yemeni Mokha back to global markets.',
+      altitude: '2,200m',
+      varietal: 'Heirloom (the original)',
+      processing: 'Natural',
+      story: 'The historic origin. Wild, complex, unmistakable. Cardamom, dark berry, wine.',
+      videoTitle: 'Saving Yemeni coffee',
+      videoDuration: '8:00',
+      partners: ['Mokha Bunn']
+    },
+    {
+      id: 'jamaica',
+      country: 'Jamaica',
+      region: 'Blue Mountains',
+      x: 22, y: 58,
+      farmer: 'Dorothy Wallace',
+      farmName: 'Wallenford Estate',
+      photoIcon: '🏝️',
+      bio: 'Wallenford Estate has grown Blue Mountain coffee since 1880. Among the worlds most expensive and most regulated coffees.',
+      altitude: '1,500m',
+      varietal: 'Typica',
+      processing: 'Washed',
+      story: 'Bright, balanced, clean. Why Blue Mountain commands its price.',
+      videoTitle: 'Blue Mountain: protected origin',
+      videoDuration: '5:50',
+      partners: ['Wallenford Estate']
+    },
+    {
+      id: 'costa-rica',
+      country: 'Costa Rica',
+      region: 'Tarrazú',
+      x: 24, y: 60,
+      farmer: 'Roberto Vargas',
+      farmName: 'Hacienda La Minita',
+      photoIcon: '🇨🇷',
+      bio: 'La Minita has been a benchmark for Costa Rican coffee for over a century. Strict varietal control and selective picking.',
+      altitude: '1,700m',
+      varietal: 'Catuai, Caturra',
+      processing: 'Washed',
+      story: 'Bright, clean, balanced. The reliable cup. Apple, honey, almond.',
+      videoTitle: 'A century of consistency',
+      videoDuration: '4:20',
+      partners: ['Hacienda La Minita']
+    },
+    {
+      id: 'vietnam',
+      country: 'Vietnam',
+      region: 'Da Lat, Lam Dong',
+      x: 78, y: 60,
+      farmer: 'Nguyen Thi Lan',
+      farmName: 'Da Lat Highlands',
+      photoIcon: '🇻🇳',
+      bio: 'Nguyen Thi Lan farms specialty arabica in Da Lat, working to shift Vietnam\'s reputation from commodity robusta to specialty.',
+      altitude: '1,500m',
+      varietal: 'Bourbon, Catimor',
+      processing: 'Honey, washed',
+      story: 'The next frontier. Vietnam is no longer just instant coffee. The new specialty origin to watch.',
+      videoTitle: 'Vietnam goes specialty',
+      videoDuration: '6:10',
+      partners: ['Da Lat Highlands']
     }
   ],
 
@@ -234,7 +329,7 @@ const DATA = {
     {
       id: 'morning-classic',
       name: 'The Morning Classic',
-      machineCompat: ['dgb-2', 'dcc-1200', 'ss-pro'],
+      machineCompat: ['drip-auto', 'pod'],
       method: 'Drip',
       icon: '☀️',
       thumbClass: 'tile-thumb',
@@ -242,23 +337,23 @@ const DATA = {
       difficulty: 'Easy',
       tags: ['drip', 'balanced', 'every day'],
       author: 'Brew Lab Team',
-      desc: 'A balanced cup that lets the bean speak. Optimized for the DGB-2 grind setting 4.',
+      desc: 'A balanced cup that lets the bean speak. The everyday drip formula every home brewer should know by heart.',
       ratio: '1:16',
       dose: '60g coffee / 950ml water',
-      grind: 'Medium (setting 4 on DGB-2)',
+      grind: 'Medium',
       water: '200°F (93°C)',
       steps: [
-        { title: 'Grind fresh', body: 'Use the DGB-2 built-in grinder on setting 4. Grind only what you need.', time: '30 sec' },
-        { title: 'Charge the reservoir', body: 'Filtered water at 200°F (the DGB-2 holds this temperature within ±2°F).', time: '1 min' },
-        { title: 'Bloom', body: 'Allow the pre-infusion phase to complete. Look for the grounds to puff up.', time: '30 sec' },
-        { title: 'Brew', body: 'Total brew time should land between 4:30 and 5:30. The carafe will hold temperature for 60 minutes.', time: '4-5 min' },
-        { title: 'Decant', body: 'Pour into a pre-warmed mug to keep heat. Skip the carafe sit if possible.', time: '15 sec' }
+        { title: 'Grind fresh', body: 'Medium grind, slightly coarser than table salt. Grind only what you need.', time: '30 sec' },
+        { title: 'Charge the reservoir', body: 'Filtered water at 200°F. Many drip machines hover around this naturally.', time: '1 min' },
+        { title: 'Bloom', body: 'If your machine has a pre-infusion mode, use it. Look for the grounds to puff up.', time: '30 sec' },
+        { title: 'Brew', body: 'Total brew time should land between 4:30 and 5:30. Pour into a pre-warmed mug as soon as possible.', time: '4-5 min' },
+        { title: 'Decant', body: 'Skip the carafe sit if you can. Coffee tastes best within 15 minutes of brewing.', time: '15 sec' }
       ]
     },
     {
       id: 'sat-morning-latte',
       name: 'Saturday Morning Latte',
-      machineCompat: ['em-15'],
+      machineCompat: ['espresso-machine'],
       method: 'Espresso',
       icon: '🥛',
       thumbClass: 'tile-thumb-dark',
@@ -266,7 +361,7 @@ const DATA = {
       difficulty: 'Medium',
       tags: ['espresso', 'milk', 'weekend'],
       author: 'Lance H. (Brew Lab Creator)',
-      desc: 'Café-quality latte from your EM-15. Steam wand technique included.',
+      desc: 'Café-quality latte at home. Espresso shot, steamed milk, simple pour.',
       ratio: '1:2 espresso, 1:5 milk',
       dose: '18g in / 36g out',
       grind: 'Fine',
@@ -281,7 +376,7 @@ const DATA = {
     {
       id: 'cold-brew-classic',
       name: 'Slow Cold Brew Concentrate',
-      machineCompat: ['cold-brew', 'dgb-2'],
+      machineCompat: ['cold-brew', 'french-press'],
       method: 'Cold brew',
       icon: '🧊',
       thumbClass: 'tile-thumb-green',
@@ -313,7 +408,7 @@ const DATA = {
       difficulty: 'Hard',
       tags: ['pour over', 'light roast', 'hands on'],
       author: 'James H. (Brew Lab Creator)',
-      desc: 'A high-extraction pour for fruit-forward light roasts. Calibrated for the PO-50 gooseneck.',
+      desc: 'A high-extraction pour for fruit-forward light roasts. Works on any V60 or cone.',
       ratio: '1:17',
       dose: '20g coffee / 340ml water',
       grind: 'Medium-fine',
@@ -329,7 +424,7 @@ const DATA = {
     {
       id: 'iced-vanilla-latte',
       name: 'Iced Brown Sugar Vanilla Latte',
-      machineCompat: ['em-15'],
+      machineCompat: ['espresso-machine'],
       method: 'Espresso',
       icon: '🍦',
       thumbClass: 'tile-thumb-gold',
@@ -352,23 +447,24 @@ const DATA = {
     {
       id: 'french-press-bold',
       name: 'Bold French Press',
-      machineCompat: ['dgb-2', 'dcc-1200'],
-      method: 'Drip',
+      machineCompat: ['french-press'],
+      method: 'French press',
       icon: '💪',
       thumbClass: 'tile-thumb',
       time: '8 min',
       difficulty: 'Easy',
-      tags: ['drip', 'strong', 'classic'],
+      tags: ['french press', 'strong', 'classic'],
       author: 'Brew Lab Team',
-      desc: 'Programmable bold mode for medium-dark roasts. Extra extraction without bitterness.',
+      desc: 'Heavy body, full extraction. The classic French press method dialed in for medium-dark roasts.',
       ratio: '1:14',
       dose: '70g coffee / 980ml water',
       grind: 'Medium-coarse',
       water: '200°F (93°C)',
       steps: [
-        { title: 'Grind setting 6', body: 'Coarser than standard for slower extraction.', time: '30 sec' },
-        { title: 'Bold mode on', body: 'Press the bold button on the DGB-2. This slows the brew cycle by 90 seconds.', time: '5 sec' },
-        { title: 'Brew', body: 'Total brew time around 7 minutes for full extraction without burning.', time: '7 min' }
+        { title: 'Coarse grind', body: 'Coarser than standard. Looks like raw sugar. Fine grind clogs the mesh.', time: '30 sec' },
+        { title: 'Bloom', body: 'Add water just to saturate the grounds. Wait 30 seconds.', time: '30 sec' },
+        { title: 'Steep', body: 'Top up with the rest of the water. Steep for 4 minutes total.', time: '4 min' },
+        { title: 'Press and pour', body: 'Slow steady press. Pour all of it out so it does not over-extract.', time: '30 sec' }
       ]
     }
   ],
@@ -493,7 +589,7 @@ const DATA = {
       icon: '🌊',
       thumbClass: 'tile-thumb',
       desc: 'V60, Kalita, Origami. Why the pour matters more than the device. Calibrated for your PO-50.',
-      requires: ['Cuisinart PO-50 or any pour over device', 'Gooseneck kettle', 'Scale with timer'],
+      requires: ['Any pour over device (V60, Kalita, Origami)', 'Gooseneck kettle', 'Scale with timer'],
       lessonsList: [
         { title: 'The geometry of pour over', time: '6 min' },
         { title: 'Bloom: what is actually happening', time: '7 min' },
@@ -525,7 +621,7 @@ const DATA = {
       icon: '☕',
       followers: '420k',
       bio: 'Specialty barista. Equipment nerd. Tests every machine you ask about.',
-      latestVideo: 'Cuisinart EM-15 review: the $200 espresso surprise',
+      latestVideo: 'Espresso under $300: which machines are worth it',
       tag: 'Verified Expert'
     },
     {
@@ -553,7 +649,7 @@ const DATA = {
   /* ---------------- Challenges ---------------- */
   challenges: [
     { id: 'pour-over-week', name: 'Pour Over Week', desc: 'Brew a pour over every day for 7 days. Log each one with a tasting note.', icon: '🌊', reward: '500 pts + Pour Over Pro badge', duration: '7 days', participants: 1247, featured: true, progress: 0 },
-    { id: 'taste-along-onyx', name: 'Taste Along: Onyx Monarch', desc: 'Order the featured Onyx blend, brew it three ways, share which you preferred.', icon: '🍫', reward: '300 pts + 15% off next Onyx order', duration: '14 days', participants: 832 },
+    { id: 'taste-along-onyx', name: 'Taste Along: Onyx Monarch', desc: 'Brew the featured Onyx blend three ways and share which you preferred.', icon: '🍫', reward: '300 pts + Taste Along badge', duration: '14 days', participants: 832 },
     { id: 'espresso-mastery', name: 'Espresso Dial-In', desc: 'Pull 10 shots in a week, each one logged with grind and time. We will analyze your patterns.', icon: '🎯', reward: '750 pts + Espresso Adept badge', duration: '7 days', participants: 412 },
     { id: 'latte-art-30day', name: '30 Days of Latte Art', desc: 'Pour a heart every day for 30 days. Submit your best for a chance to win a milk pitcher set.', icon: '❤️', reward: '1000 pts + Latte Artist badge', duration: '30 days', participants: 1856 },
     { id: 'cold-brew-summer', name: 'Cold Brew Summer', desc: 'Try four cold brew recipes in 30 days. Vote on which becomes the official Brew Lab pick.', icon: '🧊', reward: '400 pts + early access to summer drop', duration: '30 days', participants: 2104 }
@@ -571,23 +667,21 @@ const DATA = {
     { id: 'critic', name: 'Critic', icon: '⭐', desc: '25 tasting notes written', color: 'gold' },
     { id: 'explorer', name: 'Explorer', icon: '🌍', desc: '5 different roasters tried', color: 'gold' },
     { id: 'community', name: 'Community Voice', icon: '🗣️', desc: 'First comment on a creator post', color: 'caramel' },
-    { id: 'machine-master', name: 'Machine Master', icon: '⚙️', desc: 'Registered your Cuisinart', color: 'green' },
+    { id: 'machine-master', name: 'Brew Setup', icon: '⚙️', desc: 'Added your equipment to your profile', color: 'green' },
     { id: 'recipe-author', name: 'Recipe Author', icon: '📝', desc: 'Submitted an original recipe', color: 'gold' },
     { id: 'beta', name: 'Brew Lab Beta', icon: '🧪', desc: 'Joined in the first 1000', color: 'green' }
   ],
 
-  /* ---------------- Drops / merch ---------------- */
-  drops: [
-    { id: 'tumbler-co', name: 'Brew Lab x Onyx Travel Tumbler', kind: 'Limited drop', desc: 'Double-walled steel. Brew Lab members only. 800 made.', price: '$38', icon: '🥤', bg: 'linear-gradient(135deg, var(--caramel) 0%, var(--caramel-deep) 100%)', flag: 'live', flagText: 'Live', status: 'Closing in 2d 14h', forMembersOnly: true },
-    { id: 'starter-kit', name: 'Pour Over Starter Kit', kind: 'Bundle', desc: 'PO-50 brewer + scale + 1lb Counter Culture Hologram. $40 off vs separate.', price: '$129', icon: '🎁', bg: 'linear-gradient(135deg, var(--green) 0%, #1d3327 100%)', flag: 'new', flagText: 'New', status: 'Available now' },
-    { id: 'signed-mug', name: 'Signed Brew Lab Mug', kind: 'Giveaway', desc: 'Free entry for members. 50 mugs, signed by James H. Drawing in 5 days.', price: 'Free', icon: '🏆', bg: 'linear-gradient(135deg, var(--gold) 0%, #806017 100%)', flag: 'live', flagText: 'Giveaway', status: '50 winners drawn Friday', forMembersOnly: true },
-    { id: 'milk-pitcher', name: 'Brew Lab Milk Pitcher (12oz)', kind: 'Limited drop', desc: 'Designed by Lance Hedrick. Tapered spout for sharp latte art. Limited to 1500.', price: '$32', icon: '🥛', bg: 'linear-gradient(135deg, var(--espresso) 0%, #3D2418 100%)', flag: 'new', flagText: 'New', status: 'Available now', forMembersOnly: true },
-    { id: 'beans-jan', name: 'February Bean Box', kind: 'Subscription', desc: 'Three rotating roasters curated by our taste council. Cancel anytime.', price: '$28/mo', icon: '📦', bg: 'linear-gradient(135deg, #5476A6 0%, #2c4869 100%)', flag: 'sold', flagText: 'Pre-order', status: 'Pre-orders close Friday' }
+  /* ---------------- Community giveaways (free entries, milestone rewards) ---------------- */
+  giveaways: [
+    { id: 'signed-mug', name: 'Signed Brew Lab Mug', kind: 'Giveaway', desc: '50 mugs, signed by James H. Free entry for everyone. Drawing in 5 days.', icon: '🏆', bg: 'linear-gradient(135deg, var(--gold) 0%, #806017 100%)', status: '50 winners drawn Friday' },
+    { id: 'milk-pitcher', name: 'Latte Art Pitcher Set', kind: 'Milestone reward', desc: 'Reach the Specialty Brewer tier and submit a pour to the leaderboard. Top 10 each month win a pitcher.', icon: '🥛', bg: 'linear-gradient(135deg, var(--espresso) 0%, #3D2418 100%)', status: 'Open all month' },
+    { id: 'creator-coffee', name: 'Coffee with a Creator', kind: 'Quarterly raffle', desc: 'A 30-minute virtual session with one of our verified creators. Open to all members.', icon: '🎬', bg: 'linear-gradient(135deg, var(--caramel) 0%, var(--caramel-deep) 100%)', status: 'Next draw March 1' }
   ],
 
   /* ---------------- Sample creator posts ---------------- */
   feed: [
-    { id: 'p1', author: 'James H.', authorIcon: '🎬', verified: true, time: '2h ago', title: 'Why your home espresso channels (and how to fix it)', kind: 'Video', duration: '11 min', desc: 'A walkthrough of distribution and tamping fundamentals using a Cuisinart EM-15.' },
+    { id: 'p1', author: 'James H.', authorIcon: '🎬', verified: true, time: '2h ago', title: 'Why your home espresso channels (and how to fix it)', kind: 'Video', duration: '11 min', desc: 'A walkthrough of distribution and tamping fundamentals on any home espresso machine.' },
     { id: 'p2', author: 'Brew Lab Team', authorIcon: '🧪', verified: true, time: '1d ago', title: 'Reading a coffee bag: a beginners guide', kind: 'Article', duration: '5 min', desc: 'Roast date, processing method, varietal. What actually matters.' },
     { id: 'p3', author: 'Morgan E.', authorIcon: '✨', verified: true, time: '2d ago', title: 'I made this iced latte 100 times', kind: 'Video', duration: '8 min', desc: 'Three small changes that took the recipe from fine to obsessed.' }
   ],
@@ -603,13 +697,13 @@ const DATA = {
   ],
 
   baristaResponses: {
-    'sour': "Sour usually means under-extracted. Three things to try in order: grind a touch finer, raise your dose by 1g (so 18g instead of 17g), and check your water temp. Your EM-15 should be at 200°F before pulling. If it still tastes sour, the beans may be too fresh. Give them 5-7 days off-roast.",
+    'sour': "Sour usually means under-extracted. Three things to try in order: grind a touch finer, raise your dose by 1g (so 18g instead of 17g), and check your water temp. Aim for 200°F before pulling. If it still tastes sour, the beans may be too fresh. Give them 5-7 days off-roast.",
     'milky': "Medium to medium-dark roasts cut through milk best. From your list, try Onyx Monarch or Blue Bottle Bella Donovan. Rich, chocolatey, balanced. Hold off on light roasts for milk drinks. They get muted.",
-    'grind': "On the EM-15 with most medium roasts, target shot times of 27-32 seconds for a double. If your shots run faster than 25 seconds, grind one notch finer. Slower than 35, one notch coarser. Same beans behave differently as they age, so dial in weekly.",
+    'grind': "For most medium roasts, target shot times of 27-32 seconds for a double. If your shots run faster than 25 seconds, grind one notch finer. Slower than 35, one notch coarser. Same beans behave differently as they age, so dial in weekly.",
     'cold brew': "Three culprits for weak cold brew. First, ratio. Try 1:8 instead of 1:12 if you want a concentrate. Second, grind. Too coarse and you under-extract. Aim for raw-sugar texture. Third, time. 20 hours in the fridge is the sweet spot.",
     'recommend': "Based on your taste profile and recent journal entries, I would push you toward something brighter. Try Trade Light & Lively for a week. It is a different sensory experience from your usual chocolate-forward picks and may surprise you.",
     'cafe': "If you like medium roast and chocolate notes, order a flat white or cortado. Short milk drinks let the bean speak. Avoid the seasonal flavored drinks if you want to actually taste the coffee. A pour over is a great way to try a new origin without committing to a bag.",
-    'art': "Latte art starts and ends with the milk. Stretch for 3-4 seconds to get microfoam, roll for the rest. Pour high to push the espresso, drop close to the surface, and either stop (heart) or wiggle (rosetta). We have a 32-min Latte Art 101 class with Lance Hedrick. Free for members.",
+    'art': "Latte art starts and ends with the milk. Stretch for 3-4 seconds to get microfoam, roll for the rest. Pour high to push the espresso, drop close to the surface, and either stop (heart) or wiggle (rosetta). We have a 32-min Latte Art 101 class with Lance Hedrick.",
     'default': "Tell me what you are working on. Pulling a shot, brewing drip, choosing beans, troubleshooting a recipe, learning latte art. I can help with all of those. You can also drop in a tasting note from your journal and I will suggest a tweak."
   },
 
@@ -617,17 +711,18 @@ const DATA = {
   quiz: [
     {
       id: 'machine',
-      title: 'Which Cuisinart do you own?',
-      subtitle: 'We will calibrate every recipe to your machine.',
+      title: 'How do you brew at home?',
+      subtitle: 'Pick the method you reach for most. You can change this any time.',
       type: 'single',
       options: [
-        { value: 'dgb-2', label: 'Grind & Brew DGB-2', desc: '12-cup with built-in grinder', icon: '☕' },
-        { value: 'em-15', label: 'EM-15 Espresso', desc: '15-bar pump, steam wand', icon: '🫘' },
-        { value: 'ss-pro', label: 'SS-Pro Single Serve', desc: 'Pod and grounds compatible', icon: '⚡' },
-        { value: 'pour-over', label: 'PourOver PO-50', desc: 'Manual gooseneck', icon: '🌊' },
-        { value: 'dcc-1200', label: 'DCC-1200 Brew Central', desc: 'Classic 12-cup drip', icon: '☕' },
-        { value: 'cold-brew', label: 'Automatic Cold Brew', desc: '25-minute cold brew', icon: '🧊' },
-        { value: 'other', label: 'Different model or none yet', desc: 'No problem, you can still get personalized recipes', icon: '✨' }
+        { value: 'drip-auto', label: 'Drip / automatic brewer', desc: 'Standard 8-12 cup machine', icon: '☕' },
+        { value: 'espresso-machine', label: 'Espresso machine', desc: 'Pump espresso with steam wand', icon: '🫘' },
+        { value: 'pour-over', label: 'Pour over', desc: 'Manual, gooseneck kettle', icon: '🌊' },
+        { value: 'french-press', label: 'French press', desc: 'Immersion brewer', icon: '💪' },
+        { value: 'pod', label: 'Single-serve pods', desc: 'Keurig, Nespresso, etc.', icon: '⚡' },
+        { value: 'cold-brew', label: 'Cold brew at home', desc: 'Slow steep or rapid', icon: '🧊' },
+        { value: 'aeropress', label: 'AeroPress', desc: 'Pressure-immersion hybrid', icon: '🎯' },
+        { value: 'none', label: 'I am just getting started', desc: 'No equipment yet, just curious', icon: '✨' }
       ]
     },
     {
@@ -692,7 +787,7 @@ const DATA = {
         { value: 'learn', label: 'Learn how all this works', desc: 'I want to understand the craft', icon: '📚' },
         { value: 'discover', label: 'Find new beans I love', desc: 'Bored of my supermarket coffee', icon: '🔍' },
         { value: 'community', label: 'Connect with other coffee people', desc: 'My friends do not care about V60s', icon: '👥' },
-        { value: 'machine', label: 'Get more out of my Cuisinart', desc: 'Use the features I never use', icon: '⚙️' },
+        { value: 'machine', label: 'Get more out of my equipment', desc: 'Use the features I never use', icon: '⚙️' },
         { value: 'art', label: 'Learn latte art', desc: 'I want to pour a heart', icon: '🎨' }
       ]
     }
@@ -713,7 +808,7 @@ const DATA = {
       perks: [
         'Personalized recipe recommendations',
         'Brew journal with pattern insights',
-        'Access to community feed and challenges'
+        'Access to community challenges'
       ],
       memberCount: 28430
     },
@@ -730,9 +825,9 @@ const DATA = {
         { type: 'journal', value: 10, label: 'Log 10 brews' }
       ],
       perks: [
-        'Members-only product drops',
-        '10% off all bean partners',
-        'Verified Home Barista flair on profile'
+        'Verified Home Barista flair on your profile',
+        'Submit your recipes for community review',
+        'Unlock advanced brew challenges'
       ],
       memberCount: 9120
     },
@@ -749,10 +844,9 @@ const DATA = {
         { type: 'journal', value: 25, label: 'Log 25 brews' }
       ],
       perks: [
-        '15% off bean partners',
-        'Early access to new product drops',
-        'Submit your own recipes for community review',
-        'Specialty Brewer profile badge'
+        'Specialty Brewer profile flair',
+        'Host community taste-along events',
+        'Mentor newcomers in the community feed'
       ],
       memberCount: 3140
     },
@@ -769,10 +863,9 @@ const DATA = {
         { type: 'origins', value: 5, label: 'Try beans from 5 different origins' }
       ],
       perks: [
-        '18% off bean partners',
         'Quarterly AMA invites with featured creators',
-        'Connoisseur badge across Brew Lab',
-        'Vote on monthly bean box selections'
+        'Vote on community spotlights and featured beans',
+        'Connoisseur flair across Brew Lab'
       ],
       memberCount: 870
     },
@@ -791,11 +884,10 @@ const DATA = {
         { type: 'origins', value: 5, label: 'Try 5+ different origins' }
       ],
       perks: [
-        'Free Brew Lab merch annually',
-        'Co-host a creator AMA',
+        'Co-host a community AMA',
         'Sommelier flair (gold) across Brew Lab',
-        'Direct line to the Cuisinart product team',
-        'Annual Sommelier dinner with the team'
+        'Annual Sommelier gathering invitation',
+        'Official Coffee Sommelier certification document'
       ],
       memberCount: 142
     }
@@ -803,16 +895,16 @@ const DATA = {
 
   /* ---------------- Latte Art submissions (leaderboard) ---------------- */
   latteArt: [
-    { id: 'la1', member: 'Maya R.', initials: 'MR', pattern: 'Rosetta', machine: 'EM-15', votes: 412, daysAgo: 1, gradient: 'linear-gradient(135deg, #C8A982 0%, #6B4A2E 100%)', accent: '🌿', notes: 'Eight-leaf rosetta. Took me 200 attempts.' },
-    { id: 'la2', member: 'Diego P.', initials: 'DP', pattern: 'Tulip', machine: 'EM-15', votes: 387, daysAgo: 1, gradient: 'linear-gradient(135deg, #D4B894 0%, #7D5A36 100%)', accent: '🌷', notes: 'Five-stack tulip. Whole milk, 5oz pitcher.' },
-    { id: 'la3', member: 'Priya S.', initials: 'PS', pattern: 'Swan', machine: 'EM-15', votes: 356, daysAgo: 2, gradient: 'linear-gradient(135deg, #C9A87A 0%, #5C3D22 100%)', accent: '🦢', notes: 'First swan attempt. Beak almost worked.' },
-    { id: 'la4', member: 'Alex T.', initials: 'AT', pattern: 'Rosetta', machine: 'EM-15', votes: 298, daysAgo: 2, gradient: 'linear-gradient(135deg, #CDB089 0%, #6F4E2C 100%)', accent: '🍃', notes: 'Oat milk rosetta. Surprisingly good contrast.' },
-    { id: 'la5', member: 'Sam K.', initials: 'SK', pattern: 'Heart', machine: 'EM-15', votes: 274, daysAgo: 3, gradient: 'linear-gradient(135deg, #D2B591 0%, #745330 100%)', accent: '❤️', notes: 'Day 14 of 30 Days of Latte Art challenge.' },
-    { id: 'la6', member: 'Jordan W.', initials: 'JW', pattern: 'Tulip', machine: 'EM-15', votes: 251, daysAgo: 3, gradient: 'linear-gradient(135deg, #BFA478 0%, #67482A 100%)', accent: '🌸', notes: 'Three-stack. Symmetry is finally clicking.' },
-    { id: 'la7', member: 'Tessa L.', initials: 'TL', pattern: 'Rosetta', machine: 'EM-15', votes: 234, daysAgo: 4, gradient: 'linear-gradient(135deg, #CAA980 0%, #6E4D2E 100%)', accent: '🌾', notes: '12-leaf rosetta with cut-through. Best pour this week.' },
-    { id: 'la8', member: 'Marcus B.', initials: 'MB', pattern: 'Heart', machine: 'EM-15', votes: 198, daysAgo: 4, gradient: 'linear-gradient(135deg, #D6BB94 0%, #785530 100%)', accent: '💛', notes: 'First successful heart after Latte Art 101.' },
-    { id: 'la9', member: 'Naomi K.', initials: 'NK', pattern: 'Tulip', machine: 'EM-15', votes: 176, daysAgo: 5, gradient: 'linear-gradient(135deg, #C2A57C 0%, #6A4929 100%)', accent: '🌼', notes: 'Inverted tulip. Flow rate finally consistent.' },
-    { id: 'la10', member: 'Rafael H.', initials: 'RH', pattern: 'Heart', machine: 'EM-15', votes: 142, daysAgo: 5, gradient: 'linear-gradient(135deg, #D0AE82 0%, #71502D 100%)', accent: '☕', notes: 'Bigger heart this time. Pitcher angle adjustment.' }
+    { id: 'la1', member: 'Maya R.', initials: 'MR', pattern: 'Rosetta', machine: 'Espresso machine', votes: 412, daysAgo: 1, gradient: 'linear-gradient(135deg, #C8A982 0%, #6B4A2E 100%)', accent: '🌿', notes: 'Eight-leaf rosetta. Took me 200 attempts.' },
+    { id: 'la2', member: 'Diego P.', initials: 'DP', pattern: 'Tulip', machine: 'Espresso machine', votes: 387, daysAgo: 1, gradient: 'linear-gradient(135deg, #D4B894 0%, #7D5A36 100%)', accent: '🌷', notes: 'Five-stack tulip. Whole milk, 5oz pitcher.' },
+    { id: 'la3', member: 'Priya S.', initials: 'PS', pattern: 'Swan', machine: 'Espresso machine', votes: 356, daysAgo: 2, gradient: 'linear-gradient(135deg, #C9A87A 0%, #5C3D22 100%)', accent: '🦢', notes: 'First swan attempt. Beak almost worked.' },
+    { id: 'la4', member: 'Alex T.', initials: 'AT', pattern: 'Rosetta', machine: 'Espresso machine', votes: 298, daysAgo: 2, gradient: 'linear-gradient(135deg, #CDB089 0%, #6F4E2C 100%)', accent: '🍃', notes: 'Oat milk rosetta. Surprisingly good contrast.' },
+    { id: 'la5', member: 'Sam K.', initials: 'SK', pattern: 'Heart', machine: 'Espresso machine', votes: 274, daysAgo: 3, gradient: 'linear-gradient(135deg, #D2B591 0%, #745330 100%)', accent: '❤️', notes: 'Day 14 of 30 Days of Latte Art challenge.' },
+    { id: 'la6', member: 'Jordan W.', initials: 'JW', pattern: 'Tulip', machine: 'Espresso machine', votes: 251, daysAgo: 3, gradient: 'linear-gradient(135deg, #BFA478 0%, #67482A 100%)', accent: '🌸', notes: 'Three-stack. Symmetry is finally clicking.' },
+    { id: 'la7', member: 'Tessa L.', initials: 'TL', pattern: 'Rosetta', machine: 'Espresso machine', votes: 234, daysAgo: 4, gradient: 'linear-gradient(135deg, #CAA980 0%, #6E4D2E 100%)', accent: '🌾', notes: '12-leaf rosetta with cut-through. Best pour this week.' },
+    { id: 'la8', member: 'Marcus B.', initials: 'MB', pattern: 'Heart', machine: 'Espresso machine', votes: 198, daysAgo: 4, gradient: 'linear-gradient(135deg, #D6BB94 0%, #785530 100%)', accent: '💛', notes: 'First successful heart after Latte Art 101.' },
+    { id: 'la9', member: 'Naomi K.', initials: 'NK', pattern: 'Tulip', machine: 'Espresso machine', votes: 176, daysAgo: 5, gradient: 'linear-gradient(135deg, #C2A57C 0%, #6A4929 100%)', accent: '🌼', notes: 'Inverted tulip. Flow rate finally consistent.' },
+    { id: 'la10', member: 'Rafael H.', initials: 'RH', pattern: 'Heart', machine: 'Espresso machine', votes: 142, daysAgo: 5, gradient: 'linear-gradient(135deg, #D0AE82 0%, #71502D 100%)', accent: '☕', notes: 'Bigger heart this time. Pitcher angle adjustment.' }
   ],
 
   /* Pattern reference - shown on the leaderboard for legend */
