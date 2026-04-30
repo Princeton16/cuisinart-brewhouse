@@ -47,8 +47,12 @@ function el(tag, attrs = {}, ...children) {
     else node.setAttribute(k, attrs[k]);
   }
   for (const c of children.flat()) {
-    if (c == null) continue;
-    node.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    if (c == null || c === false) continue;
+    if (typeof c === 'string' || typeof c === 'number' || typeof c === 'boolean') {
+      node.appendChild(document.createTextNode(String(c)));
+    } else {
+      node.appendChild(c);
+    }
   }
   return node;
 }
