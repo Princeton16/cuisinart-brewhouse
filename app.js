@@ -147,6 +147,54 @@ function completeTodayQuest() {
   render();
 }
 
+/* ---------------- Grind Score (multi-dimensional) ---------------- */
+/* Brew, IQ, Community, Palate — each 0-100 driven by user activity. */
+function grindScore() {
+  const dims = grindDims();
+  const total = state.points + dims.brew + dims.iq + dims.community + dims.palate;
+  return Math.round(total);
+}
+
+function grindDims() {
+  const completed = state.completedClasses || [];
+  // Brew: weighted by brews logged + practical classes (latte art, pour over, milk steaming)
+  const practicalClasses = ['latte-art-101', 'latte-art-201', 'pour-over-mastery', 'milk-steaming'];
+  const brew = Math.min(100, state.journal.length * 3 + practicalClasses.filter(c => completed.includes(c)).length * 12);
+
+  // IQ: weighted by theory classes (espresso fundamentals, cupping)
+  const theoryClasses = ['espresso-fundamentals', 'cupping'];
+  const iq = Math.min(100, theoryClasses.filter(c => completed.includes(c)).length * 30 + (state.completedClasses || []).length * 6);
+
+  // Community: friends + posts + votes
+  const wallPosts = (state.wallPosts || []).length;
+  const lattVotes = Object.keys(state.lattVotes || {}).length;
+  const community = Math.min(100, (state.following || []).length * 8 + wallPosts * 12 + lattVotes * 3);
+
+  // Palate: origins tried + ratings given
+  const origins = uniqueOriginsTried();
+  const ratedBrews = state.journal.filter(e => e.rating).length;
+  const palate = Math.min(100, origins * 12 + ratedBrews * 2);
+
+  return { brew, iq, community, palate };
+}
+
+function grindSubTier(score) {
+  if (score >= 80) return 'Master';
+  if (score >= 60) return 'Adept';
+  if (score >= 40) return 'Practitioner';
+  if (score >= 20) return 'Apprentice';
+  return 'Curious';
+}
+
+function timeOfDayGreeting() {
+  const h = new Date().getHours();
+  if (h < 5) return 'Late night';
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  if (h < 21) return 'Good evening';
+  return 'Late night';
+}
+
 /* ---------------- Brew personality helper ---------------- */
 function brewPersonality() {
   const p = state.profile || {};
@@ -350,9 +398,12 @@ function mountAppShell() {
   // Header
   const header = el('header', { class: 'site-header' },
     el('div', { class: 'site-header-inner' },
-      el('a', { href: '#/home', class: 'brand' },
-        el('span', { class: 'brand-mark' }, '◐'),
-        el('span', {}, 'Brew Lab')
+      el('a', { href: '#/home', class: 'brand', style: 'flex-direction:column;align-items:flex-start;gap:0' },
+        el('span', { style: 'display:flex;align-items:center;gap:8px' },
+          el('span', { class: 'brand-mark' }, '◐'),
+          el('span', {}, 'Brew Lab')
+        ),
+        el('span', { style: 'font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-muted);font-family:var(--font-body);font-weight:500;margin-left:42px;margin-top:-2px' }, 'by Cuisinart')
       ),
       el('nav', {},
         (() => {
@@ -528,156 +579,351 @@ function renderOnboarding(main) {
   paint();
 }
 
-/* ----- Home (daily ritual feed) ----- */
+/* ----- Home (The Grind-inspired narrative + Cuisinart-influenced specs) ----- */
 function renderDashboard(main) {
   main.innerHTML = '';
-  const c = el('div', { class: 'container' });
+  const c = el('div', { class: 'container-narrow', style: 'max-width:760px' });
   main.appendChild(c);
 
   const top = topRecipe();
   const checkedInToday = state.lastCheckIn === todayStr();
   const quest = getTodayQuest();
   const tier = computeTier();
-  const next = nextTier();
-
-  // Profile card — your identity at a glance
-  const tierForProfile = computeTier();
+  const nextT = nextTier();
   const personality = brewPersonality();
-  const passportCount = uniqueOriginsTried();
-  c.appendChild(el('div', {
-    class: 'card',
-    style: 'margin-bottom:24px;padding:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;cursor:pointer',
-    onclick: () => navigate('you')
-  },
-    el('div', {
-      style: 'width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg, var(--caramel) 0%, var(--caramel-deep) 100%);color:white;font-size:1.4rem;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0'
-    }, initials(state.user?.name)),
-    el('div', { style: 'flex:1;min-width:200px' },
-      el('div', { class: 'eyebrow', style: 'margin-bottom:4px' }, `${state.user?.isGuest ? 'Welcome' : 'Welcome back'}`),
-      el('div', { style: 'font-family:var(--font-display);font-size:1.5rem;font-weight:500;letter-spacing:-0.01em;margin-bottom:8px' }, state.user?.name || 'Guest'),
-      el('div', { style: 'display:flex;gap:6px;flex-wrap:wrap' },
-        el('span', { class: 'pill ' + (tierForProfile.color === 'gold' ? 'pill-gold' : tierForProfile.color === 'green' ? 'pill-green' : 'pill-accent') }, tierForProfile.icon + ' ' + tierForProfile.name),
-        personality ? el('span', { class: 'pill' }, personality.icon + ' ' + personality.name) : null
-      )
+  const score = grindScore();
+  const dims = grindDims();
+  const featuredChallenge = DATA.challenges.find(ch => ch.featured) || DATA.challenges[0];
+  const machine = getMachine();
+
+  const firstName = (state.user?.name || 'there').split(' ')[0];
+
+  // Greeting (serif italic name treatment, like The Grind)
+  c.appendChild(el('div', { style: 'margin-bottom:28px' },
+    el('div', { style: 'font-family:var(--font-display);font-size:clamp(2rem, 5vw, 2.6rem);line-height:1.05;letter-spacing:-0.02em;color:var(--ink)' },
+      timeOfDayGreeting() + ',',
+      el('br', {}),
+      el('em', { style: 'font-style:italic;font-weight:500' }, firstName + '.')
     ),
-    el('div', { style: 'display:flex;gap:24px;flex-wrap:wrap' },
-      el('div', { style: 'text-align:center' },
-        el('div', { style: 'font-family:var(--font-display);font-size:1.6rem;font-weight:500;letter-spacing:-0.01em' }, state.points.toLocaleString()),
-        el('div', { style: 'font-size:0.72rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px' }, 'Points')
-      ),
-      el('div', { style: 'text-align:center' },
-        el('div', { style: 'font-family:var(--font-display);font-size:1.6rem;font-weight:500;letter-spacing:-0.01em' }, state.journal.length),
-        el('div', { style: 'font-size:0.72rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px' }, 'Brews')
-      ),
-      el('div', { style: 'text-align:center' },
-        el('div', { style: 'font-family:var(--font-display);font-size:1.6rem;font-weight:500;letter-spacing:-0.01em' }, passportCount + ' / ' + DATA.passportRegions.length),
-        el('div', { style: 'font-size:0.72rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px' }, 'Passport')
-      )
-    )
+    el('p', { style: 'margin-top:10px;color:var(--ink-soft);font-size:1rem' }, "What's in the cup today?")
   ));
 
-  // Streak banner — keeps Duolingo-style daily hook
-  c.appendChild(streakBanner(checkedInToday));
+  // Stories row — friends' brews
+  const storiesScroll = el('div', { style: 'display:flex;gap:16px;overflow-x:auto;padding:8px 0 16px;margin-bottom:24px' });
+  // "Your brew" first
+  storiesScroll.appendChild(storyCircle({
+    label: 'Your brew', icon: '+', isMe: true, avatarBg: 'transparent',
+    onclick: () => navigate('journal')
+  }));
+  // Following first, then suggested
+  const followed = (state.following || []);
+  const ordered = [...DATA.members.filter(m => followed.includes(m.id)), ...DATA.members.filter(m => !followed.includes(m.id))];
+  ordered.slice(0, 8).forEach(m => storiesScroll.appendChild(storyCircle({
+    label: m.handle.replace('@', '@'),
+    initials: m.initials,
+    avatarBg: m.avatarBg,
+    ringed: followed.includes(m.id),
+    recentBrew: m.recentBrew,
+    onclick: () => toast(m.name + ' brewed: ' + m.recentBrew)
+  })));
+  c.appendChild(storiesScroll);
 
-  // H1 (kept short — profile already greeted them)
-  c.appendChild(el('div', { class: 'page-head', style: 'margin-bottom:32px;margin-top:32px' },
-    el('h1', { class: 'h1' }, "Your morning, ready.")
-  ));
+  // Grind Score / Tier card (the dark centerpiece, like The Grind)
+  c.appendChild(grindCard(score, tier, nextT, dims, state.streak, checkedInToday));
 
-  // Today's quest (the hook)
-  c.appendChild(el('div', { class: 'card card-accent', style: 'margin-bottom:24px;padding:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap' },
-    el('div', { style: 'font-size:2.4rem' }, quest.icon),
+  // Today's pour (clean white card with spec strip)
+  c.appendChild(todaysPourCard(top));
+
+  // Daily quest (compact)
+  c.appendChild(el('div', { class: 'card', style: 'margin-bottom:32px;padding:20px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:var(--caramel-soft);border-color:rgba(216,90,42,0.25)' },
+    el('div', { style: 'font-size:2rem' }, quest.icon),
     el('div', { style: 'flex:1;min-width:200px' },
-      el('div', { class: 'eyebrow', style: 'margin-bottom:4px;color:var(--caramel-deep)' }, 'Daily quest · +' + quest.reward + ' pts'),
-      el('div', { style: 'font-family:var(--font-display);font-size:1.3rem;font-weight:500;letter-spacing:-0.01em;margin-bottom:4px' }, quest.title),
-      el('div', { style: 'font-size:0.9rem;color:var(--ink-soft)' }, quest.desc)
+      el('div', { class: 'eyebrow', style: 'color:var(--caramel-deep);margin-bottom:2px' }, 'Daily quest · +' + quest.reward + ' pts'),
+      el('div', { style: 'font-weight:600;font-size:1.05rem;margin-bottom:2px' }, quest.title),
+      el('div', { style: 'font-size:0.88rem;color:var(--ink-soft)' }, quest.desc)
     ),
     el('button', {
-      class: 'btn ' + (state.todayQuestDone ? 'btn-secondary' : 'btn-primary'),
+      class: 'btn ' + (state.todayQuestDone ? 'btn-secondary' : 'btn-accent'),
       onclick: () => completeTodayQuest()
-    }, state.todayQuestDone ? '✓ Done today' : 'Mark complete')
+    }, state.todayQuestDone ? '✓ Done' : 'Mark complete')
   ));
 
-  // Today's brew pick
-  c.appendChild(el('div', { class: 'spotlight', style: 'margin-bottom:32px' },
-    el('div', { class: 'spotlight-eyebrow' }, '☕ Today\'s pick'),
-    el('h2', { class: 'h2' }, top.name),
-    el('p', { style: 'max-width:560px' }, top.desc),
-    el('div', { class: 'spotlight-meta' },
-      el('div', { class: 'meta-item' }, el('div', { class: 'label' }, 'Method'), el('div', { class: 'value' }, top.method)),
-      el('div', { class: 'meta-item' }, el('div', { class: 'label' }, 'Time'), el('div', { class: 'value' }, top.time)),
-      el('div', { class: 'meta-item' }, el('div', { class: 'label' }, 'For you'), el('div', { class: 'value' }, brewPersonality()?.name?.replace('The ', '') || 'You'))
-    ),
-    el('button', { class: 'btn btn-accent', onclick: () => navigate('recipe/' + top.id) }, 'Brew it →')
+  // From the community — horizontal scroll of recent wall posts
+  c.appendChild(el('div', { class: 'section-title', style: 'margin-bottom:14px' },
+    el('h3', { class: 'h3' }, 'From the community'),
+    el('a', { href: '#/wall' }, 'See all →')
   ));
+  const communityScroll = el('div', { style: 'display:flex;gap:14px;overflow-x:auto;padding:0 0 16px;margin-bottom:32px' });
+  DATA.wallPosts.slice(0, 6).forEach(p => communityScroll.appendChild(communityCard(p)));
+  c.appendChild(communityScroll);
 
-  // Two-column: Coffee Wall + Latte Art Leaderboard CTAs
+  // Weekly challenge (lifted from The Grind)
+  c.appendChild(weeklyChallengeCard(featuredChallenge));
+
+  // Two-column: Coffee Wall + Latte Art Leaderboard CTAs (kept from before)
   const ctaPair = el('div', { class: 'split', style: 'margin-bottom:32px' });
-
-  ctaPair.appendChild(el('div', {
-    class: 'card', style: 'padding:0;overflow:hidden;cursor:pointer',
-    onclick: () => navigate('wall')
-  },
-    el('div', { style: 'aspect-ratio:5/2;background:linear-gradient(135deg, var(--caramel) 0%, var(--caramel-deep) 100%);display:flex;align-items:center;justify-content:center;color:white' },
-      el('div', { style: 'text-align:center' },
-        el('div', { style: 'font-size:2.4rem' }, '☕'),
-        el('div', { style: 'font-family:var(--font-display);font-size:1.3rem;font-weight:500;margin-top:6px' }, 'Coffee Wall')
-      )
-    ),
-    el('div', { style: 'padding:18px 20px' },
-      el('div', { style: 'font-size:0.92rem;color:var(--ink-soft);margin-bottom:12px' }, 'Photos of brews from the community. Post yours.'),
-      el('button', { class: 'btn btn-secondary btn-sm' }, 'Open the wall →')
-    )
-  ));
-
   ctaPair.appendChild(el('div', {
     class: 'card', style: 'padding:0;overflow:hidden;cursor:pointer',
     onclick: () => navigate('latte-art')
   },
     el('div', { style: 'aspect-ratio:5/2;background:linear-gradient(135deg, var(--espresso) 0%, #3D2418 100%);display:flex;align-items:center;justify-content:center;color:white' },
       el('div', { style: 'text-align:center' },
-        el('div', { style: 'font-size:2.4rem' }, '🎨'),
-        el('div', { style: 'font-family:var(--font-display);font-size:1.3rem;font-weight:500;margin-top:6px' }, 'Latte Art Leaderboard')
+        el('div', { style: 'font-size:2.2rem' }, '🎨'),
+        el('div', { style: 'font-family:var(--font-display);font-size:1.2rem;font-weight:500;margin-top:4px' }, 'Latte Art Leaderboard')
       )
     ),
-    el('div', { style: 'padding:18px 20px' },
-      el('div', { style: 'font-size:0.92rem;color:var(--ink-soft);margin-bottom:12px' }, "This week's best member pours. Vote and submit yours."),
-      el('button', { class: 'btn btn-secondary btn-sm' }, 'Open leaderboard →')
+    el('div', { style: 'padding:16px 20px' },
+      el('div', { style: 'font-size:0.88rem;color:var(--ink-soft)' }, "This week's best member pours.")
+    )
+  ));
+  ctaPair.appendChild(el('div', {
+    class: 'card', style: 'padding:0;overflow:hidden;cursor:pointer',
+    onclick: () => navigate('passport')
+  },
+    el('div', { style: 'aspect-ratio:5/2;background:linear-gradient(135deg, var(--green) 0%, #1d3327 100%);display:flex;align-items:center;justify-content:center;color:white' },
+      el('div', { style: 'text-align:center' },
+        el('div', { style: 'font-size:2.2rem' }, '🌍'),
+        el('div', { style: 'font-family:var(--font-display);font-size:1.2rem;font-weight:500;margin-top:4px' }, 'Coffee Passport')
+      )
+    ),
+    el('div', { style: 'padding:16px 20px' },
+      el('div', { style: 'font-size:0.88rem;color:var(--ink-soft)' }, uniqueOriginsTried() + ' / ' + DATA.passportRegions.length + ' stamps collected.')
     )
   ));
   c.appendChild(ctaPair);
-
-  // Recent community activity (social proof / FOMO)
-  c.appendChild(el('div', { class: 'card' },
-    el('div', { class: 'section-title' },
-      el('h3', { class: 'h3' }, 'Just happened'),
-      el('a', { href: '#/wall' }, 'See more →')
-    ),
-    el('div', { class: 'list' },
-      activityRow('🎨', 'Tessa L.', 'submitted a 12-leaf rosetta to the leaderboard', '4m ago'),
-      activityRow('☕', 'Diego P.', 'posted a tulip to the Coffee Wall', '12m ago'),
-      activityRow('🌍', 'Priya S.', 'collected the Yemen passport stamp', '36m ago'),
-      activityRow('🏆', 'Maya R.', 'reached Specialty Brewer', '1h ago'),
-      activityRow('🎬', 'James H.', 'posted a new video on espresso channeling', '3h ago')
-    )
-  ));
 }
 
-function streakBanner(checkedInToday) {
-  return el('div', {
-    style: 'background:linear-gradient(135deg, #FFE4C9 0%, #FAEDD7 100%);border:1px solid rgba(200,118,45,0.25);border-radius:16px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap'
-  },
-    el('div', { style: 'font-size:2.4rem;line-height:1' }, '🔥'),
-    el('div', { style: 'flex:1;min-width:200px' },
-      el('div', { style: 'font-family:var(--font-display);font-size:1.6rem;font-weight:500;letter-spacing:-0.015em' }, state.streak + ' day streak'),
-      el('div', { style: 'font-size:0.88rem;color:var(--ink-soft);margin-top:2px' },
-        checkedInToday ? 'Checked in today. Keep it going tomorrow.' : 'Check in to keep your streak alive.'
+/* ----- Helper components for Home ----- */
+
+// Story circle (Instagram-style, used in stories scroll row)
+function storyCircle({ label, initials: ini, icon, isMe, avatarBg, ringed, recentBrew, onclick }) {
+  const ring = isMe ? 'border:2px dashed var(--line)' : (ringed ? 'background:linear-gradient(135deg, var(--caramel) 0%, var(--caramel-deep) 100%);padding:2px' : 'background:var(--bg-subtle);padding:2px');
+  const inner = el('div', {
+    style: 'width:60px;height:60px;border-radius:50%;background:' + (isMe ? 'var(--surface-2)' : (avatarBg || 'var(--bg-subtle)')) + ';display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:0.92rem;border:2px solid var(--bg);' + (isMe ? 'color:var(--ink-muted);font-size:1.6rem' : '')
+  }, icon || ini || '');
+  const wrap = el('div', { style: 'flex-shrink:0;display:flex;flex-direction:column;align-items:center;cursor:pointer;width:74px', title: recentBrew || '', onclick },
+    el('div', { style: 'border-radius:50%;width:64px;height:64px;display:flex;align-items:center;justify-content:center;' + ring }, inner),
+    el('div', { style: 'margin-top:6px;font-size:0.72rem;color:var(--ink-muted);text-align:center;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap' }, label || '')
+  );
+  return wrap;
+}
+
+// Grind Score hero card — dark forest green, like The Grind
+function grindCard(score, tier, nextT, dims, streakDays, checkedInToday) {
+  const tierColors = {
+    apprentice: 'var(--caramel)', 'home-barista': 'var(--caramel)',
+    specialty: '#7AAE8A', connoisseur: '#E8C896', sommelier: '#E8C896'
+  };
+  const accent = tierColors[tier.id] || 'var(--caramel)';
+  const subTierBrew = grindSubTier(dims.brew);
+  const subTierIQ = grindSubTier(dims.iq);
+  const subTierComm = grindSubTier(dims.community);
+  const subTierPalate = grindSubTier(dims.palate);
+
+  const card = el('div', { style: 'background:linear-gradient(160deg, #1F352A 0%, #0F1F18 100%);color:var(--bg);border-radius:20px;padding:28px;margin-bottom:32px;position:relative;overflow:hidden' });
+
+  // Top row: score circle + tier name
+  const top = el('div', { style: 'display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;margin-bottom:24px' });
+
+  // Circular score with ring (SVG for the progress ring)
+  const ringPct = Math.min(100, score / 50); // max ~5000
+  const ringWrap = el('div', { style: 'position:relative;width:104px;height:104px;flex-shrink:0' });
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('viewBox', '0 0 100 100');
+  svg.setAttribute('width', '104'); svg.setAttribute('height', '104');
+  const trackC = document.createElementNS(svgNS, 'circle');
+  trackC.setAttribute('cx', '50'); trackC.setAttribute('cy', '50'); trackC.setAttribute('r', '44');
+  trackC.setAttribute('fill', 'none'); trackC.setAttribute('stroke', 'rgba(255,255,255,0.12)'); trackC.setAttribute('stroke-width', '6');
+  svg.appendChild(trackC);
+  const ringC = document.createElementNS(svgNS, 'circle');
+  ringC.setAttribute('cx', '50'); ringC.setAttribute('cy', '50'); ringC.setAttribute('r', '44');
+  ringC.setAttribute('fill', 'none'); ringC.setAttribute('stroke', accent); ringC.setAttribute('stroke-width', '6');
+  ringC.setAttribute('stroke-linecap', 'round');
+  ringC.setAttribute('transform', 'rotate(-90 50 50)');
+  ringC.setAttribute('stroke-dasharray', (Math.PI * 88).toFixed(1));
+  ringC.setAttribute('stroke-dashoffset', (Math.PI * 88 * (1 - ringPct / 100)).toFixed(1));
+  svg.appendChild(ringC);
+  ringWrap.appendChild(svg);
+  ringWrap.appendChild(el('div', { style: 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1' },
+    el('div', { style: 'font-family:var(--font-display);font-size:1.65rem;font-weight:500;letter-spacing:-0.02em' }, score.toLocaleString()),
+    el('div', { style: 'font-size:0.6rem;letter-spacing:0.14em;color:rgba(232,200,150,0.7);margin-top:4px' }, 'GRIND SCORE')
+  ));
+  top.appendChild(ringWrap);
+
+  const tierBlock = el('div', {});
+  tierBlock.appendChild(el('div', { style: 'font-size:0.7rem;letter-spacing:0.14em;color:rgba(232,200,150,0.6);text-transform:uppercase;margin-bottom:4px' }, 'Tier'));
+  tierBlock.appendChild(el('div', { style: 'font-family:var(--font-display);font-size:1.6rem;font-weight:500;letter-spacing:-0.015em;margin-bottom:6px' }, tier.name));
+  if (nextT) {
+    tierBlock.appendChild(el('div', { style: 'font-size:0.85rem;color:rgba(232,200,150,0.7);margin-bottom:10px;display:flex;align-items:center;gap:6px' },
+      el('span', { style: 'color:' + accent }, '↗'),
+      el('span', {}, 'Up next: ' + nextT.name)
+    ));
+  }
+  // Streak pill — only show if streak >= 1
+  if (streakDays >= 1) {
+    tierBlock.appendChild(el('button', {
+      style: 'background:' + accent + ';color:#1F352A;padding:6px 14px;border-radius:999px;font-size:0.85rem;font-weight:600;border:0;cursor:pointer;display:inline-flex;align-items:center;gap:6px',
+      onclick: () => checkIn()
+    }, '🔥 ' + streakDays + '-day streak'));
+  } else if (!checkedInToday) {
+    tierBlock.appendChild(el('button', {
+      style: 'background:' + accent + ';color:#1F352A;padding:6px 14px;border-radius:999px;font-size:0.85rem;font-weight:600;border:0;cursor:pointer',
+      onclick: () => checkIn()
+    }, '+ Start your streak (+10)'));
+  }
+  top.appendChild(tierBlock);
+  card.appendChild(top);
+
+  // Four sub-tier blocks
+  const subs = el('div', { style: 'display:grid;grid-template-columns:repeat(2, 1fr);gap:12px' });
+  [
+    { icon: '🔥', label: 'Brew', tierName: subTierBrew, pct: dims.brew },
+    { icon: '📖', label: 'IQ', tierName: subTierIQ, pct: dims.iq },
+    { icon: '👥', label: 'Community', tierName: subTierComm, pct: dims.community },
+    { icon: '✨', label: 'Palate', tierName: subTierPalate, pct: dims.palate }
+  ].forEach(s => {
+    subs.appendChild(el('div', { style: 'background:rgba(0,0,0,0.18);border-radius:12px;padding:14px 16px' },
+      el('div', { style: 'font-size:0.7rem;letter-spacing:0.12em;color:rgba(232,200,150,0.55);text-transform:uppercase;display:flex;align-items:center;gap:6px;margin-bottom:6px' },
+        el('span', {}, s.icon),
+        el('span', {}, s.label)
+      ),
+      el('div', { style: 'font-weight:600;font-size:0.95rem;margin-bottom:8px' }, s.tierName),
+      el('div', { style: 'height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden' },
+        el('div', { style: 'height:100%;width:' + Math.max(2, s.pct) + '%;background:' + accent })
       )
+    ));
+  });
+  card.appendChild(subs);
+
+  return card;
+}
+
+// Today's Pour card — clean white card, spec strip, "why this" line
+function todaysPourCard(recipe) {
+  const machine = getMachine();
+  const reason = computePickReason(recipe);
+  const card = el('div', { class: 'card', style: 'margin-bottom:32px;padding:0;overflow:hidden' });
+  card.appendChild(el('div', { style: 'padding:24px 28px 8px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap' },
+    el('div', {},
+      el('div', { class: 'eyebrow', style: 'color:var(--caramel-deep);margin-bottom:6px' }, "★ Today's pour"),
+      el('h2', { class: 'h2', style: 'font-size:1.7rem' }, recipe.name)
+    ),
+    el('span', { style: 'background:var(--bg-subtle);color:var(--ink-soft);padding:4px 12px;border-radius:999px;font-size:0.72rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase' }, recipe.method)
+  ));
+  if (reason) {
+    card.appendChild(el('p', { style: 'padding:0 28px 16px;color:var(--ink-soft);font-size:0.92rem;line-height:1.55;margin:0' }, reason));
+  }
+  // Spec strip
+  card.appendChild(el('div', { style: 'padding:0 28px 20px;display:flex;gap:8px;flex-wrap:wrap' },
+    recipe.ratio ? specPill('Ratio', recipe.ratio) : null,
+    recipe.water ? specPill('Water', recipe.water.split(' ')[0]) : null,
+    recipe.grind ? specPill('Grind', recipe.grind.split(' ')[0]) : null,
+    el('span', { style: 'background:var(--bg-subtle);color:var(--ink-soft);padding:6px 12px;border-radius:8px;font-size:0.82rem' },
+      el('span', { style: 'color:var(--ink-muted);font-size:0.72rem;margin-right:6px;text-transform:uppercase;letter-spacing:0.06em' }, 'Time'),
+      recipe.time
+    )
+  ));
+  // CTA + author byline
+  card.appendChild(el('div', { style: 'border-top:1px solid var(--line);padding:18px 28px;display:flex;align-items:center;gap:12px;flex-wrap:wrap' },
+    el('button', { class: 'btn btn-accent', onclick: () => navigate('recipe/' + recipe.id) }, 'Brew it →'),
+    el('button', { class: 'btn btn-secondary btn-sm', onclick: () => navigate('journal') }, '+ Log this'),
+    recipe.author ? el('div', { style: 'margin-left:auto;font-size:0.78rem;color:var(--ink-muted)' }, 'by ' + recipe.author) : null
+  ));
+  // Subtle Cuisinart machine reference
+  if (machine && machine.kind) {
+    card.appendChild(el('div', { style: 'background:var(--surface-2);padding:10px 28px;font-size:0.78rem;color:var(--ink-muted);border-top:1px solid var(--line-soft)' },
+      'Calibrated for ' + machine.name.toLowerCase() + ' · settings in step-by-step view'
+    ));
+  }
+  return card;
+}
+
+function specPill(label, value) {
+  return el('span', { style: 'background:var(--bg-subtle);color:var(--ink-soft);padding:6px 12px;border-radius:8px;font-size:0.82rem' },
+    el('span', { style: 'color:var(--ink-muted);font-size:0.72rem;margin-right:6px;text-transform:uppercase;letter-spacing:0.06em' }, label),
+    value
+  );
+}
+
+// Compute "why this pick" reason from journal patterns
+function computePickReason(recipe) {
+  const j = state.journal;
+  if (!j.length) return 'A clean introduction to your brew method. Try it once, log it, and we will learn what you like.';
+  // Find favorite tag
+  const tagFreq = {};
+  j.forEach(e => {
+    const r = getRecipe(e.recipe);
+    if (r && e.rating >= 4) {
+      r.tags.forEach(t => tagFreq[t] = (tagFreq[t] || 0) + 1);
+    }
+  });
+  const topTag = Object.keys(tagFreq).sort((a, b) => tagFreq[b] - tagFreq[a])[0];
+  if (topTag && recipe.tags.includes(topTag)) {
+    return 'Picked because you rate ' + topTag + ' brews highest. ' + tagFreq[topTag] + ' five-star ' + topTag + ' brews logged this month.';
+  }
+  // Find favorite bean
+  const beanFreq = {};
+  j.forEach(e => beanFreq[e.bean] = (beanFreq[e.bean] || 0) + 1);
+  const topBean = Object.keys(beanFreq).sort((a, b) => beanFreq[b] - beanFreq[a])[0];
+  const bean = getBean(topBean);
+  if (bean) {
+    return 'Picked because you have been brewing ' + bean.name + ' a lot. This recipe brings out its ' + (bean.tags?.[0] || 'flavors') + ' notes.';
+  }
+  return 'Picked for your taste profile. Refine it any time in You.';
+}
+
+// Compact community card (horizontal scroll on home)
+function communityCard(p) {
+  return el('div', { style: 'flex:0 0 240px;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer', onclick: () => navigate('wall') },
+    el('div', { style: 'aspect-ratio:1;background:var(--bg-subtle);position:relative;overflow:hidden' },
+      p.photo ? el('img', { src: p.photo, alt: '', style: 'width:100%;height:100%;object-fit:cover;display:block' }) : null,
+      el('span', { style: 'position:absolute;top:10px;right:10px;background:rgba(255,255,255,0.95);color:var(--ink);padding:3px 8px;border-radius:999px;font-size:0.7rem;font-weight:600' }, p.drink)
+    ),
+    el('div', { style: 'padding:12px 14px' },
+      el('div', { style: 'display:flex;align-items:center;gap:8px;margin-bottom:6px' },
+        el('div', { style: 'width:24px;height:24px;border-radius:50%;background:' + p.avatarBg + ';color:white;font-size:0.65rem;font-weight:600;display:flex;align-items:center;justify-content:center' }, p.initials),
+        el('div', { style: 'font-size:0.78rem;color:var(--ink-soft)' }, '@' + (p.author || '').toLowerCase().replace(/[^a-z]/g, '').slice(0, 10))
+      ),
+      el('div', { style: 'font-size:0.85rem;font-weight:500;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden' }, p.caption || '')
+    )
+  );
+}
+
+// Weekly challenge card with progress + brewing along
+function weeklyChallengeCard(ch) {
+  const joined = state.joinedChallenges.includes(ch.id);
+  const progressPct = joined ? 50 : 0;
+  return el('div', {
+    style: 'background:linear-gradient(135deg, #4574B5 0%, #2C4F87 100%);color:white;border-radius:20px;padding:28px;margin-bottom:32px;position:relative;overflow:hidden'
+  },
+    el('div', { style: 'font-size:0.7rem;letter-spacing:0.14em;color:rgba(255,255,255,0.7);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px' },
+      el('span', {}, '🏆'),
+      el('span', {}, 'Weekly challenge · ' + ch.duration + ' left')
+    ),
+    el('div', { style: 'font-family:var(--font-display);font-size:1.8rem;font-weight:500;letter-spacing:-0.015em;line-height:1.1;margin-bottom:8px' }, ch.name),
+    el('p', { style: 'color:rgba(255,255,255,0.85);font-size:0.95rem;line-height:1.5;margin-bottom:18px;max-width:480px' }, ch.desc),
+    el('div', { style: 'display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;margin-bottom:8px' },
+      el('span', {}, '👥 ' + ch.participants.toLocaleString() + ' brewing along'),
+      el('span', { style: 'font-weight:600' }, progressPct + '%')
+    ),
+    el('div', { style: 'height:6px;background:rgba(255,255,255,0.15);border-radius:3px;overflow:hidden;margin-bottom:18px' },
+      el('div', { style: 'height:100%;width:' + progressPct + '%;background:var(--caramel);transition:width 0.4s' })
     ),
     el('button', {
-      class: 'btn ' + (checkedInToday ? 'btn-secondary' : 'btn-accent'),
-      onclick: () => checkIn()
-    }, checkedInToday ? '✓ Checked in' : '+ Check in (+10)')
+      style: 'background:var(--caramel);color:white;padding:14px 24px;border-radius:999px;font-size:0.95rem;font-weight:600;border:0;cursor:pointer;width:100%;transition:background 0.15s',
+      onclick: () => {
+        if (!joined) {
+          state.joinedChallenges.push(ch.id);
+          state.points += 25;
+          save();
+          toast('Joined ' + ch.name);
+          render();
+        } else {
+          navigate('community');
+        }
+      }
+    }, joined ? 'See your progress →' : 'Join challenge')
   );
 }
 
