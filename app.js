@@ -536,12 +536,47 @@ function renderDashboard(main) {
   const tier = computeTier();
   const next = nextTier();
 
-  // Streak banner — first thing users see, very Duolingo
+  // Profile card — your identity at a glance
+  const tierForProfile = computeTier();
+  const personality = brewPersonality();
+  const passportCount = uniqueOriginsTried();
+  c.appendChild(el('div', {
+    class: 'card',
+    style: 'margin-bottom:24px;padding:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;cursor:pointer',
+    onclick: () => navigate('you')
+  },
+    el('div', {
+      style: 'width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg, var(--caramel) 0%, var(--caramel-deep) 100%);color:white;font-size:1.4rem;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0'
+    }, initials(state.user?.name)),
+    el('div', { style: 'flex:1;min-width:200px' },
+      el('div', { class: 'eyebrow', style: 'margin-bottom:4px' }, `${state.user?.isGuest ? 'Welcome' : 'Welcome back'}`),
+      el('div', { style: 'font-family:var(--font-display);font-size:1.5rem;font-weight:500;letter-spacing:-0.01em;margin-bottom:8px' }, state.user?.name || 'Guest'),
+      el('div', { style: 'display:flex;gap:6px;flex-wrap:wrap' },
+        el('span', { class: 'pill ' + (tierForProfile.color === 'gold' ? 'pill-gold' : tierForProfile.color === 'green' ? 'pill-green' : 'pill-accent') }, tierForProfile.icon + ' ' + tierForProfile.name),
+        personality ? el('span', { class: 'pill' }, personality.icon + ' ' + personality.name) : null
+      )
+    ),
+    el('div', { style: 'display:flex;gap:24px;flex-wrap:wrap' },
+      el('div', { style: 'text-align:center' },
+        el('div', { style: 'font-family:var(--font-display);font-size:1.6rem;font-weight:500;letter-spacing:-0.01em' }, state.points.toLocaleString()),
+        el('div', { style: 'font-size:0.72rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px' }, 'Points')
+      ),
+      el('div', { style: 'text-align:center' },
+        el('div', { style: 'font-family:var(--font-display);font-size:1.6rem;font-weight:500;letter-spacing:-0.01em' }, state.journal.length),
+        el('div', { style: 'font-size:0.72rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px' }, 'Brews')
+      ),
+      el('div', { style: 'text-align:center' },
+        el('div', { style: 'font-family:var(--font-display);font-size:1.6rem;font-weight:500;letter-spacing:-0.01em' }, passportCount + ' / ' + DATA.passportRegions.length),
+        el('div', { style: 'font-size:0.72rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px' }, 'Passport')
+      )
+    )
+  ));
+
+  // Streak banner — keeps Duolingo-style daily hook
   c.appendChild(streakBanner(checkedInToday));
 
-  // Greeting
-  c.appendChild(el('div', { class: 'page-head', style: 'margin-bottom:32px' },
-    el('div', { class: 'eyebrow' }, `${state.user?.isGuest ? 'Welcome' : 'Welcome back'}${state.user && !state.user.isGuest ? ', ' + state.user.name.split(' ')[0] : ''}`),
+  // H1 (kept short — profile already greeted them)
+  c.appendChild(el('div', { class: 'page-head', style: 'margin-bottom:32px;margin-top:32px' },
     el('h1', { class: 'h1' }, "Your morning, ready.")
   ));
 
@@ -1019,7 +1054,7 @@ function renderYou(main) {
       el('div', { style: 'display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap' },
         el('div', {},
           el('h1', { class: 'h1', style: 'font-size:2rem' }, state.user?.name || 'Guest'),
-          el('div', { class: 'muted', style: 'margin-top:4px;font-size:0.92rem' }, state.user?.email || 'Browsing as guest'),
+          el('div', { class: 'muted', style: 'margin-top:4px;font-size:0.92rem' }, state.user?.isGuest ? 'Browsing as guest' : (state.user?.joined ? 'Member since ' + fmtDate(state.user.joined) : '')),
           el('div', { style: 'margin-top:10px;display:flex;gap:8px;flex-wrap:wrap' },
             el('span', { class: 'pill ' + (tier.color === 'gold' ? 'pill-gold' : tier.color === 'green' ? 'pill-green' : 'pill-accent') }, tier.icon + ' ' + tier.name),
             personality ? el('span', { class: 'pill' }, personality.icon + ' ' + personality.name) : null
@@ -3105,8 +3140,7 @@ function renderProfile(main) {
         el('div', {},
           el('h1', { class: 'h1', style: 'font-size:2.2rem' }, state.user?.name || 'Guest'),
           el('div', { class: 'muted', style: 'margin-top:4px;font-size:0.95rem' },
-            state.user?.email || 'Browsing as guest',
-            state.user?.joined && !state.user?.isGuest ? ' · Member since ' + fmtDate(state.user.joined) : ''
+            state.user?.isGuest ? 'Browsing as guest' : (state.user?.joined ? 'Member since ' + fmtDate(state.user.joined) : '')
           ),
           el('div', { style: 'margin-top:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap' },
             el('span', { class: 'pill ' + (tier.color === 'gold' ? 'pill-gold' : tier.color === 'green' ? 'pill-green' : 'pill-accent'), style: 'font-size:0.88rem;padding:6px 14px;font-weight:600' },
