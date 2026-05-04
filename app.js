@@ -442,7 +442,7 @@ function mountAppShell() {
     style: 'position:fixed;bottom:24px;right:24px;z-index:60;background:var(--espresso);color:var(--crema);width:auto;height:auto;padding:14px 20px;border-radius:999px;box-shadow:0 8px 24px rgba(31,20,16,0.2);display:flex;align-items:center;gap:10px;font-weight:600;font-size:0.92rem;cursor:pointer;transition:transform 0.15s, box-shadow 0.15s',
     onmouseover: (e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(31,20,16,0.28)'; },
     onmouseout: (e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(31,20,16,0.2)'; },
-    onclick: () => navigate('barista')
+    onclick: openBaristaWheel
   },
     el('span', { style: 'font-size:1.2rem' }, '☕'),
     el('span', {}, 'Ask Barista')
@@ -580,6 +580,213 @@ function openBrewLogModal() {
     saveBrewLog(entries);
     toast('Brew logged');
     close();
+  }
+}
+
+/* ============================================================
+   Ask Barista wheel — six-wedge vibe picker that hands off to the
+   existing renderBarista chat by stashing a pending query on window.
+   ============================================================ */
+const VIBE_ICONS = {
+  hot:    [{ tag: 'path', d: 'M16 4 Q22 12 22 18 a6 6 0 0 1 -12 0 Q10 14 14 10 Q14 14 16 14 Q16 8 16 4 Z', fill: 'currentColor' }],
+  sweet:  [
+    { tag: 'rect', x: '6', y: '6', width: '20', height: '20', rx: '3', fill: 'currentColor' },
+    { tag: 'rect', x: '9', y: '9', width: '14', height: '14', rx: '2', fill: 'rgba(255,255,255,0.35)' }
+  ],
+  bold:   [{ tag: 'path', d: 'M18 3 L8 18 L14 18 L12 29 L24 14 L18 14 Z', fill: 'currentColor' }],
+  quick:  [
+    { tag: 'circle', cx: '16', cy: '16', r: '11', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' },
+    { tag: 'path', d: 'M16 9 V16 L21 19', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round' }
+  ],
+  creamy: [{ tag: 'path', d: 'M16 4 C11 11 8 16 8 21 C8 25 12 28 16 28 C20 28 24 25 24 21 C24 16 21 11 16 4 Z', fill: 'currentColor' }],
+  iced:   [{ tag: 'path', d: 'M16 4 V28 M4 16 H28 M7 7 L25 25 M7 25 L25 7', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round' }]
+};
+
+function openBaristaWheel() {
+  if (document.getElementById('bw-backdrop')) return;
+
+  const VIBES = [
+    { id: 'hot',    label: 'Hot',    bg: '#FAECE7', sel: '#F0997B', text: '#4A1B0C', iconKey: 'hot' },
+    { id: 'sweet',  label: 'Sweet',  bg: '#FBEAF0', sel: '#ED93B1', text: '#4B1528', iconKey: 'sweet' },
+    { id: 'bold',   label: 'Bold',   bg: '#EAF3DE', sel: '#97C459', text: '#173404', iconKey: 'bold' },
+    { id: 'quick',  label: 'Quick',  bg: '#EEEDFE', sel: '#AFA9EC', text: '#26215C', iconKey: 'quick' },
+    { id: 'creamy', label: 'Creamy', bg: '#FAEEDA', sel: '#FAC775', text: '#412402', iconKey: 'creamy' },
+    { id: 'iced',   label: 'Iced',   bg: '#E6F1FB', sel: '#85B7EB', text: '#042C53', iconKey: 'iced' }
+  ];
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const selected = new Set();
+
+  function polar(r, angDeg) {
+    const a = (angDeg - 90) * Math.PI / 180;
+    return [160 + r * Math.cos(a), 160 + r * Math.sin(a)];
+  }
+  function sectorPath(startCW, endCW, R, r) {
+    const [ox1, oy1] = polar(R, startCW);
+    const [ox2, oy2] = polar(R, endCW);
+    const [ix2, iy2] = polar(r, endCW);
+    const [ix1, iy1] = polar(r, startCW);
+    return 'M ' + ox1 + ' ' + oy1 +
+      ' A ' + R + ' ' + R + ' 0 0 1 ' + ox2 + ' ' + oy2 +
+      ' L ' + ix2 + ' ' + iy2 +
+      ' A ' + r + ' ' + r + ' 0 0 0 ' + ix1 + ' ' + iy1 + ' Z';
+  }
+  function makeIcon(iconKey, color) {
+    const g = document.createElementNS(SVG_NS, 'g');
+    VIBE_ICONS[iconKey].forEach(spec => {
+      const node = document.createElementNS(SVG_NS, spec.tag);
+      Object.keys(spec).forEach(k => {
+        if (k === 'tag') return;
+        let val = spec[k];
+        if (val === 'currentColor') val = color;
+        node.setAttribute(k, val);
+      });
+      g.appendChild(node);
+    });
+    return g;
+  }
+
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 320 320');
+  svg.setAttribute('class', 'bw-wheel');
+  svg.setAttribute('aria-hidden', 'true');
+
+  const wedgePaths = {};
+  VIBES.forEach((v, i) => {
+    const startCW = i * 60;
+    const endCW = (i + 1) * 60;
+    const midCW = startCW + 30;
+    const iconPos = polar(102, midCW);
+    const labelPos = polar(135, midCW);
+
+    const g = document.createElementNS(SVG_NS, 'g');
+    g.setAttribute('class', 'bw-wedge');
+    g.setAttribute('data-vibe', v.id);
+    g.style.cursor = 'pointer';
+    g.addEventListener('click', () => toggleVibe(v.id));
+
+    const path = document.createElementNS(SVG_NS, 'path');
+    path.setAttribute('d', sectorPath(startCW, endCW, 156, 55));
+    path.setAttribute('fill', v.bg);
+    path.setAttribute('stroke', '#FFFFFF');
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('stroke-linejoin', 'round');
+    g.appendChild(path);
+
+    const iconEl = makeIcon(v.iconKey, v.text);
+    iconEl.setAttribute('transform', 'translate(' + (iconPos[0] - 16) + ' ' + (iconPos[1] - 16) + ')');
+    iconEl.style.pointerEvents = 'none';
+    g.appendChild(iconEl);
+
+    const label = document.createElementNS(SVG_NS, 'text');
+    label.setAttribute('x', labelPos[0]);
+    label.setAttribute('y', labelPos[1]);
+    label.setAttribute('text-anchor', 'middle');
+    label.setAttribute('dominant-baseline', 'middle');
+    label.setAttribute('font-size', '11');
+    label.setAttribute('font-weight', '600');
+    label.setAttribute('fill', v.text);
+    label.style.pointerEvents = 'none';
+    label.textContent = v.label;
+    g.appendChild(label);
+
+    svg.appendChild(g);
+    wedgePaths[v.id] = path;
+  });
+
+  const askBtn = el('button', { class: 'bw-ask disabled', type: 'button', onclick: () => askBarista() }, 'Ask Barista');
+  askBtn.setAttribute('disabled', '');
+
+  const wheelWrap = el('div', { class: 'bw-wheel-wrap' });
+  wheelWrap.appendChild(svg);
+  wheelWrap.appendChild(askBtn);
+
+  const chipRow = el('div', { class: 'bw-chips' });
+
+  const freeInput = el('input', {
+    class: 'bw-free-input',
+    type: 'text',
+    placeholder: 'Or describe what you want…',
+    onkeydown: (e) => { if (e.key === 'Enter') { e.preventDefault(); sendFree(); } }
+  });
+  const freeBtn = el('button', { class: 'bw-free-send', type: 'button', 'aria-label': 'Send', onclick: sendFree }, '→');
+
+  const card = el('div', { class: 'bw-card', onclick: (e) => e.stopPropagation() },
+    el('div', { class: 'bw-head' },
+      el('div', { class: 'bw-head-text' },
+        el('h2', { class: 'bw-title' }, 'What are you craving?'),
+        el('p', { class: 'bw-sub' }, 'Tap the vibes you want. We’ll suggest a drink.')
+      ),
+      el('button', { type: 'button', class: 'bw-close', onclick: close, 'aria-label': 'Close' }, '×')
+    ),
+    wheelWrap,
+    chipRow,
+    el('div', { class: 'bw-free' }, freeInput, freeBtn)
+  );
+
+  const backdrop = el('div', { id: 'bw-backdrop', class: 'bw-backdrop', onclick: close }, card);
+  document.body.appendChild(backdrop);
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => backdrop.classList.add('open'), 10);
+  document.addEventListener('keydown', onKey);
+
+  function onKey(e) { if (e.key === 'Escape') close(); }
+
+  function close() {
+    document.removeEventListener('keydown', onKey);
+    backdrop.classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(() => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); }, 180);
+  }
+
+  function toggleVibe(id) {
+    const v = VIBES.find(x => x.id === id);
+    if (selected.has(id)) selected.delete(id);
+    else selected.add(id);
+    wedgePaths[id].setAttribute('fill', selected.has(id) ? v.sel : v.bg);
+    updateAsk();
+    updateChips();
+  }
+
+  function updateAsk() {
+    if (selected.size === 0) {
+      askBtn.setAttribute('disabled', '');
+      askBtn.classList.add('disabled');
+    } else {
+      askBtn.removeAttribute('disabled');
+      askBtn.classList.remove('disabled');
+    }
+  }
+
+  function updateChips() {
+    chipRow.innerHTML = '';
+    chipRow.classList.toggle('has-chips', selected.size > 0);
+    VIBES.filter(v => selected.has(v.id)).forEach(v => {
+      chipRow.appendChild(el('span',
+        { class: 'bw-chip', style: 'background:' + v.sel + ';color:' + v.text },
+        v.label.toLowerCase()
+      ));
+    });
+  }
+
+  function askBarista() {
+    if (selected.size === 0) return;
+    const labels = VIBES.filter(v => selected.has(v.id)).map(v => v.label.toLowerCase());
+    let q = 'I want something ' + labels.join(', ') + '.';
+    const free = freeInput.value.trim();
+    if (free) q += ' ' + free;
+    sendQuery(q);
+  }
+
+  function sendFree() {
+    const text = freeInput.value.trim();
+    if (!text) return;
+    sendQuery(text);
+  }
+
+  function sendQuery(query) {
+    window._pendingBaristaQuery = query;
+    close();
+    navigate('barista');
   }
 }
 
@@ -1185,7 +1392,7 @@ function renderHome(main) {
         el('div', { class: 'cafe-story-body' },
           el('p', { class: 'cafe-story-eyebrow' }, 'Cafe story'),
           el('h2', { class: 'cafe-story-title' }, 'Dirt Cowboy on the art of the slow pour'),
-          el('p', { class: 'cafe-story-sub' }, 'Hanover, NH · 20 years of single-origin pour-over and a roaster they grew up with.')
+          el('p', { class: 'cafe-story-sub' }, 'Hanover, New Hampshire · 20 years of single-origin pour-over and a roaster they grew up with.')
         )
       )
     )
@@ -1213,11 +1420,50 @@ function renderHome(main) {
     )
   ));
 
+  /* 3b. Compete & win — two contest cards */
+  const contests = [
+    {
+      title: 'Pour-over showdown',
+      body: 'Brew the perfect V60 and share it. Top three win a Cuisinart espresso machine.',
+      daysLeft: '8 days left',
+      cta: 'Enter now →',
+      tone: 'cream'
+    },
+    {
+      title: 'Counter Culture giveaway',
+      body: 'One winner takes a 12-month subscription to Counter Culture beans.',
+      daysLeft: '14 days left',
+      cta: 'Enter →',
+      tone: 'gold'
+    }
+  ];
+  page.appendChild(el('section', { class: 'discover-section' },
+    el('div', { class: 'container' },
+      el('div', { class: 'compete-band' },
+        el('p', { class: 'compete-eyebrow' }, 'Compete & win'),
+        el('h2', { class: 'compete-headline' }, 'Win things. Brew better.'),
+        el('div', { class: 'compete-row' },
+          contests.map(co => el('a', { href: '#/community', class: 'compete-card' },
+            el('div', { class: 'compete-card-img pick-tone-' + co.tone }),
+            el('div', { class: 'compete-card-body' },
+              el('h3', { class: 'compete-card-title' }, co.title),
+              el('p', { class: 'compete-card-text' }, co.body),
+              el('div', { class: 'compete-card-foot' },
+                el('span', { class: 'compete-card-days' }, co.daysLeft),
+                el('span', { class: 'compete-card-cta' }, co.cta)
+              )
+            )
+          ))
+        )
+      )
+    )
+  ));
+
   /* 4. Discover near you — map + cafe row */
   const shops = [
-    { name: 'Dirt Cowboy Cafe',         short: 'Dirt Cowboy',     hood: 'Hanover, NH', coords: [43.7022, -72.2896], roaster: 'Counter Culture',   featured: 'Counter Culture Apollo',         status: 'active', tone: 'cream' },
-    { name: 'The Works Bakery Cafe',    short: 'The Works',       hood: 'Hanover, NH', coords: [43.7018, -72.2898], roaster: 'Green Mountain',    featured: 'Green Mountain Vermont Country', status: 'soon',   tone: 'green' },
-    { name: "Umpleby's Bakery & Cafe",  short: "Umpleby's",       hood: 'Norwich, VT', coords: [43.7155, -72.3057], roaster: 'Vermont Coffee Co.', featured: 'Vermont Coffee Mocha Java',     status: 'soon',   tone: 'gold'  }
+    { name: 'Dirt Cowboy Cafe',         short: 'Dirt Cowboy',     hood: 'Hanover, New Hampshire', coords: [43.7022, -72.2896], roaster: 'Counter Culture',   featured: 'Counter Culture Apollo',         status: 'active', tone: 'cream' },
+    { name: 'The Works Bakery Cafe',    short: 'The Works',       hood: 'Hanover, New Hampshire', coords: [43.7018, -72.2898], roaster: 'Green Mountain',    featured: 'Green Mountain Vermont Country', status: 'soon',   tone: 'green' },
+    { name: "Umpleby's Bakery & Cafe",  short: "Umpleby's",       hood: 'Norwich, Vermont', coords: [43.7155, -72.3057], roaster: 'Vermont Coffee Co.', featured: 'Vermont Coffee Mocha Java',     status: 'soon',   tone: 'gold'  }
   ];
   const mapEl = el('div', { id: 'discover-map', class: 'nearby-map' });
   const legend = el('div', { class: 'nearby-legend' },
@@ -2704,6 +2950,13 @@ function renderBarista(main) {
     }),
     el('button', { class: 'btn btn-accent', onclick: () => sendBaristaMsg() }, 'Send')
   ));
+
+  // If the wheel modal handed off a query, send it once the chat is mounted
+  if (window._pendingBaristaQuery) {
+    const pending = window._pendingBaristaQuery;
+    delete window._pendingBaristaQuery;
+    setTimeout(() => sendBaristaMsg(pending), 350);
+  }
 }
 
 function appendBaristaMsg(who, text) {
