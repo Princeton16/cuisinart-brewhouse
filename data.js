@@ -916,6 +916,29 @@ const DATA = {
     }
   ],
 
+  /* ---------------- AI Drink Recommender catalog ---------------- */
+  /* Each drink scored against user inputs. Highest score wins. */
+  aiDrinks: [
+    { id: 'espresso', name: 'Straight Espresso', icon: '🫘', desc: 'Pure shot of espresso. Bold, concentrated, fast.', temp: 'hot', strength: 'strong', milk: false, sweet: false, time: 'quick', recipeId: null, tags: ['intense', 'classic'] },
+    { id: 'macchiato', name: 'Espresso Macchiato', icon: '☕', desc: 'Espresso with a small dollop of foamed milk on top. The middle ground.', temp: 'hot', strength: 'strong', milk: true, sweet: false, time: 'quick', recipeId: null, tags: ['classic', 'small'] },
+    { id: 'cortado', name: 'Cortado', icon: '🥃', desc: 'Equal espresso and steamed milk. Mellows the espresso just enough.', temp: 'hot', strength: 'strong', milk: true, sweet: false, time: 'quick', recipeId: null, tags: ['balanced', 'small'] },
+    { id: 'latte', name: 'Cafe Latte', icon: '🥛', desc: 'Espresso with a generous pour of steamed milk. Smooth and approachable.', temp: 'hot', strength: 'medium', milk: true, sweet: false, time: 'quick', recipeId: 'sat-morning-latte', tags: ['smooth', 'classic'] },
+    { id: 'cappuccino', name: 'Cappuccino', icon: '☕', desc: 'Espresso, steamed milk, and a thick foam cap. Foam-forward.', temp: 'hot', strength: 'medium', milk: true, sweet: false, time: 'quick', recipeId: null, tags: ['foam', 'classic'] },
+    { id: 'flat-white', name: 'Flat White', icon: '🥛', desc: 'Espresso with microfoam, no foam cap. Australian-style.', temp: 'hot', strength: 'medium', milk: true, sweet: false, time: 'quick', recipeId: null, tags: ['silky'] },
+    { id: 'mocha', name: 'Cafe Mocha', icon: '🍫', desc: 'Espresso with chocolate syrup and steamed milk. Dessert in a cup.', temp: 'hot', strength: 'medium', milk: true, sweet: true, time: 'quick', recipeId: null, tags: ['chocolate', 'dessert'] },
+    { id: 'drip', name: 'Morning Drip', icon: '☀️', desc: 'A balanced cup that lets the bean speak. The everyday classic.', temp: 'hot', strength: 'medium', milk: false, sweet: false, time: 'quick', recipeId: 'morning-classic', tags: ['classic', 'everyday'] },
+    { id: 'pour-over', name: 'Pour Over', icon: '🌊', desc: 'Hand-poured. Highlights complexity. Best for light roasts.', temp: 'hot', strength: 'medium', milk: false, sweet: false, time: 'slow', recipeId: 'pour-over-light', tags: ['ritual', 'clarity'] },
+    { id: 'french-press', name: 'French Press', icon: '💪', desc: 'Heavy body, full extraction. Strong without being bitter.', temp: 'hot', strength: 'strong', milk: false, sweet: false, time: 'slow', recipeId: 'french-press-bold', tags: ['heavy', 'classic'] },
+    { id: 'americano', name: 'Americano', icon: '☕', desc: 'Espresso diluted with hot water. Drip strength, espresso flavor.', temp: 'hot', strength: 'medium', milk: false, sweet: false, time: 'quick', recipeId: null, tags: ['diluted'] },
+    { id: 'iced-americano', name: 'Iced Americano', icon: '🧊', desc: 'Espresso over cold water and ice. Refreshing, low calorie.', temp: 'cold', strength: 'medium', milk: false, sweet: false, time: 'quick', recipeId: null, tags: ['refreshing'] },
+    { id: 'iced-latte', name: 'Iced Latte', icon: '🧊', desc: 'Espresso over cold milk and ice. The hot weather staple.', temp: 'cold', strength: 'medium', milk: true, sweet: false, time: 'quick', recipeId: null, tags: ['summer'] },
+    { id: 'iced-vanilla', name: 'Iced Brown Sugar Vanilla Latte', icon: '🍦', desc: 'Brown sugar oat milk shaken with vanilla espresso. The viral one.', temp: 'cold', strength: 'medium', milk: true, sweet: true, time: 'quick', recipeId: 'iced-vanilla-latte', tags: ['sweet', 'viral'] },
+    { id: 'cold-brew', name: 'Cold Brew', icon: '🧊', desc: 'Slow-steeped concentrate. Smooth, low-acid, strong.', temp: 'cold', strength: 'strong', milk: false, sweet: false, time: 'slow', recipeId: 'cold-brew-classic', tags: ['smooth', 'low-acid'] },
+    { id: 'cold-brew-milk', name: 'Cold Brew with Milk', icon: '🧊', desc: 'Cold brew concentrate diluted with milk. Smooth and creamy.', temp: 'cold', strength: 'strong', milk: true, sweet: false, time: 'slow', recipeId: 'cold-brew-classic', tags: ['smooth', 'creamy'] },
+    { id: 'affogato', name: 'Affogato', icon: '🍨', desc: 'Espresso poured over a scoop of vanilla ice cream. Dessert + caffeine.', temp: 'cold', strength: 'strong', milk: true, sweet: true, time: 'quick', recipeId: null, tags: ['dessert', 'fun'] },
+    { id: 'mazagran', name: 'Mazagran', icon: '🍋', desc: 'Iced coffee with lemon. Portuguese summer drink.', temp: 'cold', strength: 'medium', milk: false, sweet: false, time: 'quick', recipeId: null, tags: ['unusual', 'citrus'] }
+  ],
+
   /* ---------------- Coffee Wall (community photo feed) ---------------- */
   /* Like a feed of coffee photos. Anyone can post. */
   wallPosts: [
