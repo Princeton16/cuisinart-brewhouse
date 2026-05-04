@@ -333,6 +333,7 @@ const ROUTES = {
   'brew': renderBrew,
   'discover': renderHome,
   'learn': renderLearn,
+  'devices': renderDevices,
   'you': renderYou,
 
   // Sub-routes (deeper detail pages)
@@ -385,6 +386,7 @@ function render() {
     let isActive;
     if (to === 'home') isActive = (route === '' || route === 'home');
     else if (to === 'recipes') isActive = (route === 'recipes' || route === 'recipe');
+    else if (to === 'devices') isActive = (route === 'devices');
     else if (to === 'profile') isActive = (route === 'profile' || route === 'you');
     else isActive = (to === route);
     l.classList.toggle('active', isActive);
@@ -405,6 +407,7 @@ function mountAppShell() {
     { route: 'home',    label: 'Home',    href: '#/home' },
     { route: 'learn',   label: 'Learn',   href: '#/learn' },
     { route: 'recipes', label: 'Recipes', href: '#/recipes' },
+    { route: 'devices', label: 'Devices', href: '#/devices' },
     { route: 'profile', label: 'Profile', href: '#/profile' }
   ];
 
@@ -584,8 +587,11 @@ function openBrewLogModal() {
 }
 
 /* ============================================================
-   Ask Barista wheel — six-wedge vibe picker that hands off to the
-   existing renderBarista chat by stashing a pending query on window.
+   Vibe wheel — six-wedge SVG picker shared across three surfaces:
+   the openBaristaWheel modal (FAB), the aiRecommenderCard inline on
+   the Profile page, and a small decorative version on the Home hero.
+   Selections are turned into natural language and forwarded through
+   sendBaristaMsg via the window._pendingBaristaQuery hand-off.
    ============================================================ */
 const VIBE_ICONS = {
   hot:    [{ tag: 'path', d: 'M16 4 Q22 12 22 18 a6 6 0 0 1 -12 0 Q10 14 14 10 Q14 14 16 14 Q16 8 16 4 Z', fill: 'currentColor' }],
@@ -602,29 +608,39 @@ const VIBE_ICONS = {
   iced:   [{ tag: 'path', d: 'M16 4 V28 M4 16 H28 M7 7 L25 25 M7 25 L25 7', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round' }]
 };
 
-function openBaristaWheel() {
-  if (document.getElementById('bw-backdrop')) return;
+const BARISTA_VIBES = [
+  { id: 'hot',    label: 'Hot',    bg: '#FAECE7', sel: '#F0997B', text: '#4A1B0C', iconKey: 'hot' },
+  { id: 'sweet',  label: 'Sweet',  bg: '#FBEAF0', sel: '#ED93B1', text: '#4B1528', iconKey: 'sweet' },
+  { id: 'bold',   label: 'Bold',   bg: '#EAF3DE', sel: '#97C459', text: '#173404', iconKey: 'bold' },
+  { id: 'quick',  label: 'Quick',  bg: '#EEEDFE', sel: '#AFA9EC', text: '#26215C', iconKey: 'quick' },
+  { id: 'creamy', label: 'Creamy', bg: '#FAEEDA', sel: '#FAC775', text: '#412402', iconKey: 'creamy' },
+  { id: 'iced',   label: 'Iced',   bg: '#E6F1FB', sel: '#85B7EB', text: '#042C53', iconKey: 'iced' }
+];
 
-  const VIBES = [
-    { id: 'hot',    label: 'Hot',    bg: '#FAECE7', sel: '#F0997B', text: '#4A1B0C', iconKey: 'hot' },
-    { id: 'sweet',  label: 'Sweet',  bg: '#FBEAF0', sel: '#ED93B1', text: '#4B1528', iconKey: 'sweet' },
-    { id: 'bold',   label: 'Bold',   bg: '#EAF3DE', sel: '#97C459', text: '#173404', iconKey: 'bold' },
-    { id: 'quick',  label: 'Quick',  bg: '#EEEDFE', sel: '#AFA9EC', text: '#26215C', iconKey: 'quick' },
-    { id: 'creamy', label: 'Creamy', bg: '#FAEEDA', sel: '#FAC775', text: '#412402', iconKey: 'creamy' },
-    { id: 'iced',   label: 'Iced',   bg: '#E6F1FB', sel: '#85B7EB', text: '#042C53', iconKey: 'iced' }
-  ];
-  const SVG_NS = 'http://www.w3.org/2000/svg';
-  const selected = new Set();
+const SVG_NS = 'http://www.w3.org/2000/svg';
 
-  function polar(r, angDeg) {
-    const a = (angDeg - 90) * Math.PI / 180;
-    return [160 + r * Math.cos(a), 160 + r * Math.sin(a)];
+function buildVibeWheelSvg(opts) {
+  // opts: { size, onWedgeClick, isWedgeSelected }
+  // Returns: { svg, wedgePaths } — SVG node and a map of vibe id to path.
+  const size = opts.size || 320;
+  const cx = size / 2;
+  const cy = size / 2;
+  const R = (size / 2) - 4;
+  // Inner radius scales with size; modal/inline use 110px hub, hero uses 76px.
+  const r = size > 280 ? 55 : Math.round(size * 0.235);
+  const iconSize = size > 280 ? 32 : 22;
+  const iconR = (R + r) / 2 - (size > 280 ? 6 : 8);
+  const labelR = (R + r) / 2 + (size > 280 ? 28 : 18);
+
+  function polar(rad, ang) {
+    const a = (ang - 90) * Math.PI / 180;
+    return [cx + rad * Math.cos(a), cy + rad * Math.sin(a)];
   }
-  function sectorPath(startCW, endCW, R, r) {
-    const [ox1, oy1] = polar(R, startCW);
-    const [ox2, oy2] = polar(R, endCW);
-    const [ix2, iy2] = polar(r, endCW);
-    const [ix1, iy1] = polar(r, startCW);
+  function sectorPath(start, end) {
+    const [ox1, oy1] = polar(R, start);
+    const [ox2, oy2] = polar(R, end);
+    const [ix2, iy2] = polar(r, end);
+    const [ix1, iy1] = polar(r, start);
     return 'M ' + ox1 + ' ' + oy1 +
       ' A ' + R + ' ' + R + ' 0 0 1 ' + ox2 + ' ' + oy2 +
       ' L ' + ix2 + ' ' + iy2 +
@@ -646,34 +662,41 @@ function openBaristaWheel() {
   }
 
   const svg = document.createElementNS(SVG_NS, 'svg');
-  svg.setAttribute('viewBox', '0 0 320 320');
+  svg.setAttribute('viewBox', '0 0 ' + size + ' ' + size);
   svg.setAttribute('class', 'bw-wheel');
   svg.setAttribute('aria-hidden', 'true');
 
   const wedgePaths = {};
-  VIBES.forEach((v, i) => {
+  BARISTA_VIBES.forEach((v, i) => {
     const startCW = i * 60;
     const endCW = (i + 1) * 60;
     const midCW = startCW + 30;
-    const iconPos = polar(102, midCW);
-    const labelPos = polar(135, midCW);
+    const iconPos = polar(iconR, midCW);
+    const labelPos = polar(labelR, midCW);
 
     const g = document.createElementNS(SVG_NS, 'g');
     g.setAttribute('class', 'bw-wedge');
     g.setAttribute('data-vibe', v.id);
     g.style.cursor = 'pointer';
-    g.addEventListener('click', () => toggleVibe(v.id));
+    if (opts.onWedgeClick) {
+      g.addEventListener('click', () => opts.onWedgeClick(v.id));
+    }
 
     const path = document.createElementNS(SVG_NS, 'path');
-    path.setAttribute('d', sectorPath(startCW, endCW, 156, 55));
-    path.setAttribute('fill', v.bg);
+    path.setAttribute('d', sectorPath(startCW, endCW));
+    const isSel = opts.isWedgeSelected ? opts.isWedgeSelected(v.id) : false;
+    path.setAttribute('fill', isSel ? v.sel : v.bg);
     path.setAttribute('stroke', '#FFFFFF');
     path.setAttribute('stroke-width', '2');
     path.setAttribute('stroke-linejoin', 'round');
     g.appendChild(path);
 
     const iconEl = makeIcon(v.iconKey, v.text);
-    iconEl.setAttribute('transform', 'translate(' + (iconPos[0] - 16) + ' ' + (iconPos[1] - 16) + ')');
+    const tx = iconPos[0] - iconSize / 2;
+    const ty = iconPos[1] - iconSize / 2;
+    let xform = 'translate(' + tx + ' ' + ty + ')';
+    if (iconSize !== 32) xform += ' scale(' + (iconSize / 32) + ')';
+    iconEl.setAttribute('transform', xform);
     iconEl.style.pointerEvents = 'none';
     g.appendChild(iconEl);
 
@@ -682,7 +705,7 @@ function openBaristaWheel() {
     label.setAttribute('y', labelPos[1]);
     label.setAttribute('text-anchor', 'middle');
     label.setAttribute('dominant-baseline', 'middle');
-    label.setAttribute('font-size', '11');
+    label.setAttribute('font-size', size > 280 ? 11 : 9);
     label.setAttribute('font-weight', '600');
     label.setAttribute('fill', v.text);
     label.style.pointerEvents = 'none';
@@ -693,11 +716,27 @@ function openBaristaWheel() {
     wedgePaths[v.id] = path;
   });
 
-  const askBtn = el('button', { class: 'bw-ask disabled', type: 'button', onclick: () => askBarista() }, 'Ask Barista');
+  return { svg: svg, wedgePaths: wedgePaths };
+}
+
+function mountVibeChooser(container, opts) {
+  // opts: { size = 320, onSubmit(query) }
+  // Mounts wheel + Ask button + chips + free-form input into container,
+  // wiring all behavior. State lives in this closure.
+  const size = opts.size || 320;
+  const selected = new Set();
+
+  const askBtn = el('button', { class: 'bw-ask disabled', type: 'button', onclick: () => askSubmit() }, 'Ask Barista');
   askBtn.setAttribute('disabled', '');
 
-  const wheelWrap = el('div', { class: 'bw-wheel-wrap' });
-  wheelWrap.appendChild(svg);
+  const wheel = buildVibeWheelSvg({
+    size: size,
+    onWedgeClick: toggleVibe,
+    isWedgeSelected: (id) => selected.has(id)
+  });
+
+  const wheelWrap = el('div', { class: 'bw-wheel-wrap', style: 'width:' + size + 'px;height:' + size + 'px' });
+  wheelWrap.appendChild(wheel.svg);
   wheelWrap.appendChild(askBtn);
 
   const chipRow = el('div', { class: 'bw-chips' });
@@ -710,43 +749,18 @@ function openBaristaWheel() {
   });
   const freeBtn = el('button', { class: 'bw-free-send', type: 'button', 'aria-label': 'Send', onclick: sendFree }, '→');
 
-  const card = el('div', { class: 'bw-card', onclick: (e) => e.stopPropagation() },
-    el('div', { class: 'bw-head' },
-      el('div', { class: 'bw-head-text' },
-        el('h2', { class: 'bw-title' }, 'What are you craving?'),
-        el('p', { class: 'bw-sub' }, 'Tap the vibes you want. We’ll suggest a drink.')
-      ),
-      el('button', { type: 'button', class: 'bw-close', onclick: close, 'aria-label': 'Close' }, '×')
-    ),
-    wheelWrap,
-    chipRow,
-    el('div', { class: 'bw-free' }, freeInput, freeBtn)
-  );
-
-  const backdrop = el('div', { id: 'bw-backdrop', class: 'bw-backdrop', onclick: close }, card);
-  document.body.appendChild(backdrop);
-  document.body.style.overflow = 'hidden';
-  setTimeout(() => backdrop.classList.add('open'), 10);
-  document.addEventListener('keydown', onKey);
-
-  function onKey(e) { if (e.key === 'Escape') close(); }
-
-  function close() {
-    document.removeEventListener('keydown', onKey);
-    backdrop.classList.remove('open');
-    document.body.style.overflow = '';
-    setTimeout(() => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); }, 180);
-  }
+  container.appendChild(wheelWrap);
+  container.appendChild(chipRow);
+  container.appendChild(el('div', { class: 'bw-free' }, freeInput, freeBtn));
 
   function toggleVibe(id) {
-    const v = VIBES.find(x => x.id === id);
+    const v = BARISTA_VIBES.find(x => x.id === id);
     if (selected.has(id)) selected.delete(id);
     else selected.add(id);
-    wedgePaths[id].setAttribute('fill', selected.has(id) ? v.sel : v.bg);
+    wheel.wedgePaths[id].setAttribute('fill', selected.has(id) ? v.sel : v.bg);
     updateAsk();
     updateChips();
   }
-
   function updateAsk() {
     if (selected.size === 0) {
       askBtn.setAttribute('disabled', '');
@@ -756,37 +770,66 @@ function openBaristaWheel() {
       askBtn.classList.remove('disabled');
     }
   }
-
   function updateChips() {
     chipRow.innerHTML = '';
     chipRow.classList.toggle('has-chips', selected.size > 0);
-    VIBES.filter(v => selected.has(v.id)).forEach(v => {
+    BARISTA_VIBES.filter(v => selected.has(v.id)).forEach(v => {
       chipRow.appendChild(el('span',
         { class: 'bw-chip', style: 'background:' + v.sel + ';color:' + v.text },
         v.label.toLowerCase()
       ));
     });
   }
-
-  function askBarista() {
+  function askSubmit() {
     if (selected.size === 0) return;
-    const labels = VIBES.filter(v => selected.has(v.id)).map(v => v.label.toLowerCase());
+    const labels = BARISTA_VIBES.filter(v => selected.has(v.id)).map(v => v.label.toLowerCase());
     let q = 'I want something ' + labels.join(', ') + '.';
     const free = freeInput.value.trim();
     if (free) q += ' ' + free;
-    sendQuery(q);
+    opts.onSubmit(q);
   }
-
   function sendFree() {
     const text = freeInput.value.trim();
     if (!text) return;
-    sendQuery(text);
+    opts.onSubmit(text);
   }
+}
 
-  function sendQuery(query) {
-    window._pendingBaristaQuery = query;
-    close();
-    navigate('barista');
+function sendVibeQueryToBarista(query) {
+  window._pendingBaristaQuery = query;
+  navigate('barista');
+}
+
+function openBaristaWheel() {
+  if (document.getElementById('bw-backdrop')) return;
+
+  const card = el('div', { class: 'bw-card', onclick: (e) => e.stopPropagation() },
+    el('div', { class: 'bw-head' },
+      el('div', { class: 'bw-head-text' },
+        el('h2', { class: 'bw-title' }, 'What are you craving?'),
+        el('p', { class: 'bw-sub' }, 'Tap the vibes you want. We’ll suggest a drink.')
+      ),
+      el('button', { type: 'button', class: 'bw-close', onclick: close, 'aria-label': 'Close' }, '×')
+    )
+  );
+
+  mountVibeChooser(card, {
+    size: 320,
+    onSubmit: (query) => { close(); sendVibeQueryToBarista(query); }
+  });
+
+  const backdrop = el('div', { id: 'bw-backdrop', class: 'bw-backdrop', onclick: close }, card);
+  document.body.appendChild(backdrop);
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => backdrop.classList.add('open'), 10);
+  document.addEventListener('keydown', onKey);
+
+  function onKey(e) { if (e.key === 'Escape') close(); }
+  function close() {
+    document.removeEventListener('keydown', onKey);
+    backdrop.classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(() => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); }, 180);
   }
 }
 
@@ -1355,6 +1398,12 @@ function renderHome(main) {
   const drink = DAILY_DRINKS[dayOfYear(today) % DAILY_DRINKS.length];
 
   /* 1. Today's brew hero */
+  const heroWheel = buildVibeWheelSvg({
+    size: 240,
+    onWedgeClick: () => openBaristaWheel(),
+    isWedgeSelected: () => false
+  });
+  heroWheel.svg.classList.add('today-hero-wheel');
   page.appendChild(el('section', { class: 'discover-section' },
     el('div', { class: 'container' },
       el('div', { class: 'today-hero' },
@@ -1364,7 +1413,10 @@ function renderHome(main) {
           el('p', { class: 'today-desc' }, drink.desc),
           el('button', { class: 'btn-discover-cta', onclick: () => navigate('recipes') }, 'Try this brew')
         ),
-        el('div', { class: 'today-hero-img', 'aria-hidden': 'true' })
+        el('div', { class: 'today-hero-right' },
+          el('p', { class: 'today-hero-wheel-label' }, 'Or pick your own vibe →'),
+          el('div', { class: 'today-hero-wheel-shell', onclick: () => openBaristaWheel() }, heroWheel.svg)
+        )
       )
     )
   ));
@@ -1565,6 +1617,93 @@ function renderHome(main) {
     setTimeout(() => map.invalidateSize(), 0);
   });
 
+}
+
+/* ----- Devices — connected Cuisinart products (preview) ----- */
+const ELIGIBLE_DEVICES = [
+  { name: 'Cuisinart Smart Brew 14-Cup Coffee Maker',     photoUrl: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&q=80' },
+  { name: 'Cuisinart EM-200 Programmable Espresso Maker', photoUrl: 'https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=400&q=80' },
+  { name: 'Cuisinart Cold Brew Coffee Maker',             photoUrl: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=400&q=80' },
+  { name: 'Cuisinart Burr Grind & Brew',                  photoUrl: 'https://images.unsplash.com/photo-1518057111178-44a106bad636?w=400&q=80' },
+  { name: 'Cuisinart AirFryer Toaster Oven',              photoUrl: 'https://images.unsplash.com/photo-1585515320310-259814833e62?w=400&q=80' },
+  { name: 'Cuisinart Hurricane Pro Blender',              photoUrl: 'https://images.unsplash.com/photo-1570222094114-d054a817e56b?w=400&q=80' }
+];
+
+function renderDevices(main) {
+  main.innerHTML = '';
+  const c = el('div', { class: 'container', style: 'padding-top:32px;padding-bottom:56px' });
+  main.appendChild(c);
+
+  c.appendChild(el('div', { class: 'devices-head' },
+    el('p', { class: 'devices-eyebrow' }, 'Your kitchen'),
+    el('h1', { class: 'devices-title' }, 'Connected Cuisinart products'),
+    el('p', { class: 'devices-sub' }, 'Link your Cuisinart appliances to unlock guided brews, automated routines, and personalized recommendations.')
+  ));
+
+  // Primary CTA card
+  c.appendChild(el('div', { class: 'devices-cta' },
+    el('div', { class: 'devices-cta-text' },
+      el('h2', { class: 'devices-cta-title' }, 'Add a device'),
+      el('p', { class: 'devices-cta-body' }, 'Pair over Wi-Fi in 60 seconds.')
+    ),
+    el('button', { class: 'devices-cta-btn', onclick: openAddDeviceModal }, 'Add device')
+  ));
+
+  // Eligible products grid
+  c.appendChild(el('h2', { class: 'devices-section-h' }, 'Eligible products'));
+  c.appendChild(el('div', { class: 'devices-grid' },
+    ELIGIBLE_DEVICES.map(d => el('div', { class: 'device-card' },
+      el('div', {
+        class: 'device-card-img',
+        style: 'background-image:url(\'' + d.photoUrl + '\')',
+        role: 'img',
+        'aria-label': d.name
+      }),
+      el('div', { class: 'device-card-body' },
+        el('h3', { class: 'device-card-name' }, d.name),
+        el('span', { class: 'device-status-pill' }, 'Not connected')
+      )
+    ))
+  ));
+
+  // How it works
+  c.appendChild(el('h2', { class: 'devices-section-h' }, 'How it works'));
+  c.appendChild(el('div', { class: 'devices-steps' },
+    [
+      { n: '1', text: 'Plug in your Cuisinart appliance.' },
+      { n: '2', text: 'Tap Add device and follow the in-app pairing.' },
+      { n: '3', text: 'Get personalized recipes that work for your model.' }
+    ].map(s => el('div', { class: 'devices-step' },
+      el('div', { class: 'devices-step-num' }, s.n),
+      el('p', { class: 'devices-step-text' }, s.text)
+    ))
+  ));
+}
+
+function openAddDeviceModal() {
+  if (document.getElementById('add-device-backdrop')) return;
+
+  const card = el('div', { class: 'add-device-card', onclick: (e) => e.stopPropagation() },
+    el('button', { type: 'button', class: 'bw-close', onclick: close, 'aria-label': 'Close', style: 'position:absolute;top:14px;right:14px' }, '×'),
+    el('div', { class: 'add-device-icon' }, '📡'),
+    el('h2', { class: 'add-device-title' }, 'Coming soon: device pairing'),
+    el('p', { class: 'add-device-body' }, 'This is a preview of what Cuisinart’s connected platform would feel like. Wi-Fi pairing, firmware updates, and per-appliance recipes will land here in a future build.'),
+    el('button', { type: 'button', class: 'bw-btn-primary', onclick: close, style: 'margin-top:18px' }, 'Got it')
+  );
+
+  const backdrop = el('div', { id: 'add-device-backdrop', class: 'bw-backdrop', onclick: close }, card);
+  document.body.appendChild(backdrop);
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => backdrop.classList.add('open'), 10);
+  document.addEventListener('keydown', onKey);
+
+  function onKey(e) { if (e.key === 'Escape') close(); }
+  function close() {
+    document.removeEventListener('keydown', onKey);
+    backdrop.classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(() => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); }, 180);
+  }
 }
 
 /* ----- Products ----- */
@@ -2016,78 +2155,29 @@ function renderYou(main) {
   c.appendChild(split2);
 }
 
-/* ---------------- AI Drink Recommender ---------------- */
-// In-memory state for the form so re-renders don't lose user selections
-let aiPrefs = { temp: null, strength: null, milk: null, sweet: null, time: null };
-let aiResult = null;
-
+/* ---------------- AI Drink Recommender (vibe wheel) ----------------
+   The previous radio-form recommender (Temperature / Strength / Milk /
+   Sweet / Time + scoring against DATA.aiDrinks) has been retired in
+   favor of the shared vibe wheel. The legacy aiSegmentRow / aiRecommend /
+   aiResultPanel functions below are kept commented for reference only.
+   ------------------------------------------------------------------ */
 function aiRecommenderCard() {
-  const card = el('div', { class: 'card', style: 'margin-bottom:32px;padding:0;overflow:hidden;border:1px solid var(--line)' });
-
-  // Header
-  card.appendChild(el('div', { style: 'padding:24px 28px 20px' },
-    el('div', { class: 'eyebrow', style: 'margin-bottom:6px' }, '🤖 AI Drink Recommender'),
-    el('h3', { class: 'h3', style: 'margin-bottom:4px' }, 'What should you drink right now?'),
-    el('p', { style: 'color:var(--ink-soft);font-size:0.9rem' }, 'Tell us what you feel like. We pick the drink that matches.')
+  const card = el('div', { class: 'card bw-inline-card', style: 'margin-bottom:32px;padding:24px 28px;overflow:hidden;border:1px solid var(--line)' });
+  card.appendChild(el('div', { class: 'bw-head bw-head-inline' },
+    el('div', { class: 'bw-head-text' },
+      el('div', { class: 'eyebrow', style: 'margin-bottom:6px' }, '☕ Vibe check'),
+      el('h2', { class: 'bw-title' }, 'What are you craving?'),
+      el('p', { class: 'bw-sub' }, 'Tap the vibes you want. We’ll suggest a drink.')
+    )
   ));
-
-  // Form body
-  const body = el('div', { style: 'padding:0 28px 24px;border-top:1px solid var(--line);padding-top:20px' });
-  body.appendChild(aiSegmentRow('Temperature', 'temp', [
-    { value: 'hot', label: 'Hot', icon: '☀️' },
-    { value: 'cold', label: 'Cold', icon: '🧊' }
-  ]));
-  body.appendChild(aiSegmentRow('Strength', 'strength', [
-    { value: 'strong', label: 'Strong', icon: '💪' },
-    { value: 'medium', label: 'Medium', icon: '👌' },
-    { value: 'light', label: 'Light', icon: '🪶' }
-  ]));
-  body.appendChild(aiSegmentRow('Milk?', 'milk', [
-    { value: 'yes', label: 'With milk', icon: '🥛' },
-    { value: 'no', label: 'Black', icon: '⚫' }
-  ]));
-  body.appendChild(aiSegmentRow('Sweet?', 'sweet', [
-    { value: 'yes', label: 'Sweet', icon: '🍯' },
-    { value: 'no', label: 'Plain', icon: '🌿' }
-  ]));
-  body.appendChild(aiSegmentRow('Time you have', 'time', [
-    { value: 'quick', label: 'Quick (<5 min)', icon: '⚡' },
-    { value: 'slow', label: 'I have time', icon: '🕰️' }
-  ]));
-
-  // Submit button
-  body.appendChild(el('button', {
-    class: 'btn btn-accent btn-block btn-lg',
-    style: 'margin-top:8px',
-    onclick: () => {
-      aiResult = aiRecommend();
-      render();
-    }
-  }, '✨ Recommend my drink'));
-
-  // Optional reset
-  if (Object.values(aiPrefs).some(v => v !== null) || aiResult) {
-    body.appendChild(el('button', {
-      class: 'btn btn-ghost btn-sm',
-      style: 'margin-top:10px;display:block;margin-left:auto;margin-right:auto',
-      onclick: () => {
-        aiPrefs = { temp: null, strength: null, milk: null, sweet: null, time: null };
-        aiResult = null;
-        render();
-      }
-    }, 'Clear answers'));
-  }
-
-  card.appendChild(body);
-
-  // Result
-  if (aiResult) {
-    card.appendChild(aiResultPanel(aiResult));
-  }
-
+  mountVibeChooser(card, {
+    size: 320,
+    onSubmit: (query) => sendVibeQueryToBarista(query)
+  });
   return card;
 }
 
+/*
 function aiSegmentRow(label, key, options) {
   const row = el('div', { style: 'margin-bottom:18px' });
   row.appendChild(el('div', { style: 'font-size:0.78rem;font-weight:600;color:var(--ink-soft);margin-bottom:8px;letter-spacing:0.04em;text-transform:uppercase' }, label));
@@ -2164,6 +2254,7 @@ function aiResultPanel(result) {
     )
   );
 }
+*/
 
 function memberRow(m) {
   const following = (state.following || []).includes(m.id);
