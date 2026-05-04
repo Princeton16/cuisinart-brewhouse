@@ -225,31 +225,7 @@
   grid-template-columns: 1.4fr 1fr 1fr;
   gap: 24px;
 }
-/* Tile base — works standalone, not just inside .feat-grid */
-.tile {
-  position: relative;
-  border-radius: 22px;
-  padding: 32px;
-  border: 2px solid var(--ink);
-  box-shadow: 8px 8px 0 0 var(--ink);
-  overflow: hidden;
-  transition: all 0.25s var(--ease);
-  min-height: 380px;
-  display: flex;
-  flex-direction: column;
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
-}
-.tile:hover { transform: translate(-3px, -3px); box-shadow: 11px 11px 0 0 var(--ink); }
-
-/* Tile color variants — apply anywhere (.feat-grid prefix removed) */
-.tile.barista { background: linear-gradient(135deg, var(--tomato) 0%, #A32C0A 100%); color: var(--cream); }
-.tile.dotd    { background: var(--marigold); color: var(--ink); }
-.tile.atlas   { background: linear-gradient(160deg, var(--canopy) 0%, var(--jungle-dark) 100%); color: var(--cream); }
-.tile.give    { background: var(--ink); color: var(--cream); }
-
-/* When inside .feat-grid only: barista takes 2 rows, give spans 2 cols */
+/* Tile color variants moved to bottom of file — see "Home tile overrides" */
 .feat-grid .tile.barista { grid-row: span 2; }
 .feat-grid .tile.give { grid-column: span 2; }
 
@@ -2510,4 +2486,106 @@ input, select, textarea { font: inherit; color: inherit; }
 .cafe-card-status.is-active { color: #D63A2F; }
 .cafe-card-status.is-soon { color: rgba(197, 150, 43, 0.78); }
 .cafe-card:hover .cafe-card-status.is-active { text-decoration: underline; }
+
+/* ============================================================
+   HOME TILE OVERRIDES — must come AFTER the legacy .tile rule
+   that defines recipe cards (~line 898). Source order wins.
+   ============================================================ */
+
+/* Big magazine-style tiles on the home page (.tile combined with a variant class) */
+.tile.barista,
+.tile.dotd,
+.tile.atlas,
+.tile.give {
+  position: relative;
+  border-radius: 22px;
+  padding: 32px;
+  border: 2px solid var(--ink);
+  box-shadow: 8px 8px 0 0 var(--ink);
+  overflow: hidden;
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  cursor: pointer;
+}
+.tile.barista:hover,
+.tile.dotd:hover,
+.tile.atlas:hover,
+.tile.give:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 11px 11px 0 0 var(--ink);
+  border-color: var(--ink);
+}
+
+/* Variant backgrounds */
+.tile.barista { background: linear-gradient(135deg, var(--tomato) 0%, #A32C0A 100%); color: var(--cream); }
+.tile.dotd    { background: var(--marigold); color: var(--ink); }
+.tile.atlas   { background: linear-gradient(160deg, var(--canopy) 0%, var(--jungle-dark) 100%); color: var(--cream); }
+.tile.give    { background: var(--ink); color: var(--cream); }
+
+/* Inner elements scoped to the variants so they don't leak to recipe tiles */
+.tile.barista .tag,
+.tile.dotd .tag,
+.tile.atlas .tag,
+.tile.give .tag {
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.9;
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.tile.barista h3,
+.tile.dotd h3,
+.tile.atlas h3,
+.tile.give h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 42px;
+  line-height: 0.96;
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+  color: inherit;
+}
+.tile.barista h3 em,
+.tile.atlas h3 em,
+.tile.give h3 em { font-style: italic; color: var(--marigold); }
+.tile.dotd h3 em { font-style: italic; color: var(--tomato); }
+.tile.barista p,
+.tile.dotd p,
+.tile.atlas p,
+.tile.give p {
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1.4;
+  opacity: 0.9;
+  margin-bottom: 20px;
+}
+.tile.barista .arrow-cta,
+.tile.dotd .arrow-cta,
+.tile.atlas .arrow-cta,
+.tile.give .arrow-cta {
+  margin-top: auto;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.tile .arrow-cta .ar {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 24px;
+  transition: transform 0.25s;
+}
+.tile:hover .arrow-cta .ar { transform: translateX(6px); }
 
