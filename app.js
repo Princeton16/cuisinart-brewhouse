@@ -1557,167 +1557,178 @@ function renderHome(main) {
   return renderMagazineHome(main);
 }
 
-// Magazine-style home (matches design system marketing_site UI kit)
+// Magazine-style home — DECLUTTERED. Two clear paths up top, secondaries below.
 function renderMagazineHome(main) {
   main.innerHTML = '';
   const page = el('div', {});
   main.appendChild(page);
 
   const today = new Date();
-  const monthName = today.toLocaleDateString('en-US', { month: 'long' });
-  const weekdayShort = today.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
   const drink = DAILY_DRINKS[dayOfYear(today) % DAILY_DRINKS.length];
   const giveaway = (DATA.giveaways || [])[0];
-  const featuredChallenge = (DATA.challenges || []).find(ch => ch.featured) || (DATA.challenges || [])[0];
-  const issueNum = 14;
 
-  /* === COVER === */
-  const cover = el('section', { style: 'padding:48px 0 80px;position:relative' },
+  /* === HERO: clear binary choice === */
+  const hero = el('section', { style: 'padding:64px 0 32px' },
     el('div', { class: 'container' },
-      // Meta bar
-      el('div', { class: 'cover-meta' },
-        el('div', { class: 'left' },
-          el('span', { class: 'vol' }, 'Vol. III'),
-          el('span', { class: 'date' }, 'Issue ' + issueNum + ' · ' + monthName + ' ' + today.getFullYear())
-        ),
-        el('div', { class: 'chip-bar' },
-          el('span', { class: 'chip tomato' }, '★ Cover'),
-          el('span', { class: 'chip' }, 'Brewed today'),
-          el('span', { class: 'chip teal' }, 'Iced season'),
-          el('span', { class: 'chip leaf' }, '142 cafés')
-        )
+      el('h1', {
+        style: 'font-family:var(--font-display);font-weight:800;font-size:clamp(48px, 7vw, 96px);line-height:0.94;letter-spacing:-0.025em;margin-bottom:48px;max-width:880px'
+      },
+        "What are you ",
+        el('em', { style: 'font-style:italic;color:var(--tomato)' }, 'drinking'),
+        ' today?'
       ),
-      // Grid: text + cover photo
-      el('div', { class: 'cover-grid' },
-        el('div', {},
-          el('span', { class: 'eyebrow' },
-            el('span', { class: 'num', style: 'font-family:var(--font-mono);color:var(--ink-faint);font-weight:500;margin-right:10px' }, '/ 01'),
-            'The cover'
+      // Two big primary tiles — Drink of the Day | Ask the Barista
+      el('div', {
+        style: 'display:grid;grid-template-columns:1fr 1fr;gap:24px'
+      },
+        // 1. DRINK OF THE DAY (marigold yellow)
+        el('a', {
+          class: 'tile dotd',
+          style: 'min-height:480px',
+          onclick: () => navigate(drink.recipeId ? 'recipe/' + drink.recipeId : 'recipes')
+        },
+          el('div', { class: 'tag' },
+            el('span', {}, '★ Drink of the day')
           ),
-          el('h1', { style: 'margin-top:14px' },
-            "Let's talk ",
-            el('em', {}, 'pour-over.'),
-            el('br', {}),
-            'Sounds intimidating.',
-            el('br', {}),
-            el('span', { class: 'tomato-block' }, "It isn't.")
+          el('h3', { style: 'font-size:48px' },
+            (() => {
+              const parts = drink.name.split(' ');
+              return [parts.slice(0, -1).join(' '), ' ', el('em', {}, parts.slice(-1)[0] + '.')];
+            })()
           ),
-          el('p', { class: 'lede' },
-            'A coffee magazine, a brew lab, an atlas of beans worth chasing, and a barista who lives ',
-            el('em', {}, 'in your browser'),
-            ". Tell us how you feel — we'll pour something."
+          el('p', { style: 'font-size:18px;margin-bottom:auto' }, drink.desc.split('.').slice(0, 1).join('.') + '.'),
+          el('div', { class: 'dotd-art', style: 'margin:24px 0' },
+            el('div', { class: 'dotd-cup' }, milkPourSmileySvg())
           ),
-          el('div', { class: 'cover-ctas' },
-            el('button', {
-              class: 'btn btn-sticker',
-              onclick: () => openBaristaWheel()
-            }, '☕ Ask the barista →'),
-            el('button', {
-              class: 'btn btn-secondary',
-              onclick: () => navigate('recipes')
-            }, 'Browse recipes')
+          el('div', { class: 'dotd-meta' },
+            el('span', {}, el('strong', {}, '5 min')),
+            el('span', {}, el('strong', {}, '★★★★★'), ' 4.8')
           ),
-          el('div', { class: 'cat-row' },
-            el('a', { class: 'cat-chip tomato',   href: '#/recipes' }, '● Hot'),
-            el('a', { class: 'cat-chip teal',     href: '#/recipes' }, '❄ Iced'),
-            el('a', { class: 'cat-chip cream',    href: '#/recipes' }, '▼ Espresso'),
-            el('a', { class: 'cat-chip cream',    href: '#/recipes' }, '○ Pour-over'),
-            el('a', { class: 'cat-chip leaf',     href: '#/recipes' }, '▲ Origins'),
-            el('a', { class: 'cat-chip marigold', href: '#/learn' },   '★ Learn'),
-            el('a', { class: 'cat-chip plum',     href: '#/community' }, '◆ Community')
-          )
+          el('span', { class: 'arrow-cta' }, 'See recipe ', el('span', { class: 'ar' }, '→'))
         ),
-        // Cover photo
-        el('div', { class: 'cover-photo' },
-          el('div', { class: 'cover-ribbon' },
-            el('small', {}, 'COVER'),
-            'This week:',
-            el('br', {}),
-            'Latte Foam, Decoded'
+        // 2. ASK THE BARISTA (tomato red — equal prominence)
+        el('a', {
+          class: 'tile barista',
+          style: 'min-height:480px;grid-row:auto',
+          onclick: () => openBaristaWheel()
+        },
+          el('div', { class: 'tag' },
+            el('span', {}, '● Ask the barista')
           ),
-          coverPhotoSvg(),
-          el('div', { class: 'stamp' }, 'PHOTO BY R. NAGAMINE · ' + monthName.toUpperCase() + ' ' + today.getFullYear())
+          el('h3', { style: 'font-size:48px' },
+            'Or pick ',
+            el('em', {}, 'your own.')
+          ),
+          el('p', { style: 'font-size:18px' }, "Tell us how you feel. We'll pour something."),
+          el('div', { style: 'flex:1;display:flex;align-items:center;justify-content:center;margin:24px 0' },
+            // Mini vibe wheel preview (decorative, click anywhere on tile to open the real one)
+            (() => {
+              const mini = buildVibeWheelSvg({ size: 220, onWedgeClick: () => openBaristaWheel(), isWedgeSelected: () => false });
+              return mini.svg;
+            })()
+          ),
+          el('span', { class: 'arrow-cta' }, 'Tap to open the wheel ', el('span', { class: 'ar' }, '→'))
         )
       )
     )
   );
-  page.appendChild(cover);
+  page.appendChild(hero);
 
-  /* === FEATURE TILE STRIP === */
-  const featStrip = el('section', { class: 'feat-strip' },
+  /* === WORLD MAP: cafes + bean farms === */
+  const mapSection = el('section', { style: 'padding:32px 0' },
     el('div', { class: 'container' },
-      el('div', { class: 'feat-grid' },
-        // 1. BARISTA TILE (tall, tomato red)
-        el('a', {
-          class: 'tile barista',
-          onclick: () => openBaristaWheel()
-        },
-          el('div', { class: 'tag' },
-            el('span', {}, '● The Virtual Barista'),
-            el('span', { class: 'num' }, '/ NEW')
+      el('div', { style: 'display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;margin-bottom:24px' },
+        el('div', {},
+          el('span', { class: 'eyebrow' }, '● The Atlas'),
+          el('h2', { style: 'margin-top:8px' },
+            'Beans and ',
+            el('em', {}, 'cafés'),
+            ', mapped.'
           ),
-          el('h3', {},
-            'Tell me how you ',
-            el('em', {}, 'feel.'),
-            " I'll pour you something."
-          ),
-          el('p', {}, 'Hot or cold. Strong or weak. Fancy or lazy. A few quick taps and a drink lands in your morning.'),
-          el('div', { class: 'barista-tile-toggles' },
-            el('div', { class: 'b-tog' }, el('span', { class: 'on' }, 'Hot'),  el('span', {}, 'Iced')),
-            el('div', { class: 'b-tog' }, el('span', {}, 'Mild'), el('span', { class: 'on' }, 'Strong')),
-            el('div', { class: 'b-tog' }, el('span', { class: 'on' }, 'Milky'), el('span', {}, 'Black')),
-            el('div', { class: 'b-tog' }, el('span', {}, 'Sweet'), el('span', { class: 'on' }, 'Not'))
-          ),
-          el('span', { class: 'arrow-cta' }, 'Open the barista ', el('span', { class: 'ar' }, '→'))
+          el('p', { class: 'lead', style: 'margin-top:6px;max-width:520px' }, 'Curated coffee shops worth a trip and the farms behind your favorite bags.')
         ),
-        // 2. DRINK OF THE DAY (marigold)
-        el('a', {
-          class: 'tile dotd',
-          onclick: () => navigate(drink.recipeId ? 'recipe/' + drink.recipeId : 'recipes')
-        },
-          el('div', { class: 'tag' },
-            el('span', {}, '★ Drink of the day'),
-            el('span', { class: 'num' }, '/ ' + weekdayShort)
+        el('div', { style: 'display:flex;gap:18px;font-family:var(--font-mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-soft)' },
+          el('span', { style: 'display:flex;align-items:center;gap:6px' },
+            el('span', { style: 'width:10px;height:10px;border-radius:50%;background:var(--tomato);border:1.5px solid var(--ink)' }),
+            ' Cafés'
           ),
-          el('h3', {}, drink.name.split(' ').slice(0, -1).join(' '), ' ',
-            el('em', {}, drink.name.split(' ').slice(-1)[0] + '.')
-          ),
-          el('p', {}, drink.desc.split('.').slice(0, 1).join('.') + '.'),
-          el('div', { class: 'dotd-art' },
-            el('div', { class: 'dotd-cup' })
-          ),
-          el('div', { class: 'dotd-meta' },
-            el('span', {}, el('strong', {}, '5 min')),
-            el('span', {}, el('strong', {}, '★★★★★'), ' 4.8'),
-            el('span', {}, '2 ingredients')
-          ),
-          el('span', { class: 'arrow-cta' }, 'See the recipe ', el('span', { class: 'ar' }, '→'))
-        ),
-        // 3. ATLAS (rainforest green)
-        el('a', {
-          class: 'tile atlas',
-          onclick: () => navigate('community')
-        },
-          el('div', { class: 'tag' },
-            el('span', {}, '● The Atlas'),
-            el('span', { class: 'num' }, '/ 03')
-          ),
-          el('h3', {},
-            'Beans, ',
-            el('em', {}, 'mapped.')
-          ),
-          el('p', {}, '142 partner cafés. 38 origins. From Yirgacheffe to Brooklyn.'),
-          atlasArtSvg(),
-          el('div', { style: 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;padding-top:10px;border-top:1px solid rgba(255,245,235,0.3);margin-bottom:14px' },
-            atlasStat('142', 'Cafés'),
-            atlasStat('38', 'Origins'),
-            atlasStat('17', 'Countries')
-          ),
-          el('span', { class: 'arrow-cta' }, 'Open the atlas ', el('span', { class: 'ar' }, '→'))
-        ),
-        // 4. GIVEAWAY (wide, ink black)
+          el('span', { style: 'display:flex;align-items:center;gap:6px' },
+            el('span', { style: 'width:10px;height:10px;border-radius:50%;background:var(--marigold);border:1.5px solid var(--ink)' }),
+            ' Bean farms'
+          )
+        )
+      ),
+      el('div', {
+        id: 'home-atlas-map',
+        style: 'aspect-ratio:16/8;width:100%;background:#1F4D2E;border-radius:22px;overflow:hidden;border:2px solid var(--ink);box-shadow:8px 8px 0 0 var(--ink)'
+      })
+    )
+  );
+  page.appendChild(mapSection);
+
+  // Mount the Leaflet map after the DOM is in place
+  requestAnimationFrame(() => {
+    const mapEl = document.getElementById('home-atlas-map');
+    if (!window.L || !mapEl) return;
+    const map = L.map(mapEl, {
+      zoomControl: true,
+      attributionControl: false,
+      worldCopyJump: true,
+      minZoom: 2,
+      maxZoom: 12
+    }).setView([20, 10], 2);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+      subdomains: 'abcd'
+    }).addTo(map);
+
+    // Custom pin builder
+    const makePin = (color) => L.divIcon({
+      className: 'atlas-marker',
+      html: '<span style="display:block;width:18px;height:18px;border-radius:50%;background:' + color + ';border:2px solid #1F1A14;box-shadow:0 2px 4px rgba(31,26,20,0.3)"></span>',
+      iconSize: [18, 18],
+      iconAnchor: [9, 9],
+      popupAnchor: [0, -10]
+    });
+    const cafeIcon = makePin('#E84F1A');   // tomato
+    const farmIcon = makePin('#F5C518');   // marigold
+
+    // Plot cafés (only ones with real coords)
+    (DATA.cafes || []).forEach(s => {
+      if (!s.coords) return;
+      L.marker(s.coords, { icon: cafeIcon })
+        .addTo(map)
+        .bindPopup(
+          '<div style="font-family:var(--font-display);font-weight:700;font-size:15px;color:#1F1A14">' + s.name + '</div>' +
+          '<div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:#8A7E6E;margin-top:2px">' + s.hood + '</div>' +
+          '<div style="font-size:12px;color:#4A4239;margin-top:6px">Café · ' + (s.drinks || []).slice(0,2).join(', ') + '</div>',
+          { closeButton: false }
+        );
+    });
+
+    // Plot bean farms (origins with coords)
+    (DATA.origins || []).forEach(o => {
+      if (!o.coords) return;
+      L.marker(o.coords, { icon: farmIcon })
+        .addTo(map)
+        .bindPopup(
+          '<div style="font-family:var(--font-display);font-weight:700;font-size:15px;color:#1F1A14">' + (o.farmName || o.region) + '</div>' +
+          '<div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:#8A7E6E;margin-top:2px">' + o.region + ' · ' + o.country + '</div>' +
+          '<div style="font-size:12px;color:#4A4239;margin-top:6px">Farm · ' + (o.varietal || 'specialty bean') + '</div>',
+          { closeButton: false }
+        );
+    });
+
+    setTimeout(() => map.invalidateSize(), 50);
+  });
+
+  /* === SECONDARY ROW: Giveaway only (Atlas got promoted to its own section) === */
+  const secondary = el('section', { style: 'padding:32px 0 96px' },
+    el('div', { class: 'container' },
+      el('div', { style: 'display:grid;grid-template-columns:1fr;gap:24px' },
+        // Giveaway
         giveaway ? el('a', {
           class: 'tile give',
+          style: 'min-height:280px;grid-column:auto',
           onclick: () => {
             navigate('community');
             setTimeout(() => {
@@ -1726,36 +1737,90 @@ function renderMagazineHome(main) {
             }, 250);
           }
         },
-          el('div', { class: 'tag' },
-            el('span', { style: 'color:var(--marigold)' }, '★ Giveaways · live now'),
-            el('span', { class: 'num' }, '/ ' + giveaway.status.toUpperCase())
+          el('div', { class: 'tag' }, el('span', { style: 'color:var(--marigold)' }, '★ Giveaway · live')),
+          el('h3', {}, 'Win the ', el('em', {}, giveaway.name)),
+          el('div', { class: 'countdown', style: 'margin-top:16px' },
+            el('div', { class: 'cd' }, el('div', { class: 'n' }, '14'), el('div', { class: 'u' }, 'DAYS')),
+            el('div', { class: 'cd' }, el('div', { class: 'n' }, '06'), el('div', { class: 'u' }, 'HRS')),
+            el('div', { class: 'cd' }, el('div', { class: 'n' }, '42'), el('div', { class: 'u' }, 'MIN'))
           ),
-          el('div', { class: 'give-grid' },
-            el('div', { class: 'give-sticker' }, 'WIN', el('br', {}), el('em', {}, 'ME')),
-            el('div', { class: 'give-info' },
-              el('h3', {},
-                'The ',
-                el('em', {}, giveaway.name),
-                ' is live.'
-              ),
-              el('p', { class: 'meta' },
-                el('span', {}, el('strong', {}, 'One winner'), ' · ' + giveaway.desc.split('.')[0]),
-                el('span', {}, el('strong', {}, '4,128'), ' entered')
-              )
-            ),
-            el('div', { class: 'countdown' },
-              el('div', { class: 'cd' }, el('div', { class: 'n' }, '14'), el('div', { class: 'u' }, 'DAYS')),
-              el('div', { class: 'cd' }, el('div', { class: 'n' }, '06'), el('div', { class: 'u' }, 'HRS')),
-              el('div', { class: 'cd' }, el('div', { class: 'n' }, '42'), el('div', { class: 'u' }, 'MIN'))
-            )
-          ),
-          el('span', { class: 'arrow-cta', style: 'color:var(--marigold)' }, 'Enter to win ', el('span', { class: 'ar' }, '→'))
+          el('span', { class: 'arrow-cta', style: 'color:var(--marigold);margin-top:auto' }, 'Enter ', el('span', { class: 'ar' }, '→'))
         ) : null
       )
     )
   );
-  page.appendChild(featStrip);
-  return; // skip the legacy sections below
+  page.appendChild(secondary);
+  return;
+}
+
+// Animated milk-pour SVG: pitcher tilts, milk pours, smiley face appears on the coffee
+function milkPourSmileySvg() {
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 280 240');
+  svg.setAttribute('class', 'milk-anim');
+  svg.innerHTML = `
+    <defs>
+      <radialGradient id="coffee-g" cx="50%" cy="42%" r="55%">
+        <stop offset="0%" stop-color="#7B5836"/>
+        <stop offset="100%" stop-color="#1A0D06"/>
+      </radialGradient>
+      <linearGradient id="cup-side" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stop-color="#FFF5EB"/>
+        <stop offset="100%" stop-color="#E8D5BC"/>
+      </linearGradient>
+    </defs>
+
+    <!-- Saucer -->
+    <ellipse cx="175" cy="222" rx="100" ry="10" fill="#1F1A14" opacity="0.25"/>
+    <ellipse cx="175" cy="218" rx="92" ry="8" fill="#FBE9D0" stroke="#1F1A14" stroke-width="2"/>
+
+    <!-- Cup body -->
+    <path d="M105,170 Q98,210 130,218 L220,218 Q252,210 245,170 Z" fill="url(#cup-side)" stroke="#1F1A14" stroke-width="2.5"/>
+
+    <!-- Cup handle -->
+    <ellipse cx="246" cy="190" rx="14" ry="22" fill="none" stroke="#1F1A14" stroke-width="6"/>
+
+    <!-- Coffee surface (top ellipse of cup) -->
+    <ellipse cx="175" cy="170" rx="73" ry="11" fill="#1F1A14"/>
+    <ellipse cx="175" cy="168" rx="67" ry="8" fill="url(#coffee-g)"/>
+
+    <!-- Steam wisps (subtle) -->
+    <path d="M150,150 Q145,140 152,130 Q160,140 154,152" stroke="#FFF5EB" stroke-width="1.5" fill="none" opacity="0.35"/>
+    <path d="M195,150 Q200,140 193,130 Q185,140 191,152" stroke="#FFF5EB" stroke-width="1.5" fill="none" opacity="0.3"/>
+
+    <!-- Milk ripple where the stream lands -->
+    <ellipse class="ripple" cx="175" cy="168" rx="14" ry="3" fill="none" stroke="#FFF5EB" stroke-width="1.5" opacity="0"/>
+
+    <!-- Smiley face on the coffee surface (animates in) -->
+    <g class="smiley" opacity="0">
+      <ellipse cx="158" cy="166" rx="3.5" ry="2.5" fill="#FFF5EB"/>
+      <ellipse cx="192" cy="166" rx="3.5" ry="2.5" fill="#FFF5EB"/>
+      <path d="M155,172 Q175,184 195,172" stroke="#FFF5EB" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </g>
+
+    <!-- Milk stream falling into the cup (animates) -->
+    <g class="stream" style="transform-box:fill-box;transform-origin:top center" opacity="0">
+      <rect x="172" y="60" width="6" height="105" rx="3" fill="#FFFAF2" stroke="#1F1A14" stroke-width="0.6"/>
+      <ellipse cx="175" cy="63" rx="6" ry="4" fill="#FFFAF2"/>
+    </g>
+
+    <!-- Milk pitcher (animates - tilts forward to pour) -->
+    <g class="pitcher">
+      <!-- Handle -->
+      <path d="M30,55 Q12,55 12,80 Q12,105 30,105" stroke="#1F1A14" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <!-- Body -->
+      <path d="M30,40 L30,105 Q40,118 65,118 Q90,118 95,105 L95,55 L110,40 Q105,28 90,28 L40,28 Q30,30 30,40 Z"
+            fill="#E8E5DD" stroke="#1F1A14" stroke-width="2.5"/>
+      <!-- Spout highlight -->
+      <path d="M95,55 L110,40 Q105,28 90,28 L88,46 Z" fill="#FBE9D0" stroke="#1F1A14" stroke-width="2"/>
+      <!-- Milk inside (visible at the rim) -->
+      <ellipse cx="62" cy="36" rx="28" ry="5" fill="#FFFAF2"/>
+      <!-- Subtle shading -->
+      <path d="M40,70 L40,100 Q42,108 50,108" stroke="#FFFAF2" stroke-width="2" fill="none" opacity="0.4"/>
+    </g>
+  `;
+  return svg;
 }
 
 // Cover photo SVG — coffee cup illustration matching the design system kit
