@@ -378,10 +378,16 @@ function render() {
   main.classList.add('fade-in');
   setTimeout(() => main.classList.remove('fade-in'), 400);
 
-  // Update active nav state
-  document.querySelectorAll('.nav-link').forEach(l => {
+  // Update active nav state. Tabs may map to multiple routes (e.g.
+  // Recipes covers both 'recipes' and 'recipe'; Profile covers 'you' too).
+  document.querySelectorAll('.bl-nav-link').forEach(l => {
     const to = l.getAttribute('data-route');
-    l.classList.toggle('active', to === route || (to === 'home' && route === ''));
+    let isActive;
+    if (to === 'home') isActive = (route === '' || route === 'home');
+    else if (to === 'recipes') isActive = (route === 'recipes' || route === 'recipe');
+    else if (to === 'profile') isActive = (route === 'profile' || route === 'you');
+    else isActive = (to === route);
+    l.classList.toggle('active', isActive);
   });
 
   fn(main, param);
@@ -395,55 +401,38 @@ window.addEventListener('hashchange', render);
    ============================================================ */
 
 function mountAppShell() {
-  // Header
-  const header = el('header', { class: 'site-header' },
-    el('div', { class: 'site-header-inner' },
-      el('a', { href: '#/home', class: 'brand', style: 'flex-direction:column;align-items:flex-start;gap:0' },
-        el('span', { style: 'display:flex;align-items:center;gap:8px' },
-          el('span', { class: 'brand-mark' }, '◐'),
-          el('span', {}, 'Brew Lab')
+  const tabs = [
+    { route: 'home',    label: 'Home',    href: '#/home' },
+    { route: 'learn',   label: 'Learn',   href: '#/learn' },
+    { route: 'recipes', label: 'Recipes', href: '#/recipes' },
+    { route: 'profile', label: 'Profile', href: '#/profile' }
+  ];
+
+  const header = el('header', { class: 'bl-header' },
+    el('div', { class: 'bl-header-inner' },
+      el('a', { href: '#/home', class: 'bl-brand' },
+        el('span', { class: 'bl-brand-mark' }, '◐'),
+        el('span', { class: 'bl-brand-name' }, 'Brew Lab')
+      ),
+      el('nav', { class: 'bl-nav' },
+        tabs.map(t => el('a',
+          { href: t.href, class: 'bl-nav-link', 'data-route': t.route },
+          t.label
+        ))
+      ),
+      el('div', { class: 'bl-header-actions' },
+        el('button', { class: 'bl-log-brew', onclick: openBrewLogModal },
+          el('span', { class: 'bl-log-brew-plus' }, '+'),
+          el('span', {}, 'Log brew')
         ),
-        el('span', { style: 'font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-muted);font-family:var(--font-body);font-weight:500;margin-left:42px;margin-top:-2px' }, 'by Cuisinart')
-      ),
-      el('nav', {},
-        (() => {
-          const links = el('ul', { class: 'nav-links' });
-          [
-            ['home', 'Home'],
-            ['brew', 'Brew'],
-            ['discover', 'Discover'],
-            ['learn', 'Learn'],
-            ['you', 'You']
-          ].forEach(([slug, label]) => {
-            const a = el('a', {
-              href: '#/' + slug,
-              class: 'nav-link',
-              'data-route': slug
-            }, label);
-            links.appendChild(el('li', {}, a));
-          });
-          return links;
-        })()
-      ),
-      el('div', { class: 'user-menu' },
-        (() => {
-          const tier = computeTier();
-          const wrap = el('a', { href: '#/profile', style: 'position:relative;display:inline-block', title: (state.user?.name || 'You') + ' · ' + tier.name });
-          wrap.appendChild(el('span', { class: 'avatar' }, initials(state.user?.name)));
-          wrap.appendChild(el('span', {
-            style: 'position:absolute;bottom:-4px;right:-4px;width:22px;height:22px;border-radius:50%;background:' + (tier.color === 'gold' ? 'linear-gradient(135deg, var(--gold) 0%, #806017 100%)' : tier.color === 'green' ? 'linear-gradient(135deg, var(--green) 0%, #1d3327 100%)' : 'linear-gradient(135deg, var(--caramel) 0%, var(--caramel-deep) 100%)') + ';display:flex;align-items:center;justify-content:center;font-size:0.78rem;border:2px solid var(--bg)'
-          }, tier.icon));
-          return wrap;
-        })()
+        el('a', { href: '#/profile', class: 'bl-avatar', title: state.user?.name || 'You' },
+          initials(state.user?.name)
+        )
       )
     )
   );
 
-  // Main container
   const main = el('main', { id: 'main', class: 'app-main' });
-  const containerWrapper = el('div', { class: 'container' });
-  main.appendChild(containerWrapper);
-
   document.body.appendChild(header);
   document.body.appendChild(main);
 
@@ -459,6 +448,133 @@ function mountAppShell() {
     el('span', {}, 'Ask Barista')
   );
   document.body.appendChild(fab);
+}
+
+/* ============================================================
+   Log brew modal — quick capture, persisted to localStorage
+   under 'brewlab.brewlog' (separate from the legacy journal).
+   ============================================================ */
+const BREWLOG_KEY = 'brews';
+const BREW_METHODS = ['V60', 'Espresso', 'AeroPress', 'French press', 'Chemex', 'Cold brew', 'Moka pot'];
+const BREW_GRINDS = ['Extra fine', 'Fine', 'Medium-fine', 'Medium', 'Medium-coarse', 'Coarse'];
+
+function loadBrewLog() {
+  try { return JSON.parse(localStorage.getItem(BREWLOG_KEY) || '[]'); }
+  catch (_) { return []; }
+}
+function saveBrewLog(entries) {
+  localStorage.setItem(BREWLOG_KEY, JSON.stringify(entries));
+}
+
+function openBrewLogModal() {
+  // Avoid double-mounting
+  if (document.getElementById('bl-modal-backdrop')) return;
+
+  let rating = 0;
+  const ratingWrap = el('div', { class: 'bl-rating' });
+  for (let i = 1; i <= 5; i++) {
+    const star = el('button', {
+      type: 'button',
+      class: 'bl-star',
+      'data-i': String(i),
+      onclick: () => {
+        rating = i;
+        ratingWrap.querySelectorAll('.bl-star').forEach((s, idx) => {
+          s.classList.toggle('filled', idx + 1 <= rating);
+        });
+      }
+    }, '★');
+    ratingWrap.appendChild(star);
+  }
+
+  const form = el('form', { class: 'bl-modal-form', onsubmit: (e) => { e.preventDefault(); submit(); } },
+    el('label', { class: 'bl-field' },
+      el('span', { class: 'bl-field-label' }, 'Bean'),
+      el('input', { type: 'text', name: 'bean', class: 'bl-input', placeholder: 'e.g. Counter Culture Apollo', required: '' })
+    ),
+    el('div', { class: 'bl-field-row' },
+      el('label', { class: 'bl-field' },
+        el('span', { class: 'bl-field-label' }, 'Method'),
+        el('select', { name: 'method', class: 'bl-input' },
+          BREW_METHODS.map(m => el('option', { value: m }, m))
+        )
+      ),
+      el('label', { class: 'bl-field' },
+        el('span', { class: 'bl-field-label' }, 'Grind'),
+        el('select', { name: 'grind', class: 'bl-input' },
+          BREW_GRINDS.map(g => el('option', { value: g }, g))
+        )
+      )
+    ),
+    el('label', { class: 'bl-field' },
+      el('span', { class: 'bl-field-label' }, 'Ratio'),
+      el('input', { type: 'text', name: 'ratio', class: 'bl-input', placeholder: '1:16' })
+    ),
+    el('div', { class: 'bl-field' },
+      el('span', { class: 'bl-field-label' }, 'Rating'),
+      ratingWrap
+    ),
+    el('label', { class: 'bl-field' },
+      el('span', { class: 'bl-field-label' }, 'Notes'),
+      el('textarea', { name: 'notes', class: 'bl-input bl-textarea', rows: '3', placeholder: 'Tasting notes, what worked, what to try next…' })
+    ),
+    el('div', { class: 'bl-modal-actions' },
+      el('button', { type: 'button', class: 'bl-btn-ghost', onclick: close }, 'Cancel'),
+      el('button', { type: 'submit', class: 'bl-btn-primary' }, 'Save brew')
+    )
+  );
+
+  const card = el('div', { class: 'bl-modal-card', onclick: (e) => e.stopPropagation() },
+    el('div', { class: 'bl-modal-head' },
+      el('div', {},
+        el('div', { class: 'bl-modal-eyebrow' }, 'Log brew'),
+        el('h2', { class: 'bl-modal-title' }, 'How was it?')
+      ),
+      el('button', { type: 'button', class: 'bl-modal-close', onclick: close, 'aria-label': 'Close' }, '×')
+    ),
+    form
+  );
+
+  const backdrop = el('div', { id: 'bl-modal-backdrop', class: 'bl-modal-backdrop', onclick: close }, card);
+  document.body.appendChild(backdrop);
+  document.body.style.overflow = 'hidden';
+
+  setTimeout(() => {
+    backdrop.classList.add('open');
+    const beanInput = form.querySelector('[name="bean"]');
+    if (beanInput) beanInput.focus();
+  }, 10);
+
+  document.addEventListener('keydown', onKey);
+
+  function onKey(e) { if (e.key === 'Escape') close(); }
+
+  function close() {
+    document.removeEventListener('keydown', onKey);
+    backdrop.classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(() => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); }, 180);
+  }
+
+  function submit() {
+    const data = new FormData(form);
+    const entry = {
+      id: 'brew_' + Date.now(),
+      ts: new Date().toISOString(),
+      bean: (data.get('bean') || '').toString().trim(),
+      method: (data.get('method') || '').toString(),
+      grind: (data.get('grind') || '').toString(),
+      ratio: (data.get('ratio') || '').toString().trim(),
+      rating: rating,
+      notes: (data.get('notes') || '').toString().trim()
+    };
+    if (!entry.bean) return;
+    const entries = loadBrewLog();
+    entries.unshift(entry);
+    saveBrewLog(entries);
+    toast('Brew logged');
+    close();
+  }
 }
 
 /* ============================================================
@@ -989,124 +1105,210 @@ function renderBrew(main) {
   c.appendChild(flavorGrid);
 }
 
-/* ----- Discover tab (Brew Lab hub: guide, map, creators) ----- */
+/* ----- Discover tab — Today's brew, picks, places, trending ----- */
+const DAILY_DRINKS = [
+  { name: 'Spanish latte',         desc: 'Espresso, sweetened condensed milk, and steamed milk. Rich, sweet, dessert in a cup.',    glyph: '🥛' },
+  { name: 'Espresso tonic',        desc: 'A double shot poured over ice and tonic water. Bitter, bright, surprisingly refreshing.', glyph: '🫧' },
+  { name: 'Japanese iced V60',     desc: 'Brewed hot directly onto ice. Locks in floral aromatics that flash-cooling preserves.',   glyph: '🧊' },
+  { name: 'Dirty horchata',        desc: 'Cinnamon-rice horchata with a shot pulled straight through. Cool, creamy, caffeinated.',  glyph: '🥤' },
+  { name: 'Cortado',               desc: 'Equal parts espresso and warm milk. Smooth, balanced, no foam to hide behind.',           glyph: '☕' },
+  { name: 'Cold brew old fashioned', desc: 'Cold brew concentrate, demerara, orange peel, a dash of bitters. Stirred, not shaken.', glyph: '🥃' },
+  { name: 'Cardamom latte',        desc: 'Espresso steamed with green cardamom milk. Warm spice, lingering finish.',                glyph: '✨' }
+];
+
+function dayOfYear(d) {
+  const start = new Date(d.getFullYear(), 0, 0);
+  return Math.floor((d - start) / 86400000);
+}
+
 function renderDiscover(main) {
   main.innerHTML = '';
+  const page = el('div', { class: 'discover-page' });
+  main.appendChild(page);
 
-  /* Hero */
-  main.appendChild(el('section', { class: 'discover-hero' },
+  const today = new Date();
+  const weekday = today.toLocaleDateString('en-US', { weekday: 'long' });
+  const drink = DAILY_DRINKS[dayOfYear(today) % DAILY_DRINKS.length];
+
+  /* 1. Today's brew hero */
+  page.appendChild(el('section', { class: 'discover-section' },
     el('div', { class: 'container' },
-      el('p', { class: 'discover-hero-eyebrow' }, 'Brew Lab'),
-      el('h1', { class: 'discover-hero-title' },
-        'Learn coffee.', el('br'), 'Brew better.'
-      ),
-      el('p', { class: 'discover-hero-sub' },
-        'Guides from working baristas, the roasters near you, and the creators who do this for a living.'
-      ),
-      el('a', { href: '#/learn', class: 'btn-discover-cta' }, 'Start the guide')
+      el('div', { class: 'today-hero' },
+        el('div', { class: 'today-hero-text' },
+          el('p', { class: 'today-eyebrow' }, 'Today’s brew · ' + weekday),
+          el('h1', { class: 'today-title' }, drink.name),
+          el('p', { class: 'today-desc' }, drink.desc),
+          el('button', { class: 'btn-discover-cta', onclick: openBrewLogModal }, 'Try this brew')
+        ),
+        el('div', { class: 'today-hero-img', 'aria-hidden': 'true' },
+          el('span', { class: 'today-hero-glyph' }, drink.glyph)
+        )
+      )
     )
   ));
 
-  /* The Coffee Guide */
-  const guideTopics = [
-    { slug: 'beans', title: 'Beans', desc: 'Origins, processing, roast levels, and what to buy.' },
-    { slug: 'grind', title: 'Grind', desc: 'Why grind size changes everything in the cup.' },
-    { slug: 'brewing', title: 'Brew Methods', desc: 'Pour-over, espresso, French press, and more.' },
-    { slug: 'tasting', title: 'Tasting', desc: 'Build your palate. Log every cup you brew.' }
-  ];
-  main.appendChild(el('section', { class: 'discover-section' },
+  /* 2. Featured cafe story */
+  page.appendChild(el('section', { class: 'discover-section' },
     el('div', { class: 'container' },
-      el('div', { class: 'discover-section-head' },
-        el('div', {},
-          el('h2', { class: 'discover-h2' }, 'The Coffee Guide'),
-          el('p', { class: 'discover-sub' }, 'Four chapters. Read at your own pace.')
+      el('div', { class: 'cafe-story' },
+        el('div', {
+          class: 'cafe-story-thumb',
+          role: 'button',
+          tabindex: '0',
+          onclick: () => toast('Story playback coming soon'),
+          'aria-label': 'Play Dirt Cowboy story'
+        },
+          el('div', { class: 'cafe-story-play', 'aria-hidden': 'true' }),
+          el('span', { class: 'cafe-story-duration' }, '3:42')
         ),
-        el('a', { href: '#/learn', class: 'discover-link' }, 'See all →')
-      ),
-      el('div', { class: 'discover-guide-grid' },
-        guideTopics.map((t, i) => el('a',
-          { href: '#/learn', class: 'discover-guide-card' },
-          el('div', { class: 'discover-guide-num' }, '0' + (i + 1)),
-          el('h3', { class: 'discover-guide-title' }, t.title),
-          el('p', { class: 'discover-guide-desc' }, t.desc)
+        el('div', { class: 'cafe-story-body' },
+          el('p', { class: 'cafe-story-eyebrow' }, 'Cafe story'),
+          el('h2', { class: 'cafe-story-title' }, 'Dirt Cowboy on the art of the slow pour'),
+          el('p', { class: 'cafe-story-sub' }, 'Hanover, NH · 20 years of single-origin pour-over and a roaster they grew up with.')
+        )
+      )
+    )
+  ));
+
+  /* 3. Two discovery cards */
+  const picks = [
+    { eyebrow: 'Bean spotlight', title: 'Counter Culture Apollo', sub: 'Stone fruit, cocoa, brown sugar', glyph: '🫘', tone: 'cream' },
+    { eyebrow: 'Technique',      title: 'Master the bloom',       sub: 'Why 30 seconds matters',          glyph: '💧', tone: 'green' }
+  ];
+  page.appendChild(el('section', { class: 'discover-section' },
+    el('div', { class: 'container' },
+      el('div', { class: 'discover-picks' },
+        picks.map(p => el('a', { href: '#/learn', class: 'pick-card' },
+          el('div', { class: 'pick-card-img pick-tone-' + p.tone },
+            el('span', { class: 'pick-card-glyph' }, p.glyph)
+          ),
+          el('div', { class: 'pick-card-body' },
+            el('p', { class: 'pick-card-eyebrow' }, p.eyebrow),
+            el('h3', { class: 'pick-card-title' }, p.title),
+            el('p', { class: 'pick-card-sub' }, p.sub)
+          )
         ))
       )
     )
   ));
 
-  /* Coffee Near You — Leaflet map */
-  const mapEl = el('div', { id: 'discover-map', class: 'discover-map' });
-  main.appendChild(el('section', { class: 'discover-section' },
+  /* 4. Discover near you — map + cafe row */
+  const shops = [
+    { name: 'Dirt Cowboy Cafe',         short: 'Dirt Cowboy',     hood: 'Hanover, NH', coords: [43.7022, -72.2896], roaster: 'Counter Culture',   featured: 'Counter Culture Apollo',         status: 'active', tone: 'cream' },
+    { name: 'The Works Bakery Cafe',    short: 'The Works',       hood: 'Hanover, NH', coords: [43.7018, -72.2898], roaster: 'Green Mountain',    featured: 'Green Mountain Vermont Country', status: 'soon',   tone: 'green' },
+    { name: "Umpleby's Bakery & Cafe",  short: "Umpleby's",       hood: 'Norwich, VT', coords: [43.7155, -72.3057], roaster: 'Vermont Coffee Co.', featured: 'Vermont Coffee Mocha Java',     status: 'soon',   tone: 'gold'  }
+  ];
+  const mapEl = el('div', { id: 'discover-map', class: 'nearby-map' });
+  const legend = el('div', { class: 'nearby-legend' },
+    el('div', { class: 'nearby-legend-item' },
+      el('span', { class: 'nearby-legend-dot nearby-legend-dot-active' }),
+      el('span', {}, 'Story')
+    ),
+    el('div', { class: 'nearby-legend-item' },
+      el('span', { class: 'nearby-legend-dot nearby-legend-dot-soon' }),
+      el('span', {}, 'Coming soon')
+    )
+  );
+  page.appendChild(el('section', { class: 'discover-section' },
     el('div', { class: 'container' },
       el('div', { class: 'discover-section-head' },
         el('div', {},
-          el('h2', { class: 'discover-h2' }, 'Coffee Near You'),
-          el('p', { class: 'discover-sub' }, 'Cafes, roasters, and the beans they pour. Tap a pin to learn more.')
+          el('p', { class: 'discover-eyebrow' }, 'Discover'),
+          el('h2', { class: 'discover-h2' }, 'Places & beans worth a trip')
         )
       ),
-      el('div', { class: 'discover-map-wrap' }, mapEl)
+      el('div', { class: 'nearby-map-wrap' }, mapEl, legend),
+      el('div', { class: 'cafe-row' },
+        shops.map(s => el('a', {
+          href: '#/discover',
+          class: 'cafe-card',
+          onclick: (e) => {
+            e.preventDefault();
+            if (s.status === 'soon') toast(s.short + ' story coming soon');
+            else toast('Story playback coming soon');
+          }
+        },
+          el('div', { class: 'cafe-card-img pick-tone-' + s.tone },
+            el('span', { class: 'cafe-card-glyph' }, '☕')
+          ),
+          el('div', { class: 'cafe-card-body' },
+            el('h3', { class: 'cafe-card-name' }, s.name),
+            el('p', { class: 'cafe-card-sub' }, s.hood + ' · pours ' + s.roaster),
+            s.status === 'active'
+              ? el('p', { class: 'cafe-card-status is-active' }, 'Watch their story →')
+              : el('p', { class: 'cafe-card-status is-soon' }, 'Story coming soon')
+          )
+        ))
+      )
     )
   ));
 
-  const shops = [
-    { name: 'Dirt Cowboy Cafe', address: '7 S Main St, Hanover, NH', coords: [43.7022, -72.2896], beans: ['Counter Culture', 'rotating local roasts'] },
-    { name: 'The Works Bakery Cafe', address: '13 S Main St, Hanover, NH', coords: [43.7018, -72.2898], beans: ['Green Mountain', 'house drip'] },
-    { name: "Umpleby's Bakery & Cafe", address: '3 Main St, Norwich, VT', coords: [43.7155, -72.3057], beans: ['Vermont Coffee Company'] }
-  ];
   requestAnimationFrame(() => {
     if (!window.L || !document.body.contains(mapEl)) return;
-    const map = L.map(mapEl).setView([43.708, -72.297], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
+    const map = L.map(mapEl, { zoomControl: true, attributionControl: true })
+      .setView([43.708, -72.297], 13);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap &copy; Carto',
+      subdomains: 'abcd',
+      maxZoom: 19
     }).addTo(map);
+
+    const activeIcon = L.divIcon({
+      className: 'discover-marker',
+      html: '<span class="discover-marker-active"></span>',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+      popupAnchor: [0, -18]
+    });
+    const soonIcon = L.divIcon({
+      className: 'discover-marker',
+      html: '<span class="discover-marker-soon"></span>',
+      iconSize: [24, 24],
+      iconAnchor: [12, 12],
+      popupAnchor: [0, -14]
+    });
+
     shops.forEach(s => {
       const html =
-        '<div style="min-width:180px">' +
-          '<strong style="color:#233C28">' + s.name + '</strong>' +
-          '<div style="font-size:12px;color:#666;margin-top:2px">' + s.address + '</div>' +
-          '<div style="font-size:12px;margin-top:6px">' +
-            '<span style="color:#C5962B;font-weight:600">Beans: </span>' +
-            s.beans.join(', ') +
+        '<div class="discover-popup">' +
+          '<div class="discover-popup-name">' + s.name + '</div>' +
+          '<div class="discover-popup-hood">' + s.hood + '</div>' +
+          '<div class="discover-popup-feat">' +
+            '<span class="discover-popup-feat-label">Featured this week</span>' +
+            s.featured +
           '</div>' +
         '</div>';
-      L.marker(s.coords).addTo(map).bindPopup(html);
+      L.marker(s.coords, { icon: s.status === 'active' ? activeIcon : soonIcon })
+        .addTo(map)
+        .bindPopup(html, { closeButton: false, offset: [0, -4] });
     });
+
     setTimeout(() => map.invalidateSize(), 0);
   });
 
-  /* Watch & Learn — YouTube grid (placeholder IDs swappable in code) */
-  const videos = [
-    { videoId: '1Zs_zwZ8Vyk', creator: 'James Hoffmann', title: 'The Ultimate V60 Technique' },
-    { videoId: 'j6VlT_jUVPc', creator: 'Lance Hedrick', title: 'Espresso Fundamentals' },
-    { videoId: 'st571DYYTR8', creator: 'Morgan Drinks Coffee', title: 'How to Taste Coffee' },
-    { videoId: 'YOUTUBE_ID_4', creator: 'European Coffee Trip', title: 'Inside a Specialty Roastery' },
-    { videoId: 'YOUTUBE_ID_5', creator: 'Cuisinart Test Kitchen', title: 'Pairing Beans with Your Brewer' },
-    { videoId: 'YOUTUBE_ID_6', creator: 'The Bean Diaries', title: 'Single-Origin vs Blends' }
+  /* 4. Trending this week */
+  const trending = [
+    { name: 'Espresso tonic',     meta: '3 min · Easy',   glyph: '🫧', tone: 'cream' },
+    { name: 'Japanese iced V60',  meta: '5 min · Medium', glyph: '🧊', tone: 'green' },
+    { name: 'Cortado three ways', meta: '4 min · Easy',   glyph: '☕', tone: 'gold'  }
   ];
-  main.appendChild(el('section', { class: 'discover-section' },
+  page.appendChild(el('section', { class: 'discover-section' },
     el('div', { class: 'container' },
       el('div', { class: 'discover-section-head' },
         el('div', {},
-          el('h2', { class: 'discover-h2' }, 'Watch & Learn'),
-          el('p', { class: 'discover-sub' }, 'Coffee and kitchen creators worth your time.')
+          el('p', { class: 'discover-eyebrow' }, 'Trending this week'),
+          el('h2', { class: 'discover-h2' }, 'What members are brewing')
         ),
-        el('a', { href: '#/community', class: 'discover-link' }, 'All creators →')
+        el('a', { href: '#/recipes', class: 'discover-link' }, 'See all →')
       ),
-      el('div', { class: 'discover-video-grid' },
-        videos.map(v => el('div',
-          { class: 'discover-video-card' },
-          el('div', { class: 'discover-video-frame' },
-            el('iframe', {
-              src: 'https://www.youtube.com/embed/' + v.videoId,
-              title: v.title,
-              loading: 'lazy',
-              allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
-              allowfullscreen: ''
-            })
+      el('div', { class: 'trending-row' },
+        trending.map(t => el('a', { href: '#/recipes', class: 'trending-card' },
+          el('div', { class: 'trending-card-thumb pick-tone-' + t.tone },
+            el('span', {}, t.glyph)
           ),
-          el('div', { class: 'discover-video-meta' },
-            el('p', { class: 'discover-video-creator' }, v.creator),
-            el('p', { class: 'discover-video-title' }, v.title)
+          el('div', { class: 'trending-card-body' },
+            el('h4', { class: 'trending-card-name' }, t.name),
+            el('p', { class: 'trending-card-meta' }, t.meta)
           )
         ))
       )
