@@ -165,5 +165,14 @@ const DB = {
   }
 };
 
+/* ---------------- Virtual Barista (Claude-powered) ---------------- */
+DB.askBarista = async function(vibes, profile) {
+  const { data, error } = await sb.functions.invoke('barista-recommend', {
+    body: { vibes: vibes || [], profile: profile || null }
+  });
+  if (error) throw error;
+  return data;
+};
+
 window.DB = DB;
 window.sb = sb;

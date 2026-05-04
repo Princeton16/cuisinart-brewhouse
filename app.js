@@ -874,8 +874,88 @@ function mountVibeChooser(container, opts) {
 }
 
 function sendVibeQueryToBarista(query) {
-  window._pendingBaristaQuery = query;
-  navigate('barista');
+  // query is either an array of vibe ids (from the wheel) or a string (free text)
+  const vibes = Array.isArray(query) ? query : (query ? [query] : []);
+  showBaristaThinking();
+  callBaristaAPI(vibes);
+}
+
+// Show a "thinking" modal while we wait on Claude
+function showBaristaThinking() {
+  const existing = document.getElementById('barista-result-backdrop');
+  if (existing) existing.remove();
+
+  const card = el('div', { class: 'bw-card', style: 'max-width:520px;text-align:center', onclick: (e) => e.stopPropagation() },
+    el('div', { style: 'padding:32px 24px' },
+      el('div', { style: 'display:inline-block;width:56px;height:56px;border:4px solid rgba(216,90,42,0.18);border-top-color:var(--caramel);border-radius:50%;animation:bspin 1s linear infinite;margin-bottom:18px' }),
+      el('div', { style: 'font-family:var(--font-display);font-size:1.4rem;font-weight:500;letter-spacing:-0.01em;margin-bottom:6px' }, 'Asking the barista...'),
+      el('div', { style: 'color:var(--ink-soft);font-size:0.92rem' }, 'Claude is picking your drink based on the vibes you chose.')
+    )
+  );
+  // Inject the spin keyframe once
+  if (!document.getElementById('bw-spin-style')) {
+    const s = document.createElement('style');
+    s.id = 'bw-spin-style';
+    s.textContent = '@keyframes bspin{to{transform:rotate(360deg)}}';
+    document.head.appendChild(s);
+  }
+  const backdrop = el('div', { id: 'barista-result-backdrop', class: 'bw-backdrop open', onclick: closeBaristaResult }, card);
+  document.body.appendChild(backdrop);
+  document.body.style.overflow = 'hidden';
+}
+
+function closeBaristaResult() {
+  const b = document.getElementById('barista-result-backdrop');
+  if (b) b.remove();
+  document.body.style.overflow = '';
+}
+
+async function callBaristaAPI(vibes) {
+  let result;
+  try {
+    if (typeof DB !== 'undefined' && DB.askBarista) {
+      result = await DB.askBarista(vibes, state.profile);
+    } else {
+      throw new Error('DB.askBarista not available');
+    }
+  } catch (e) {
+    console.warn('Barista API failed, falling back to local pick', e);
+    // Fallback: pick a daily drink locally so the UI still works
+    const fallback = DAILY_DRINKS[Math.floor(Math.random() * DAILY_DRINKS.length)];
+    result = {
+      name: fallback.name,
+      tagline: 'Picked locally — connect Claude to get a personalized rec.',
+      description: fallback.desc,
+      method: 'drip',
+      matchedVibes: vibes,
+      _fallback: true
+    };
+  }
+  renderBaristaResult(result, vibes);
+}
+
+function renderBaristaResult(rec, vibes) {
+  closeBaristaResult();
+  const card = el('div', { class: 'bw-card', style: 'max-width:540px', onclick: (e) => e.stopPropagation() },
+    el('div', { style: 'padding:28px 28px 24px' },
+      el('button', { type: 'button', class: 'bw-close', onclick: closeBaristaResult, 'aria-label': 'Close', style: 'position:absolute;top:14px;right:14px' }, '×'),
+      el('div', { class: 'eyebrow', style: 'color:var(--caramel-deep);margin-bottom:8px' }, '✨ Your match'),
+      el('h2', { style: 'font-family:var(--font-display);font-size:1.8rem;font-weight:600;letter-spacing:-0.015em;line-height:1.1;margin-bottom:8px' }, rec.name || 'Coffee'),
+      rec.tagline ? el('p', { style: 'font-style:italic;color:var(--ink-soft);font-size:1rem;margin-bottom:14px' }, rec.tagline) : null,
+      el('p', { style: 'color:var(--ink-soft);font-size:0.95rem;line-height:1.55;margin-bottom:18px' }, rec.description || ''),
+      rec.matchedVibes && rec.matchedVibes.length ? el('div', { style: 'display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px' },
+        rec.matchedVibes.map(v => el('span', { style: 'background:var(--caramel-soft);color:var(--caramel-deep);padding:4px 12px;border-radius:999px;font-size:0.78rem;font-weight:600' }, '✓ ' + v))
+      ) : null,
+      el('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;align-items:center' },
+        el('button', { class: 'btn btn-accent', onclick: () => { closeBaristaResult(); navigate('recipes'); } }, 'Find a recipe →'),
+        el('button', { class: 'btn btn-secondary', onclick: () => { closeBaristaResult(); openBaristaWheel(); } }, 'Try different vibes')
+      ),
+      rec._fallback ? el('p', { style: 'margin-top:14px;font-size:0.78rem;color:var(--ink-muted)' }, 'Connect the Claude API in Supabase to get personalized picks.') : null
+    )
+  );
+  const backdrop = el('div', { id: 'barista-result-backdrop', class: 'bw-backdrop open', onclick: closeBaristaResult }, card);
+  document.body.appendChild(backdrop);
+  document.body.style.overflow = 'hidden';
 }
 
 function openBaristaWheel() {
