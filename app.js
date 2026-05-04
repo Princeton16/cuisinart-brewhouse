@@ -415,7 +415,10 @@ function mountAppShell() {
     el('div', { class: 'bl-header-inner' },
       el('a', { href: '#/home', class: 'bl-brand' },
         el('span', { class: 'bl-brand-mark' }, '◐'),
-        el('span', { class: 'bl-brand-name' }, 'Brew Lab')
+        el('span', { class: 'bl-brand-text' },
+          el('span', { class: 'bl-brand-name' }, 'Brew Lab'),
+          el('span', { class: 'bl-brand-tag' }, 'by Cuisinart')
+        )
       ),
       el('nav', { class: 'bl-nav' },
         tabs.map(t => el('a',
@@ -1675,6 +1678,32 @@ function renderDevices(main) {
     el('p', { class: 'devices-sub' }, 'Link your Cuisinart appliances to unlock guided brews, automated routines, and personalized recommendations.')
   ));
 
+  // Smart Appliances Coming Soon hero
+  c.appendChild(el('div', {
+    style: 'background:linear-gradient(135deg, #1F352A 0%, #0F1F18 60%, #2A1A14 100%);color:#FAF6F0;border-radius:24px;padding:40px;margin-bottom:32px;position:relative;overflow:hidden'
+  },
+    el('div', { style: 'display:flex;align-items:center;gap:10px;margin-bottom:14px' },
+      el('span', { style: 'background:#C5962B;color:#1F352A;padding:4px 12px;border-radius:999px;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase' }, 'Coming soon'),
+      el('span', { style: 'font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(232,200,150,0.7);font-weight:600' }, 'Smart appliances')
+    ),
+    el('h2', { style: 'font-family:var(--font-display);font-size:clamp(1.8rem, 4vw, 2.4rem);font-weight:600;letter-spacing:-0.02em;line-height:1.1;margin-bottom:12px;max-width:520px' },
+      'Personalize and elevate your drink experience.'
+    ),
+    el('p', { style: 'color:rgba(250,246,240,0.78);font-size:1rem;line-height:1.55;max-width:480px;margin-bottom:18px' },
+      'Connected Cuisinart appliances will brew recipes from this app on tap. Voice-activated brewing, taste-profile-tuned dialing, and remote calibration from creators. Phase 2 of the Brew Lab roadmap.'
+    ),
+    el('div', { style: 'display:flex;gap:10px;flex-wrap:wrap' },
+      el('button', {
+        style: 'background:#C5962B;color:#1F352A;padding:11px 20px;border-radius:999px;font-weight:700;font-size:0.92rem;border:0;cursor:pointer',
+        onclick: () => toast('You will be the first to know')
+      }, 'Notify me at launch'),
+      el('button', {
+        style: 'background:transparent;color:rgba(232,200,150,0.85);padding:11px 20px;border-radius:999px;font-weight:600;font-size:0.92rem;border:1px solid rgba(232,200,150,0.3);cursor:pointer',
+        onclick: () => toast('Early access list joined')
+      }, 'Join early access')
+    )
+  ));
+
   // Primary CTA card
   c.appendChild(el('div', { class: 'devices-cta' },
     el('div', { class: 'devices-cta-text' },
@@ -1908,52 +1937,102 @@ function renderLearn(main) {
 }
 
 function skillTreeVisual() {
-  const wrap = el('div', { style: 'margin-top:24px' });
+  const wrap = el('div', { style: 'margin-top:24px;position:relative;padding:8px 0 32px' });
   const completed = state.completedClasses || [];
 
-  DATA.skillTree.branches.forEach((branch, i) => {
-    const isFirstBranch = i === 0;
-    // Connector arrow between branches
-    if (!isFirstBranch) {
-      wrap.appendChild(el('div', { style: 'text-align:center;color:var(--ink-muted);font-size:1.5rem;margin:8px 0' }, '↓'));
-    }
+  // Per-node color palette — each class gets a distinct hue for visual variety
+  const NODE_COLORS = {
+    'milk-steaming':         { bg: '#FFE0B5', border: '#D49856', emoji: '🥛' },
+    'espresso-fundamentals': { bg: '#3D2418', border: '#7A4828', emoji: '☕', dark: true },
+    'latte-art-101':         { bg: '#FCE3E3', border: '#D26C6C', emoji: '🎨' },
+    'pour-over-mastery':     { bg: '#DCE6DF', border: '#5C8770', emoji: '🌊' },
+    'cupping':               { bg: '#E3D7F0', border: '#8D6FB5', emoji: '👃' },
+    'latte-art-201':         { bg: '#FFE7C2', border: '#D49856', emoji: '🌷' }
+  };
 
-    const branchEl = el('div', { style: 'margin-bottom:12px' },
-      el('div', { style: 'display:flex;align-items:center;gap:10px;margin-bottom:12px' },
-        el('span', { class: 'pill ' + (branch.color === 'gold' ? 'pill-gold' : branch.color === 'green' ? 'pill-green' : 'pill-accent'), style: 'padding:6px 14px;font-weight:600' }, branch.name)
-      ),
-      (() => {
-        const nodes = el('div', { style: 'display:grid;grid-template-columns:repeat(' + branch.nodes.length + ', 1fr);gap:14px' });
-        branch.nodes.forEach(nodeId => {
-          const cls = DATA.classes.find(c => c.id === nodeId);
-          if (!cls) return;
-          const isDone = completed.includes(cls.id);
-          nodes.appendChild(el('div', {
-            style: 'background:' + (isDone ? 'var(--green-soft)' : 'var(--surface)') + ';border:2px solid ' + (isDone ? 'var(--success)' : 'var(--line)') + ';border-radius:14px;padding:18px;text-align:center;cursor:pointer;transition:transform 0.15s',
-            onclick: () => navigate('class/' + cls.id)
-          },
-            el('div', { style: 'font-size:2.4rem;margin-bottom:8px' }, isDone ? '✓' : cls.icon),
-            el('div', { style: 'font-weight:600;font-size:0.92rem;margin-bottom:4px' }, cls.name),
-            el('div', { style: 'font-size:0.78rem;color:var(--ink-muted)' }, cls.duration + ' · ' + cls.lessons + ' lessons')
-          ));
-        });
-        return nodes;
-      })()
-    );
-    wrap.appendChild(branchEl);
+  // Stagger pattern — alternating left/center/right for zigzag visual
+  const STAGGER = ['left', 'center', 'right', 'left', 'center', 'right'];
+
+  // Flatten all nodes in branch order so we can stagger across branches
+  const allNodes = [];
+  DATA.skillTree.branches.forEach((branch, branchIdx) => {
+    branch.nodes.forEach(nodeId => {
+      const cls = DATA.classes.find(c => c.id === nodeId);
+      if (cls) allNodes.push({ cls, branch, branchIdx });
+    });
   });
 
-  // Final node: Sommelier
-  wrap.appendChild(el('div', { style: 'text-align:center;color:var(--ink-muted);font-size:1.5rem;margin:8px 0' }, '↓'));
+  // Branch label rendered at the start of each branch's section
+  let lastBranchIdx = -1;
+  allNodes.forEach((entry, idx) => {
+    const { cls, branch, branchIdx } = entry;
+    const isDone = completed.includes(cls.id);
+    const colors = NODE_COLORS[cls.id] || { bg: 'var(--surface)', border: 'var(--line)', emoji: cls.icon };
+    const stagger = STAGGER[idx % STAGGER.length];
+
+    // Branch header (only once per branch)
+    if (branchIdx !== lastBranchIdx) {
+      lastBranchIdx = branchIdx;
+      wrap.appendChild(el('div', { style: 'display:flex;justify-content:center;margin:' + (idx === 0 ? '0' : '20px') + ' 0 16px' },
+        el('span', {
+          style: 'background:' + (branch.color === 'gold' ? '#F5E6B8' : branch.color === 'green' ? '#DCE6DF' : '#FAEAD9') +
+            ';color:' + (branch.color === 'gold' ? '#806017' : branch.color === 'green' ? '#27500A' : '#A85F1F') +
+            ';padding:6px 16px;border-radius:999px;font-weight:600;font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase'
+        }, branch.name)
+      ));
+    }
+
+    // Connector squiggle between nodes (skip for first node)
+    if (idx > 0) {
+      wrap.appendChild(el('div', { style: 'display:flex;justify-content:center;height:20px' },
+        el('div', { style: 'width:2px;height:100%;background:repeating-linear-gradient(180deg, var(--line) 0 4px, transparent 4px 8px)' })
+      ));
+    }
+
+    // Node row with staggered placement (3-col grid)
+    const justifyMap = { left: 'flex-start', center: 'center', right: 'flex-end' };
+    const row = el('div', { style: 'display:flex;justify-content:' + justifyMap[stagger] + ';padding:0 4%' });
+    const nodeStyle = isDone
+      ? 'background:linear-gradient(135deg, ' + colors.bg + ' 0%, ' + colors.border + '22 100%);border:3px solid ' + colors.border + ';color:' + (colors.dark ? '#FAF6F0' : 'var(--ink')
+      : 'background:' + colors.bg + ';border:3px solid ' + colors.border + ';color:' + (colors.dark ? '#FAF6F0' : 'var(--ink)');
+
+    const node = el('div', {
+      style: nodeStyle + ';border-radius:20px;padding:18px 20px;cursor:pointer;width:240px;text-align:center;position:relative;transition:transform 0.18s ease, box-shadow 0.18s ease;box-shadow:0 4px 0 ' + colors.border + ';display:flex;flex-direction:column;align-items:center;gap:6px',
+      onmouseenter: (e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 7px 0 ' + colors.border; },
+      onmouseleave: (e) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 4px 0 ' + colors.border; },
+      onclick: () => navigate('class/' + cls.id)
+    },
+      // Emoji badge
+      el('div', { style: 'width:60px;height:60px;border-radius:50%;background:' + (colors.dark ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.6)') + ';display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin-top:-2px' }, colors.emoji),
+      el('div', { style: 'font-weight:700;font-size:0.95rem;line-height:1.2' }, cls.name),
+      el('div', { style: 'font-size:0.74rem;opacity:0.75' }, cls.duration + ' · ' + cls.lessons + ' lessons'),
+      // Done check
+      isDone ? el('div', { style: 'position:absolute;top:-8px;right:-8px;width:30px;height:30px;border-radius:50%;background:#5BAA64;color:white;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;box-shadow:0 2px 0 #2F7A3A' }, '✓') : null
+    );
+    row.appendChild(node);
+    wrap.appendChild(row);
+  });
+
+  // Final Sommelier node — the trophy at the end
+  wrap.appendChild(el('div', { style: 'display:flex;justify-content:center;height:24px;margin-top:8px' },
+    el('div', { style: 'width:2px;height:100%;background:repeating-linear-gradient(180deg, var(--line) 0 4px, transparent 4px 8px)' })
+  ));
   const tier = computeTier();
   const isSommelier = tier.id === 'sommelier';
-  wrap.appendChild(el('div', {
-    style: 'background:' + (isSommelier ? 'linear-gradient(135deg, var(--gold) 0%, #806017 100%)' : 'var(--surface)') + ';border:2px solid ' + (isSommelier ? 'var(--gold)' : 'var(--line)') + ';border-radius:14px;padding:24px;text-align:center;cursor:pointer;color:' + (isSommelier ? 'white' : 'var(--ink)'),
-    onclick: () => navigate('sommelier')
-  },
-    el('div', { style: 'font-size:3rem;margin-bottom:8px' }, '🏆'),
-    el('div', { style: 'font-family:var(--font-display);font-size:1.4rem;font-weight:500' }, 'Coffee Sommelier'),
-    el('div', { style: 'font-size:0.85rem;opacity:0.7;margin-top:4px' }, 'The final certification')
+  wrap.appendChild(el('div', { style: 'display:flex;justify-content:center;margin-top:6px' },
+    el('div', {
+      style: (isSommelier
+        ? 'background:linear-gradient(135deg, #F5C84A 0%, #C5962B 100%);border:3px solid #806017;color:white;'
+        : 'background:#FAEAD9;border:3px dashed #C5962B;color:#806017;') +
+        'border-radius:24px;padding:24px 32px;cursor:pointer;width:300px;text-align:center;box-shadow:0 4px 0 ' + (isSommelier ? '#806017' : '#C5962B') + ';transition:transform 0.18s ease',
+      onmouseenter: (e) => { e.currentTarget.style.transform = 'translateY(-3px)'; },
+      onmouseleave: (e) => { e.currentTarget.style.transform = ''; },
+      onclick: () => navigate('sommelier')
+    },
+      el('div', { style: 'font-size:2.6rem;margin-bottom:6px' }, '🏆'),
+      el('div', { style: 'font-family:var(--font-display);font-size:1.3rem;font-weight:600;letter-spacing:-0.01em' }, 'Coffee Sommelier'),
+      el('div', { style: 'font-size:0.78rem;opacity:0.85;margin-top:4px' }, isSommelier ? 'You earned this' : 'The final certification')
+    )
   ));
 
   return wrap;
@@ -2040,25 +2119,8 @@ function renderYou(main) {
   // AI Drink Recommender card (renders inside the page)
   c.appendChild(aiRecommenderCard());
 
-  // Virtual Barista card
-  c.appendChild(el('div', { class: 'card', style: 'margin-bottom:32px;padding:24px;background:linear-gradient(135deg, var(--caramel-soft) 0%, #FAEDD7 100%);border-color:rgba(200,118,45,0.25)' },
-    el('div', { style: 'display:flex;align-items:flex-start;gap:18px;margin-bottom:16px;flex-wrap:wrap' },
-      el('div', { style: 'width:64px;height:64px;border-radius:50%;background:var(--espresso);color:var(--crema);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0' }, '☕'),
-      el('div', { style: 'flex:1;min-width:200px' },
-        el('div', { class: 'eyebrow', style: 'color:var(--caramel-deep);margin-bottom:4px' }, '💬 Virtual Barista'),
-        el('div', { style: 'font-family:var(--font-display);font-size:1.4rem;font-weight:500;letter-spacing:-0.01em' }, 'Ask anything coffee'),
-        el('div', { style: 'font-size:0.9rem;color:var(--ink-soft);margin-top:4px' }, 'Trained on your machine, your taste profile, and your last 30 brews.')
-      )
-    ),
-    el('div', { style: 'display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px' },
-      DATA.baristaPrompts.slice(0, 4).map(p => el('button', {
-        class: 'pill',
-        style: 'cursor:pointer;background:var(--surface);border-color:var(--line);font-size:0.82rem',
-        onclick: () => { navigate('barista'); setTimeout(() => sendBaristaMsg(p), 200); }
-      }, p))
-    ),
-    el('button', { class: 'btn btn-primary', onclick: () => navigate('barista') }, 'Open full chat →')
-  ));
+  // Taste tracker — flavor pinwheel built from journal entries
+  c.appendChild(tasteTrackerCard());
 
   // Leaderboard with tabs (Global / Friends)
   const lbCard = el('div', { class: 'card', style: 'margin-bottom:32px' });
@@ -2188,6 +2250,171 @@ function renderYou(main) {
     )
   ));
   c.appendChild(split2);
+}
+
+/* ---------------- Taste Tracker (flavor pinwheel) ---------------- */
+// Builds a radar/pie pinwheel showing the flavor categories the user has tasted.
+// Pulls from journal: each brewed bean's flavors[] feed the wheel.
+function tasteTrackerCard() {
+  const FAMILIES = [
+    { id: 'fruity',     label: 'Fruity',     color: '#D26C6C', match: ['berry', 'fruit', 'apple', 'plum', 'citrus', 'lemon', 'strawberry', 'blackcurrant', 'cherry'] },
+    { id: 'floral',     label: 'Floral',     color: '#C895C2', match: ['floral', 'jasmine', 'rose', 'tea-like', 'honeysuckle'] },
+    { id: 'sweet',      label: 'Sweet',      color: '#E8B36A', match: ['caramel', 'honey', 'sugar', 'vanilla', 'syrup', 'molasses'] },
+    { id: 'chocolate',  label: 'Chocolate',  color: '#7A4828', match: ['chocolate', 'cocoa', 'fudge', 'mocha'] },
+    { id: 'nutty',      label: 'Nutty',      color: '#B58758', match: ['almond', 'hazelnut', 'macadamia', 'walnut', 'pecan'] },
+    { id: 'spice',      label: 'Spice',      color: '#9C5C2C', match: ['cinnamon', 'cardamom', 'clove', 'pepper', 'spice'] },
+    { id: 'earthy',     label: 'Earthy',     color: '#5C7A4F', match: ['earthy', 'cedar', 'tobacco', 'oak', 'wood', 'forest'] },
+    { id: 'bright',     label: 'Bright',     color: '#D49856', match: ['bright', 'wine', 'tomato'] }
+  ];
+
+  const tally = {};
+  FAMILIES.forEach(f => tally[f.id] = 0);
+  state.journal.forEach(entry => {
+    const bean = getBean(entry.bean);
+    const recipe = getRecipe(entry.recipe);
+    const wordPool = []
+      .concat(bean?.flavors || [])
+      .concat(bean?.tags || [])
+      .concat(recipe?.tags || [])
+      .concat(entry.flavors || [])
+      .map(s => String(s).toLowerCase());
+    FAMILIES.forEach(f => {
+      if (f.match.some(kw => wordPool.some(w => w.includes(kw)))) tally[f.id] += 1;
+    });
+  });
+
+  const totalTastes = Object.values(tally).reduce((a, b) => a + b, 0);
+  const maxCount = Math.max(1, ...Object.values(tally));
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const size = 280;
+  const cx = size / 2;
+  const cy = size / 2;
+  const rOuter = 110;
+  const rInner = 36;
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('viewBox', '0 0 ' + size + ' ' + size);
+  svg.setAttribute('width', String(size));
+  svg.setAttribute('height', String(size));
+  svg.setAttribute('style', 'display:block;margin:0 auto');
+
+  const sliceAngle = (Math.PI * 2) / FAMILIES.length;
+  FAMILIES.forEach((f, i) => {
+    const startA = -Math.PI / 2 + i * sliceAngle;
+    const endA = startA + sliceAngle;
+    const fill = tally[f.id] / maxCount;
+    const r = rInner + (rOuter - rInner) * (totalTastes ? Math.max(0.18, fill) : 0.18);
+    const x1 = cx + Math.cos(startA) * rInner, y1 = cy + Math.sin(startA) * rInner;
+    const x2 = cx + Math.cos(startA) * r, y2 = cy + Math.sin(startA) * r;
+    const x3 = cx + Math.cos(endA) * r, y3 = cy + Math.sin(endA) * r;
+    const x4 = cx + Math.cos(endA) * rInner, y4 = cy + Math.sin(endA) * rInner;
+    const largeArc = sliceAngle > Math.PI ? 1 : 0;
+    const pathD = ['M', x1.toFixed(2), y1.toFixed(2), 'L', x2.toFixed(2), y2.toFixed(2),
+      'A', r.toFixed(2), r.toFixed(2), 0, largeArc, 1, x3.toFixed(2), y3.toFixed(2),
+      'L', x4.toFixed(2), y4.toFixed(2),
+      'A', rInner.toFixed(2), rInner.toFixed(2), 0, largeArc, 0, x1.toFixed(2), y1.toFixed(2), 'Z'].join(' ');
+    const slice = document.createElementNS(svgNS, 'path');
+    slice.setAttribute('d', pathD);
+    slice.setAttribute('fill', f.color);
+    slice.setAttribute('opacity', tally[f.id] ? '0.92' : '0.2');
+    slice.setAttribute('stroke', '#FFFFFF');
+    slice.setAttribute('stroke-width', '2');
+    svg.appendChild(slice);
+
+    const labelA = startA + sliceAngle / 2;
+    const labelR = rOuter + 14;
+    const lx = cx + Math.cos(labelA) * labelR;
+    const ly = cy + Math.sin(labelA) * labelR;
+    const text = document.createElementNS(svgNS, 'text');
+    text.setAttribute('x', lx.toFixed(2));
+    text.setAttribute('y', ly.toFixed(2));
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('dominant-baseline', 'middle');
+    text.setAttribute('font-size', '11');
+    text.setAttribute('font-weight', '600');
+    text.setAttribute('fill', '#1A1614');
+    text.setAttribute('font-family', 'Inter, sans-serif');
+    text.textContent = f.label;
+    svg.appendChild(text);
+
+    if (tally[f.id]) {
+      const cMid = startA + sliceAngle / 2;
+      const cR = rInner + (r - rInner) / 2;
+      const cxT = cx + Math.cos(cMid) * cR;
+      const cyT = cy + Math.sin(cMid) * cR;
+      const ct = document.createElementNS(svgNS, 'text');
+      ct.setAttribute('x', cxT.toFixed(2));
+      ct.setAttribute('y', cyT.toFixed(2));
+      ct.setAttribute('text-anchor', 'middle');
+      ct.setAttribute('dominant-baseline', 'middle');
+      ct.setAttribute('font-size', '13');
+      ct.setAttribute('font-weight', '700');
+      ct.setAttribute('fill', '#FFFFFF');
+      ct.setAttribute('font-family', 'Inter, sans-serif');
+      ct.textContent = String(tally[f.id]);
+      svg.appendChild(ct);
+    }
+  });
+
+  const hub = document.createElementNS(svgNS, 'circle');
+  hub.setAttribute('cx', String(cx));
+  hub.setAttribute('cy', String(cy));
+  hub.setAttribute('r', String(rInner - 2));
+  hub.setAttribute('fill', '#1F352A');
+  svg.appendChild(hub);
+
+  const hubText = document.createElementNS(svgNS, 'text');
+  hubText.setAttribute('x', String(cx));
+  hubText.setAttribute('y', String(cy - 4));
+  hubText.setAttribute('text-anchor', 'middle');
+  hubText.setAttribute('dominant-baseline', 'middle');
+  hubText.setAttribute('font-size', '20');
+  hubText.setAttribute('font-weight', '600');
+  hubText.setAttribute('fill', '#FAF6F0');
+  hubText.setAttribute('font-family', 'Fraunces, Georgia, serif');
+  hubText.setAttribute('letter-spacing', '-0.02em');
+  hubText.textContent = String(state.journal.length);
+  svg.appendChild(hubText);
+
+  const hubLabel = document.createElementNS(svgNS, 'text');
+  hubLabel.setAttribute('x', String(cx));
+  hubLabel.setAttribute('y', String(cy + 14));
+  hubLabel.setAttribute('text-anchor', 'middle');
+  hubLabel.setAttribute('dominant-baseline', 'middle');
+  hubLabel.setAttribute('font-size', '8');
+  hubLabel.setAttribute('font-weight', '600');
+  hubLabel.setAttribute('fill', '#E8C896');
+  hubLabel.setAttribute('font-family', 'Inter, sans-serif');
+  hubLabel.setAttribute('letter-spacing', '0.14em');
+  hubLabel.textContent = 'BREWS LOGGED';
+  svg.appendChild(hubLabel);
+
+  const sorted = FAMILIES.slice().sort((a, b) => tally[b.id] - tally[a.id]);
+  const topFlavor = sorted[0] && tally[sorted[0].id] ? sorted[0] : null;
+  const topThree = sorted.filter(f => tally[f.id] > 0).slice(0, 3);
+
+  return el('div', { class: 'card', style: 'margin-bottom:32px;padding:0;overflow:hidden' },
+    el('div', { style: 'padding:24px 28px 12px' },
+      el('div', { class: 'eyebrow', style: 'margin-bottom:6px' }, '✨ Taste tracker'),
+      el('h3', { class: 'h3', style: 'margin-bottom:4px' }, 'Your flavor pinwheel'),
+      el('p', { style: 'color:var(--ink-soft);font-size:0.9rem' }, 'A live map of what you have been tasting. Brew more, log more, and the wheel fills in.')
+    ),
+    el('div', { style: 'padding:8px 28px 0;display:flex;justify-content:center' }, svg),
+    topFlavor ? el('div', { style: 'padding:16px 28px 22px' },
+      el('div', { style: 'background:var(--surface-2);padding:14px 16px;border-radius:12px' },
+        el('div', { class: 'eyebrow', style: 'margin-bottom:6px' }, 'Your taste signature'),
+        el('div', { style: 'font-size:0.95rem;font-weight:600' },
+          'You lean ',
+          el('span', { style: 'color:' + topFlavor.color }, topFlavor.label.toLowerCase()),
+          topThree.length > 1 ? ', then ' + topThree.slice(1).map(t => t.label.toLowerCase()).join(' and ') : '',
+          '.'
+        ),
+        el('div', { style: 'font-size:0.85rem;color:var(--ink-soft);margin-top:4px' }, 'Based on ' + state.journal.length + ' logged brews. Each new bean fills in the wheel.')
+      )
+    ) : el('div', { style: 'padding:16px 28px 22px' },
+      el('div', { style: 'background:var(--surface-2);padding:14px 16px;border-radius:12px;font-size:0.9rem;color:var(--ink-soft)' }, 'Log a brew to start filling your pinwheel.')
+    )
+  );
 }
 
 /* ---------------- AI Drink Recommender (vibe wheel) ----------------

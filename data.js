@@ -35,16 +35,23 @@ const DATA = {
     { id: 'brazilian-santos', name: 'Brazilian Santos', roaster: 'Daterra', origin: 'Brazil', originRef: 'brazil', roast: 'Medium-dark', tags: ['nutty', 'low-acid', 'classic'], icon: '🌰', photo: 'https://loremflickr.com/800/600/coffee,brazil?lock=22', flavors: ['Hazelnut', 'Caramel', 'Chocolate'], rating: 4.3, brewedBy: 8920, notes: 'Low acid, nutty body. The foundation of most espresso blends.' }
   ],
 
-  /* ---------------- Cuisinart / Conair products ---------------- */
+  /* ---------------- Cuisinart real product lineup ----------------
+     Sourced from Cuisinart's actual coffee/espresso category.
+     Models reflect SKUs as listed on cuisinart.com. */
   products: [
-    { id: 'dgb-2', name: 'Grind & Brew Coffeemaker', model: 'DGB-2', category: 'Coffee maker', icon: '☕', photo: 'https://loremflickr.com/800/600/coffeemaker?lock=41', bg: 'linear-gradient(135deg, #2A1A14 0%, #3D2418 100%)', tagline: 'Built-in burr grinder. 12 cups.', desc: 'Grinds beans on demand and brews automatically. Programmable timer for waking up to fresh coffee.', tags: ['drip', 'grinder', '12-cup'], owners: 18420 },
-    { id: 'em-15', name: 'Espresso Maker', model: 'EM-15', category: 'Espresso', icon: '🫘', photo: 'https://loremflickr.com/800/600/espresso,machine?lock=42', bg: 'linear-gradient(135deg, #2D4A3A 0%, #1d3327 100%)', tagline: '15-bar pump. Steam wand.', desc: 'Cafe-style espresso at home. Manual steam wand for milk drinks and latte art practice.', tags: ['espresso', 'milk drinks'], owners: 9240 },
-    { id: 'dcc-3200', name: 'PerfecTemp Coffeemaker', model: 'DCC-3200', category: 'Coffee maker', icon: '☕', photo: 'https://loremflickr.com/800/600/coffeemaker,kitchen?lock=43', bg: 'linear-gradient(135deg, #C8762D 0%, #A85F1F 100%)', tagline: '14-cup. Brewing temp control.', desc: 'Adjustable brew temperature lets you tune extraction to your beans. Brew strength control.', tags: ['drip', '14-cup'], owners: 24180 },
-    { id: 'dcb-10', name: 'Automatic Cold Brew', model: 'DCB-10', category: 'Cold brew', icon: '🧊', photo: 'https://loremflickr.com/800/600/coldbrew,coffee?lock=44', bg: 'linear-gradient(135deg, #5476A6 0%, #2c4869 100%)', tagline: 'Cold brew in 25 minutes.', desc: 'Spins grounds through cold water for rapid extraction. Concentrate or full-strength.', tags: ['cold brew'], owners: 7820 },
-    { id: 'cpo-800', name: 'PurePrecision Pour Over', model: 'CPO-800', category: 'Pour over', icon: '🌊', photo: 'https://loremflickr.com/800/600/pourover,coffee?lock=45', bg: 'linear-gradient(135deg, #C5962B 0%, #806017 100%)', tagline: 'Automated pour over. 8 cups.', desc: 'Variable pulse and pour timing. Replicates the manual pour over technique automatically.', tags: ['pour over', '8-cup'], owners: 4120 },
-    { id: 'fp-3', name: 'Classic French Press', model: 'FP-3', category: 'French press', icon: '💪', photo: 'https://loremflickr.com/800/600/frenchpress?lock=46', bg: 'linear-gradient(135deg, #4A3A30 0%, #2A1A14 100%)', tagline: '32oz. Stainless mesh.', desc: 'Double-walled stainless. Keeps coffee hot. Mesh filter for full body.', tags: ['french press'], owners: 12480 },
-    { id: 'dbm-8', name: 'Burr Mill Grinder', model: 'DBM-8', category: 'Grinder', icon: '⚙️', photo: 'https://loremflickr.com/800/600/coffee,grinder?lock=47', bg: 'linear-gradient(135deg, #6B5D54 0%, #3D2418 100%)', tagline: '18 grind settings.', desc: 'Burr grinding from espresso fine to French press coarse. Removable hopper for clean storage.', tags: ['grinder'], owners: 14820 },
-    { id: 'em-350', name: 'Touchscreen Espresso', model: 'EM-350', category: 'Espresso', icon: '📱', photo: 'https://loremflickr.com/800/600/espresso,latte?lock=48', bg: 'linear-gradient(135deg, #C8762D 0%, #2A1A14 100%)', tagline: 'Touchscreen. Auto milk frother.', desc: 'One-touch espresso, latte, cappuccino. Built-in milk frother. The all-in-one.', tags: ['espresso', 'automatic'], owners: 5680 }
+    { id: 'dgb-2', name: 'Single-Serve Grind & Brew Coffeemaker', model: 'DGB-2', category: 'Coffee maker', icon: '☕', photo: 'https://loremflickr.com/800/600/coffeemaker?lock=41', bg: 'linear-gradient(135deg, #2A1A14 0%, #3D2418 100%)', tagline: 'Single-serve with built-in burr grinder.', desc: 'Grinds beans on demand and brews directly into your travel mug. Programmable timer.', tags: ['single-serve', 'grinder'], owners: 18420 },
+    { id: 'dgb-800', name: 'Burr Grind & Brew Coffeemaker', model: 'DGB-800', category: 'Coffee maker', icon: '☕', photo: 'https://loremflickr.com/800/600/coffeemaker,kitchen?lock=49', bg: 'linear-gradient(135deg, #4A3A30 0%, #2A1A14 100%)', tagline: '12-cup. Burr grinder. Charcoal water filter.', desc: 'Automatic burr grinder grinds the right amount of beans for each brew. Stainless thermal carafe.', tags: ['drip', 'grinder', '12-cup'], owners: 22100 },
+    { id: 'dcc-3200', name: 'PerfecTemp 14-Cup Programmable', model: 'DCC-3200', category: 'Coffee maker', icon: '☕', photo: 'https://loremflickr.com/800/600/coffeemaker,brew?lock=43', bg: 'linear-gradient(135deg, #C8762D 0%, #A85F1F 100%)', tagline: '14-cup. Adjustable brew temperature.', desc: 'Hotter coffee without sacrificing flavor or quality. 1-4 cup setting and brew-strength control.', tags: ['drip', '14-cup'], owners: 31280 },
+    { id: 'dcc-1200', name: 'Brew Central 12-Cup', model: 'DCC-1200', category: 'Coffee maker', icon: '☕', photo: 'https://loremflickr.com/800/600/coffeemaker,classic?lock=50', bg: 'linear-gradient(135deg, #6B5D54 0%, #3D2418 100%)', tagline: 'The iconic 12-cup classic.', desc: 'Programmable 24-hour brew. Self-cleaning. Charcoal water filter. Chrome thermal carafe.', tags: ['drip', '12-cup', 'classic'], owners: 48920 },
+    { id: 'ss-15p1', name: 'Coffee Center 12-Cup + Single-Serve', model: 'SS-15P1', category: 'Coffee maker', icon: '☕', photo: 'https://loremflickr.com/800/600/coffeemaker,pod?lock=51', bg: 'linear-gradient(135deg, #2A1A14 0%, #3D2418 100%)', tagline: '2-in-1: full carafe and single-serve.', desc: 'Brew a full pot or a single cup using K-Cup pods or ground coffee. Two completely independent brewing systems in one.', tags: ['hybrid', 'pod', '12-cup'], owners: 27450 },
+    { id: 'ss-10p1', name: 'Premium Single-Serve Brewer', model: 'SS-10P1', category: 'Coffee maker', icon: '⚡', photo: 'https://loremflickr.com/800/600/podcoffee,kitchen?lock=52', bg: 'linear-gradient(135deg, #5476A6 0%, #2c4869 100%)', tagline: 'Single-serve K-Cup brewer.', desc: 'Five cup sizes from 4-12 oz. Removable 72-oz reservoir. Hot water on demand.', tags: ['single-serve', 'pod'], owners: 14820 },
+    { id: 'em-15', name: 'Espresso Maker', model: 'EM-15', category: 'Espresso', icon: '🫘', photo: 'https://loremflickr.com/800/600/espresso,machine?lock=42', bg: 'linear-gradient(135deg, #2D4A3A 0%, #1d3327 100%)', tagline: '15-bar pump. Manual frother.', desc: 'Cafe-style espresso at home. Stainless steel steam wand for milk drinks and latte art practice.', tags: ['espresso', 'milk drinks'], owners: 9240 },
+    { id: 'em-200', name: 'Programmable 15-Bar Espresso Maker', model: 'EM-200', category: 'Espresso', icon: '🫘', photo: 'https://loremflickr.com/800/600/espresso,bar?lock=53', bg: 'linear-gradient(135deg, #2D4A3A 0%, #C5962B 100%)', tagline: 'Programmable 15-bar. Dual-thermostat.', desc: 'Dual-thermostat control for brewing and steaming temps. Programmable single or double shots. Removable drip tray.', tags: ['espresso', 'programmable'], owners: 6320 },
+    { id: 'em-25', name: 'Defined Espresso Machine', model: 'EM-25', category: 'Espresso', icon: '☕', photo: 'https://loremflickr.com/800/600/espresso,latte?lock=54', bg: 'linear-gradient(135deg, #C8762D 0%, #2A1A14 100%)', tagline: 'Touchscreen. Auto milk frother.', desc: 'One-touch espresso, cappuccino, latte. Integrated milk frother. The all-in-one for milk drinks.', tags: ['espresso', 'automatic', 'milk'], owners: 5680 },
+    { id: 'dcb-10', name: 'Automatic Cold Brew Coffeemaker', model: 'DCB-10', category: 'Cold brew', icon: '🧊', photo: 'https://loremflickr.com/800/600/coldbrew,coffee?lock=44', bg: 'linear-gradient(135deg, #5476A6 0%, #2c4869 100%)', tagline: '7-cup cold brew in as little as 25 minutes.', desc: 'Patented Spin Brew technology accelerates extraction. Mild, medium, or bold strength.', tags: ['cold brew'], owners: 11820 },
+    { id: 'cpo-800', name: 'PurePrecision 8-Cup Pour Over', model: 'CPO-800', category: 'Pour over', icon: '🌊', photo: 'https://loremflickr.com/800/600/pourover,coffee?lock=45', bg: 'linear-gradient(135deg, #C5962B 0%, #806017 100%)', tagline: 'Automated pour over. SCAA certified.', desc: 'Programmable pour-over with pre-infusion bloom. Variable pour and steep settings. SCAA Certified Home Brewer.', tags: ['pour over', '8-cup'], owners: 4120 },
+    { id: 'dbm-8', name: 'Supreme Grind Automatic Burr Mill', model: 'DBM-8', category: 'Grinder', icon: '⚙️', photo: 'https://loremflickr.com/800/600/coffee,grinder?lock=47', bg: 'linear-gradient(135deg, #6B5D54 0%, #3D2418 100%)', tagline: '18 grind settings. 4-32 cups.', desc: 'Burr grinding from espresso fine to French press coarse. Removable bean hopper holds 8 oz.', tags: ['grinder'], owners: 38420 },
+    { id: 'cmf-100', name: 'Cordless Milk Frother', model: 'CMF-100', category: 'Frother', icon: '🥛', photo: 'https://loremflickr.com/800/600/milkfrother,latte?lock=55', bg: 'linear-gradient(135deg, #FAEDD7 0%, #C5962B 100%)', tagline: 'Cordless. Hot or cold. 4 settings.', desc: 'Steam, hot froth, cold froth, or warm milk. Charging base, 10 oz capacity. The fastest way to upgrade drip coffee.', tags: ['frother', 'milk'], owners: 8240 }
   ],
 
   /* ---------------- Coffee Passport regions ---------------- */
@@ -345,11 +352,11 @@ const DATA = {
   recipes: [
     {
       id: 'morning-classic',
-      name: 'The Morning Classic',
+      name: 'Brazilian Honey Drip',
       machineCompat: ['drip-auto', 'pod'],
       method: 'Drip',
       icon: '☀️',
-      photo: 'https://loremflickr.com/800/600/coffee,morning,cup?lock=31',
+      photo: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80',
       thumbClass: 'tile-thumb',
       time: '6 min',
       difficulty: 'Easy',
@@ -370,11 +377,11 @@ const DATA = {
     },
     {
       id: 'sat-morning-latte',
-      name: 'Saturday Morning Latte',
+      name: 'Cinnamon Honey Latte',
       machineCompat: ['espresso-machine'],
       method: 'Espresso',
       icon: '🥛',
-      photo: 'https://loremflickr.com/800/600/latte,art?lock=32',
+      photo: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=800&q=80',
       thumbClass: 'tile-thumb-dark',
       time: '4 min',
       difficulty: 'Medium',
@@ -394,11 +401,11 @@ const DATA = {
     },
     {
       id: 'cold-brew-classic',
-      name: 'Slow Cold Brew Concentrate',
+      name: 'Vanilla Maple Cold Brew',
       machineCompat: ['cold-brew', 'french-press'],
       method: 'Cold brew',
       icon: '🧊',
-      photo: 'https://loremflickr.com/800/600/iced,coffee?lock=33',
+      photo: 'https://images.unsplash.com/photo-1517959105821-eaf2591984ca?w=800&q=80',
       thumbClass: 'tile-thumb-green',
       time: '20 hr',
       difficulty: 'Easy',
@@ -419,11 +426,11 @@ const DATA = {
     },
     {
       id: 'pour-over-light',
-      name: 'Pour Over for Light Roasts',
+      name: 'Ethiopian Yirgacheffe V60',
       machineCompat: ['pour-over'],
       method: 'Pour over',
       icon: '🌊',
-      photo: 'https://loremflickr.com/800/600/pourover,coffee?lock=34',
+      photo: 'https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=800&q=80',
       thumbClass: 'tile-thumb',
       time: '5 min',
       difficulty: 'Hard',
@@ -444,11 +451,11 @@ const DATA = {
     },
     {
       id: 'iced-vanilla-latte',
-      name: 'Iced Brown Sugar Vanilla Latte',
+      name: 'Iced Brown Sugar Oat Latte',
       machineCompat: ['espresso-machine'],
       method: 'Espresso',
       icon: '🍦',
-      photo: 'https://loremflickr.com/800/600/iced,latte?lock=35',
+      photo: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=800&q=80',
       thumbClass: 'tile-thumb-gold',
       time: '5 min',
       difficulty: 'Easy',
@@ -468,11 +475,11 @@ const DATA = {
     },
     {
       id: 'french-press-bold',
-      name: 'Bold French Press',
+      name: 'Sumatra Dark French Press',
       machineCompat: ['french-press'],
       method: 'French press',
       icon: '💪',
-      photo: 'https://loremflickr.com/800/600/frenchpress,coffee?lock=36',
+      photo: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&q=80',
       thumbClass: 'tile-thumb',
       time: '8 min',
       difficulty: 'Easy',

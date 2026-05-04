@@ -795,6 +795,28 @@ input, select, textarea { font: inherit; color: inherit; }
   justify-content: center;
   font-size: 0.95rem;
 }
+.bl-brand-text {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1;
+}
+.bl-brand-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.2rem;
+  letter-spacing: -0.01em;
+  color: #233C28;
+}
+.bl-brand-tag {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8C857E;
+  margin-top: 4px;
+}
 
 .bl-nav {
   display: flex;
@@ -1588,54 +1610,58 @@ input, select, textarea { font: inherit; color: inherit; }
 /* 1. Today's brew hero — warm amber/brown palette */
 .today-hero {
   display: grid;
-  grid-template-columns: 1.4fr 36px 1fr;
+  grid-template-columns: 1.4fr 48px 1fr;
   gap: 32px;
-  align-items: center;
+  align-items: stretch;
   background: #FAEEDA;
   border-radius: 24px;
   padding: 48px;
   border: 1px solid rgba(64, 36, 2, 0.08);
+  position: relative;
 }
 @media (max-width: 720px) {
-  .today-hero { grid-template-columns: 1fr; padding: 32px; gap: 24px; }
+  .today-hero { grid-template-columns: 1fr; padding: 32px; gap: 24px; align-items: center; }
   .today-hero-divider { display: none; }
 }
 
-/* OR divider sits in the center column, between text and wheel */
+/* OR divider sits in the center column, vertically centered */
 .today-hero-divider {
   position: relative;
   align-self: stretch;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 100%;
 }
 .today-hero-divider::before {
   content: '';
   position: absolute;
-  top: 20%;
-  bottom: 20%;
+  top: 0;
+  bottom: 0;
   left: 50%;
   width: 1px;
   background: #C5962B;
   transform: translateX(-50%);
+  opacity: 0.6;
 }
 .today-hero-or {
   position: relative;
   z-index: 1;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: #FFFFFF;
-  border: 1px solid rgba(197, 150, 43, 0.5);
+  background: #FAEEDA;
+  border: 1.5px solid #C5962B;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   color: #854F0B;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  box-shadow: 0 2px 4px rgba(133, 79, 11, 0.08);
+  box-shadow: 0 2px 6px rgba(133, 79, 11, 0.1);
+  margin: 0 auto;
 }
 .today-hero-text { display: flex; flex-direction: column; align-items: flex-start; }
 .today-eyebrow {
