@@ -276,7 +276,7 @@ const DATA = {
       farmer: 'Wanjiku Mwangi',
       farmName: 'Tegu Estate',
       photoIcon: '🇰🇪',
-      bio: 'Wanjiku took over Tegu Estate from her father in 2019 and is the only female-led estate in Nyeri to consistently export to specialty roasters in the US and Japan.',
+      bio: 'Wanjiku took over Tegu Estate from her father in 2019 and is the only female-led estate in Nyeri to consistently export to specialty roasters in the United States and Japan.',
       altitude: '1,820m',
       varietal: 'SL28, SL34',
       processing: 'Fully washed',
@@ -366,7 +366,7 @@ const DATA = {
       farmer: 'Ku\'ulei Nakamura',
       farmName: 'Mauna Loa Estate',
       photoIcon: '🌺',
-      bio: 'Ku\'ulei works a 6-acre Kona estate on volcanic slopes. The only US-grown specialty coffee with global recognition.',
+      bio: 'Ku\'ulei works a 6-acre Kona estate on volcanic slopes. The only United States-grown specialty coffee with global recognition.',
       altitude: '600m',
       varietal: 'Typica',
       processing: 'Washed',
@@ -1059,7 +1059,7 @@ const DATA = {
     { id: 'mazagran', name: 'Mazagran', icon: '🍋', desc: 'Iced coffee with lemon. Portuguese summer drink.', temp: 'cold', strength: 'medium', milk: false, sweet: false, time: 'quick', recipeId: null, tags: ['unusual', 'citrus'] }
   ],
 
-  /* ---------------- Cafes (continental US, mapped on Home) ---------------- */
+  /* ---------------- Cafes (continental United States, mapped on Home) ---------------- */
   /* Dirt Cowboy is the only "active" cafe (story video published). The
      other nine are gold-ringed "story coming soon" markers. */
   cafes: [

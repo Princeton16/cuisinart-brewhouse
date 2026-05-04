@@ -978,7 +978,7 @@ function openBaristaWheel() {
   );
 
   mountVibeChooser(card, {
-    size: 460,
+    size: 380,
     onSubmit: (query) => { close(); sendVibeQueryToBarista(query); }
   });
 
@@ -1599,28 +1599,28 @@ function renderMagazineHome(main) {
         el('em', { style: 'font-style:italic;color:var(--tomato)' }, 'drinking'),
         ' today?'
       ),
-      // Two big primary tiles — Drink of the Day | Ask the Barista
+      // Two primary tiles — smaller now — This Week's Brew | Ask the Barista
       el('div', {
         style: 'display:grid;grid-template-columns:1fr 1fr;gap:24px'
       },
-        // 1. DRINK OF THE DAY (marigold yellow)
+        // 1. THIS WEEK'S BREW (marigold yellow)
         el('a', {
           class: 'tile dotd',
-          style: 'min-height:540px',
+          style: 'min-height:400px',
           onclick: () => navigate(drink.recipeId ? 'recipe/' + drink.recipeId : 'recipes')
         },
           el('div', { class: 'tag' },
-            el('span', {}, '★ Drink of the day')
+            el('span', {}, "★ This Week's Brew")
           ),
-          el('h3', { style: 'font-size:48px' },
+          el('h3', { style: 'font-size:36px' },
             (() => {
               const parts = drink.name.split(' ');
               return [parts.slice(0, -1).join(' '), ' ', el('em', {}, parts.slice(-1)[0] + '.')];
             })()
           ),
-          el('p', { style: 'font-size:18px;margin-bottom:auto' }, drink.desc.split('.').slice(0, 1).join('.') + '.'),
-          el('div', { class: 'dotd-art', style: 'margin:24px 0' },
-            el('div', { class: 'dotd-cup' }, milkPourSmileySvg())
+          el('p', { style: 'font-size:15px;margin-bottom:auto' }, drink.desc.split('.').slice(0, 1).join('.') + '.'),
+          el('div', { class: 'dotd-art', style: 'margin:14px 0;max-height:170px' },
+            el('div', { class: 'dotd-cup', style: 'max-width:200px' }, milkPourSmileySvg())
           ),
           el('div', { class: 'dotd-meta' },
             el('span', {}, el('strong', {}, '5 min')),
@@ -1628,32 +1628,30 @@ function renderMagazineHome(main) {
           ),
           el('span', { class: 'arrow-cta' }, 'See recipe ', el('span', { class: 'ar' }, '→'))
         ),
-        // 2. ASK THE BARISTA (tomato red — equal prominence)
+        // 2. ASK THE BARISTA (tomato red — vibe chips instead of wheel)
         el('a', {
           class: 'tile barista',
-          style: 'min-height:540px;grid-row:auto;overflow:hidden',
+          style: 'min-height:400px;grid-row:auto;overflow:hidden',
           onclick: () => openBaristaWheel()
         },
           el('div', { class: 'tag' },
             el('span', {}, '● Ask the barista')
           ),
-          el('h3', { style: 'font-size:48px' },
+          el('h3', { style: 'font-size:36px' },
             'Or pick ',
             el('em', {}, 'your own.')
           ),
-          el('p', { style: 'font-size:18px' }, "Tell us how you feel. We'll pour something."),
-          el('div', { style: 'flex:1;display:flex;align-items:center;justify-content:center;margin:8px 0;width:100%;min-height:0' },
-            // Compact preview wheel — full thing lives in the modal
-            (() => {
-              const wrap = el('div', { style: 'width:min(360px, 100%);aspect-ratio:1;display:flex;align-items:center;justify-content:center' });
-              const mini = buildVibeWheelSvg({ size: 360, onWedgeClick: () => openBaristaWheel(), isWedgeSelected: () => false });
-              mini.svg.setAttribute('style', 'width:100%;height:100%;display:block');
-              mini.svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-              wrap.appendChild(mini.svg);
-              return wrap;
-            })()
+          el('p', { style: 'font-size:15px;margin-bottom:14px' }, "Tap a vibe. We'll pour something."),
+          // Vibe chip cluster — six tasteful chips in a 3x2 grid
+          el('div', { style: 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:auto' },
+            ['Hot', 'Iced', 'Bold', 'Sweet', 'Creamy', 'Fruity'].map((v, i) => {
+              const colors = ['#F0997B', '#85B7EB', '#97C459', '#ED93B1', '#FAC775', '#E89478'];
+              return el('span', {
+                style: 'background:' + colors[i] + ';color:var(--ink);font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:10px 6px;border-radius:8px;text-align:center;border:1.5px solid var(--ink);box-shadow:2px 2px 0 0 var(--ink)'
+              }, v);
+            })
           ),
-          el('span', { class: 'arrow-cta' }, 'Tap to open the wheel ', el('span', { class: 'ar' }, '→'))
+          el('span', { class: 'arrow-cta' }, 'Open the wheel ', el('span', { class: 'ar' }, '→'))
         )
       )
     )
@@ -1901,106 +1899,75 @@ const CAFE_AWARDS = {
   'blue-bottle':     ['Founded 2002, Oakland CA', 'Sources from George Howell network', 'New Orleans iced coffee is the original viral cold brew']
 };
 
-// Animated milk-pour SVG: refined pitcher tilts, milk pours, heart latte art appears
+// Crisp animated coffee cup: heart blooms up from the surface, no pitcher
 function milkPourSmileySvg() {
   const NS = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(NS, 'svg');
-  svg.setAttribute('viewBox', '0 0 280 240');
+  svg.setAttribute('viewBox', '0 0 240 240');
   svg.setAttribute('class', 'milk-anim');
   svg.innerHTML = `
     <defs>
-      <radialGradient id="coffee-g" cx="48%" cy="40%" r="60%">
-        <stop offset="0%" stop-color="#9C6F44"/>
-        <stop offset="55%" stop-color="#5C3920"/>
-        <stop offset="100%" stop-color="#1A0D06"/>
+      <radialGradient id="coffee-deep" cx="50%" cy="42%" r="60%">
+        <stop offset="0%" stop-color="#7A4F2A"/>
+        <stop offset="55%" stop-color="#3C2110"/>
+        <stop offset="100%" stop-color="#1A0D05"/>
       </radialGradient>
-      <linearGradient id="cup-side-g" x1="0" x2="0" y1="0" y2="1">
+      <linearGradient id="cup-body" x1="0" x2="0" y1="0" y2="1">
         <stop offset="0%" stop-color="#FFFEFB"/>
-        <stop offset="60%" stop-color="#F5E6D2"/>
-        <stop offset="100%" stop-color="#D9C2A4"/>
+        <stop offset="55%" stop-color="#F2DEC1"/>
+        <stop offset="100%" stop-color="#C9AC85"/>
       </linearGradient>
-      <linearGradient id="pitcher-g" x1="0" x2="1" y1="0" y2="0">
-        <stop offset="0%" stop-color="#D4D1C6"/>
-        <stop offset="50%" stop-color="#F0EDE5"/>
-        <stop offset="100%" stop-color="#B8B4A8"/>
+      <linearGradient id="saucer-grad" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stop-color="#FFF5E6"/>
+        <stop offset="100%" stop-color="#D9BB8C"/>
       </linearGradient>
-      <linearGradient id="milk-g" x1="0" x2="0" y1="0" y2="1">
-        <stop offset="0%" stop-color="#FFFFFF"/>
-        <stop offset="100%" stop-color="#F5EDE0"/>
-      </linearGradient>
-      <radialGradient id="rim-shine" cx="50%" cy="0%" r="80%">
-        <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.5"/>
-        <stop offset="60%" stop-color="#FFFFFF" stop-opacity="0"/>
+      <radialGradient id="crema-shine" cx="40%" cy="20%" r="80%">
+        <stop offset="0%" stop-color="#C99466" stop-opacity="0.55"/>
+        <stop offset="50%" stop-color="#9F6634" stop-opacity="0.18"/>
+        <stop offset="100%" stop-color="#5C3920" stop-opacity="0"/>
       </radialGradient>
     </defs>
 
-    <!-- Saucer (with shadow + rim highlight) -->
-    <ellipse cx="175" cy="225" rx="108" ry="9" fill="#1F1A14" opacity="0.18"/>
-    <ellipse cx="175" cy="220" rx="100" ry="9" fill="#F5E6D2" stroke="#1F1A14" stroke-width="1.8"/>
-    <ellipse cx="175" cy="218" rx="92" ry="6" fill="#FFFEFB" opacity="0.5"/>
+    <!-- Saucer shadow on table -->
+    <ellipse cx="120" cy="220" rx="100" ry="6" fill="#1F1A14" opacity="0.16"/>
+    <!-- Saucer -->
+    <ellipse cx="120" cy="212" rx="96" ry="9" fill="#1F1A14"/>
+    <ellipse cx="120" cy="210" rx="94" ry="8" fill="url(#saucer-grad)"/>
+    <ellipse cx="120" cy="207" rx="86" ry="5" fill="#FFFEFB" opacity="0.45"/>
 
-    <!-- Cup body with subtle taper -->
-    <path d="M104,168 Q97,205 124,217 Q150,224 175,224 Q200,224 226,217 Q253,205 246,168 Z"
-          fill="url(#cup-side-g)" stroke="#1F1A14" stroke-width="2"/>
+    <!-- Cup body — clean tapered shape -->
+    <path d="M52,148 Q47,192 76,206 Q98,212 120,212 Q142,212 164,206 Q193,192 188,148 Z"
+          fill="url(#cup-body)" stroke="#1F1A14" stroke-width="2.2" stroke-linejoin="round"/>
 
-    <!-- Cup handle (refined oval with inner highlight) -->
-    <path d="M246,178 Q272,180 272,196 Q272,212 246,214" fill="none" stroke="#1F1A14" stroke-width="6" stroke-linecap="round"/>
-    <path d="M252,184 Q266,186 266,196 Q266,206 252,208" fill="none" stroke="#FFFFFF" stroke-width="1.2" opacity="0.6"/>
+    <!-- Inner shadow at base of cup for depth -->
+    <path d="M70,200 Q98,208 120,208 Q142,208 170,200" stroke="#1F1A14" stroke-width="1.2" fill="none" opacity="0.18"/>
 
-    <!-- Coffee well: dark inner ellipse + crema gradient -->
-    <ellipse cx="175" cy="168" rx="72" ry="11" fill="#1F1A14"/>
-    <ellipse cx="175" cy="167" rx="68" ry="9" fill="url(#coffee-g)"/>
-    <!-- Crema highlight ring -->
-    <ellipse cx="175" cy="161" rx="62" ry="3" fill="#C9A06A" opacity="0.45"/>
+    <!-- Cup handle: clean ear shape -->
+    <path d="M188,158 Q216,160 216,178 Q216,196 188,198" fill="none" stroke="#1F1A14" stroke-width="5.5" stroke-linecap="round"/>
+    <path d="M192,164 Q210,166 210,178 Q210,190 192,192" fill="none" stroke="#FFFFFF" stroke-width="1.2" opacity="0.55"/>
 
-    <!-- Steam — three soft wisps -->
-    <path d="M150,148 C146,138 152,130 156,126 C160,134 156,142 152,148" stroke="#FFFAF2" stroke-width="2" fill="none" opacity="0.35" stroke-linecap="round"/>
-    <path d="M175,142 C171,130 178,118 182,114 C186,124 180,134 177,142" stroke="#FFFAF2" stroke-width="2" fill="none" opacity="0.42" stroke-linecap="round"/>
-    <path d="M200,148 C204,138 198,128 196,124 C192,134 197,142 198,148" stroke="#FFFAF2" stroke-width="2" fill="none" opacity="0.32" stroke-linecap="round"/>
+    <!-- Coffee surface ellipse: rim dark + crema gradient -->
+    <ellipse cx="120" cy="148" rx="68" ry="10" fill="#1F1A14"/>
+    <ellipse cx="120" cy="147" rx="64" ry="8.5" fill="url(#coffee-deep)"/>
+    <ellipse cx="120" cy="146" rx="64" ry="8.5" fill="url(#crema-shine)"/>
 
-    <!-- Soft ripple where the stream lands -->
-    <ellipse class="ripple" cx="175" cy="167" rx="16" ry="3" fill="none" stroke="#FFFAF2" stroke-width="1.4" opacity="0"/>
+    <!-- Steam — three slow rising wisps, animated -->
+    <g class="steam">
+      <path class="wisp w1" d="M96,128 C92,114 100,104 102,96" stroke="#1F1A14" stroke-width="2" fill="none" opacity="0.35" stroke-linecap="round"/>
+      <path class="wisp w2" d="M120,122 C116,106 124,92 124,82"  stroke="#1F1A14" stroke-width="2" fill="none" opacity="0.4" stroke-linecap="round"/>
+      <path class="wisp w3" d="M144,128 C148,114 140,104 138,96" stroke="#1F1A14" stroke-width="2" fill="none" opacity="0.32" stroke-linecap="round"/>
+    </g>
 
-    <!-- HEART latte art — animates in as the pour completes -->
+    <!-- HEART — crisp, single white silhouette, blooms up out of the coffee -->
     <g class="latte-art" opacity="0">
-      <!-- Heart shape made from two circles + triangle -->
-      <path d="M175,158 C171,154 165,154 163,158 C160,163 167,170 175,176 C183,170 190,163 187,158 C185,154 179,154 175,158 Z"
-            fill="#FFFAF2" opacity="0.96"/>
-      <!-- Inner heart highlight -->
-      <path d="M171,160 C169,158 166,158 165,160" stroke="#F5EDE0" stroke-width="1" fill="none" opacity="0.8"/>
-    </g>
-
-    <!-- Milk stream — narrow at top, wider at landing -->
-    <g class="stream" opacity="0">
-      <path d="M170,60 Q173,110 172,160 L178,160 Q177,110 180,60 Z" fill="url(#milk-g)" stroke="#1F1A14" stroke-width="0.4" opacity="0.95"/>
-      <!-- Stream highlight -->
-      <path d="M173,65 L173,158" stroke="#FFFFFF" stroke-width="1.2" opacity="0.7"/>
-    </g>
-
-    <!-- Refined milk pitcher with curves -->
-    <g class="pitcher">
-      <!-- Handle (cleaner curve) -->
-      <path d="M28,50 Q8,52 8,78 Q8,104 28,108" stroke="#1F1A14" stroke-width="5.5" fill="none" stroke-linecap="round"/>
-      <path d="M30,56 Q14,58 14,78 Q14,98 30,102" stroke="#FFFFFF" stroke-width="1" fill="none" opacity="0.45" stroke-linecap="round"/>
-
-      <!-- Pitcher body (smoother taper, milk-pitcher shape) -->
-      <path d="M28,38 Q26,52 28,108 Q34,120 64,122 Q92,120 96,108 L96,52 Q96,46 100,42 L116,30 Q114,22 100,22 L40,22 Q28,24 28,38 Z"
-            fill="url(#pitcher-g)" stroke="#1F1A14" stroke-width="2"/>
-
-      <!-- Spout (tapered tip) -->
-      <path d="M96,52 L116,30 Q114,22 100,22 L96,40 Z" fill="#E8E5DD" stroke="#1F1A14" stroke-width="1.8"/>
-      <path d="M100,30 L112,28" stroke="#FFFFFF" stroke-width="1" opacity="0.5"/>
-
-      <!-- Milk visible at the rim -->
-      <ellipse cx="62" cy="30" rx="32" ry="4" fill="url(#rim-shine)"/>
-      <ellipse cx="62" cy="29" rx="29" ry="3" fill="#FFFAF2"/>
-
-      <!-- Vertical body shading -->
-      <path d="M40,52 L40,100" stroke="#1F1A14" stroke-width="0.8" opacity="0.15"/>
-      <path d="M86,52 L86,100" stroke="#1F1A14" stroke-width="0.8" opacity="0.18"/>
-
-      <!-- Inner highlight on the front face -->
-      <path d="M48,54 Q46,80 50,104" stroke="#FFFFFF" stroke-width="1.4" fill="none" opacity="0.5" stroke-linecap="round"/>
+      <path d="M120,144
+               C114,136 100,136 100,146
+               C100,156 110,162 120,170
+               C130,162 140,156 140,146
+               C140,136 126,136 120,144 Z"
+            fill="#FFFFFF" stroke="#E8DECB" stroke-width="0.8"/>
+      <!-- subtle inner curl, single arc — keeps it crisp, not cartoony -->
+      <path d="M114,148 C112,146 110,148 110,150" stroke="#E8DECB" stroke-width="1" fill="none" opacity="0.7" stroke-linecap="round"/>
     </g>
   `;
   return svg;
@@ -2281,7 +2248,7 @@ function renderHome_legacy(main) {
   requestAnimationFrame(() => {
     if (!window.L || !document.body.contains(mapEl)) return;
 
-    // Continental US bounds. maxBoundsViscosity:1.0 makes drag snap back.
+    // Continental United States bounds. maxBoundsViscosity:1.0 makes drag snap back.
     const usBounds = [[24.396308, -125.0], [49.384358, -66.93457]];
     const map = L.map(mapEl, {
       zoomControl: true,
@@ -3596,25 +3563,57 @@ function feedRow(f) {
 /* ----- Recipes ----- */
 function renderRecipes(main) {
   main.innerHTML = '';
+  const today = new Date();
+  const issueNum = ((dayOfYear(today) % 99) + 1).toString().padStart(2, '0');
+  const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
+
   const c = el('div', { class: 'container' });
   main.appendChild(c);
 
-  c.appendChild(el('div', { class: 'page-head' },
-    el('div', { class: 'eyebrow' }, 'Recipes'),
-    el('h1', { class: 'h1' }, 'Calibrated to your machine'),
-    el('p', { style: 'max-width:620px' }, 'Recipes for every brew method. Calibrated to the equipment you actually own. The everyday techniques every home brewer should know.')
+  // Newspaper-style masthead bar (matches home)
+  c.appendChild(el('div', {
+    style: 'display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);padding:10px 0;margin:32px 0 28px;font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink)'
+  },
+    el('span', { style: 'font-weight:700' }, 'Vol. III · No. ' + issueNum),
+    el('span', { style: 'opacity:0.7' }, dateStr),
+    el('span', { style: 'font-weight:700' }, 'The Recipe Desk')
+  ));
+
+  // Big editorial headline + dek
+  c.appendChild(el('div', { style: 'margin-bottom:28px' },
+    el('div', { style: 'font-family:var(--font-mono);font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--tomato);font-weight:700;margin-bottom:12px' }, '◆ The Recipe Desk · Section C'),
+    el('h1', {
+      style: 'font-family:var(--font-display);font-weight:800;font-size:clamp(44px, 6.5vw, 84px);line-height:0.94;letter-spacing:-0.025em;margin:0 0 16px;max-width:880px'
+    },
+      'The brews ',
+      el('em', { style: 'font-style:italic;color:var(--tomato)' }, 'every'),
+      ' home barista should know.'
+    ),
+    el('p', {
+      style: 'font-family:var(--font-display);font-size:19px;line-height:1.45;color:var(--ink-soft);max-width:680px;font-style:italic;border-left:3px solid var(--ink);padding-left:16px;margin:0'
+    }, 'Calibrated to the equipment you own. Tested by the Brew Lab desk. From the morning drip to the slow-pour ritual, here is the canon.')
+  ));
+
+  // Section divider with byline-style label
+  c.appendChild(el('div', {
+    style: 'display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--ink);padding-bottom:10px;margin:36px 0 24px;font-family:var(--font-mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase'
+  },
+    el('span', { style: 'font-weight:700;color:var(--ink)' }, '☕ Filed by Method'),
+    el('span', { style: 'opacity:0.6' }, 'Tap any tab to filter')
   ));
 
   // Tabs by method
   const methods = ['All', 'Drip', 'Espresso', 'Cold brew', 'Pour over'];
   let active = 'All';
-  const tabs = el('div', { class: 'tabs' });
+  const tabs = el('div', { class: 'tabs', style: 'margin-bottom:24px' });
   methods.forEach(m => {
     const t = el('button', { class: 'tab' + (m === active ? ' active' : ''), onclick: () => { active = m; paint(); } }, m);
     tabs.appendChild(t);
   });
   c.appendChild(tabs);
-  const grid = el('div', { class: 'grid grid-3', id: 'recipeGrid' });
+
+  // Column-rule grid (newspaper feel)
+  const grid = el('div', { class: 'grid grid-3 newsroom-grid', id: 'recipeGrid' });
   c.appendChild(grid);
 
   function paint() {
@@ -3632,6 +3631,10 @@ function renderRecipes(main) {
 
 function renderRecipeDetail(main, id) {
   main.innerHTML = '';
+  const today = new Date();
+  const issueNum = ((dayOfYear(today) % 99) + 1).toString().padStart(2, '0');
+  const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
+
   const c = el('div', { class: 'container' });
   main.appendChild(c);
   const r = getRecipe(id);
@@ -3642,12 +3645,33 @@ function renderRecipeDetail(main, id) {
   const machine = getMachine();
   const isCalibrated = machine && r.machineCompat.includes(machine.id);
 
-  c.appendChild(el('a', { href: '#/recipes', class: 'btn btn-ghost btn-sm', style: 'margin-bottom:16px;display:inline-flex' }, '← All recipes'));
+  // Newspaper masthead
+  c.appendChild(el('div', {
+    style: 'display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);padding:10px 0;margin:32px 0 24px;font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink)'
+  },
+    el('span', { style: 'font-weight:700' }, 'Vol. III · No. ' + issueNum),
+    el('span', { style: 'opacity:0.7' }, dateStr),
+    el('span', { style: 'font-weight:700' }, 'The Recipe Desk')
+  ));
 
-  c.appendChild(el('div', { class: 'page-head' },
-    el('div', { class: 'eyebrow' }, r.method),
-    el('h1', { class: 'h1' }, r.name),
-    el('p', { style: 'max-width:680px' }, r.desc)
+  c.appendChild(el('a', { href: '#/recipes', class: 'btn btn-ghost btn-sm', style: 'margin-bottom:20px;display:inline-flex' }, '← All recipes'));
+
+  // Editorial headline block
+  c.appendChild(el('div', { style: 'margin-bottom:28px;border-bottom:1px solid var(--ink);padding-bottom:24px' },
+    el('div', { style: 'font-family:var(--font-mono);font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--tomato);font-weight:700;margin-bottom:12px' },
+      '◆ Method · ', r.method
+    ),
+    el('h1', {
+      style: 'font-family:var(--font-display);font-weight:800;font-size:clamp(40px, 5.5vw, 72px);line-height:0.94;letter-spacing:-0.025em;margin:0 0 14px'
+    },
+      (() => {
+        const parts = (r.name || '').split(' ');
+        return [parts.slice(0, -1).join(' '), ' ', el('em', { style: 'font-style:italic;color:var(--tomato)' }, parts.slice(-1)[0])];
+      })()
+    ),
+    el('p', {
+      style: 'font-family:var(--font-display);font-size:19px;line-height:1.45;color:var(--ink-soft);max-width:680px;font-style:italic;margin:0'
+    }, r.desc)
   ));
 
   // Top row: meta + actions
