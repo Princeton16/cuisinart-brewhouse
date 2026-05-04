@@ -939,6 +939,22 @@ const DATA = {
     { id: 'mazagran', name: 'Mazagran', icon: '🍋', desc: 'Iced coffee with lemon. Portuguese summer drink.', temp: 'cold', strength: 'medium', milk: false, sweet: false, time: 'quick', recipeId: null, tags: ['unusual', 'citrus'] }
   ],
 
+  /* ---------------- Cafes (continental US, mapped on Home) ---------------- */
+  /* Dirt Cowboy is the only "active" cafe (story video published). The
+     other nine are gold-ringed "story coming soon" markers. */
+  cafes: [
+    { id: 'dirt-cowboy',     name: 'Dirt Cowboy Cafe',         short: 'Dirt Cowboy',     hood: 'Hanover, New Hampshire',     coords: [43.7022,  -72.2896], drinks: ['Pour-over', 'Espresso', 'Cappuccino'],                  photoUrl: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&q=80', status: 'active' },
+    { id: 'the-works',       name: 'The Works Bakery Cafe',    short: 'The Works',       hood: 'Hanover, New Hampshire',     coords: [43.7018,  -72.2898], drinks: ['Drip', 'Latte', 'Mocha'],                                photoUrl: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=400&q=80', status: 'soon'   },
+    { id: 'umplebys',        name: "Umpleby's Bakery & Cafe",  short: "Umpleby's",       hood: 'Norwich, Vermont',           coords: [43.7155,  -72.3057], drinks: ['Drip', 'Cappuccino', 'Cold brew'],                       photoUrl: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&q=80', status: 'soon'   },
+    { id: 'joe-coffee',      name: 'Joe Coffee Company',       short: 'Joe Coffee',      hood: 'New York, New York',         coords: [40.7335,  -74.0027], drinks: ['Espresso', 'Latte', 'Cold brew'],                        photoUrl: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=400&q=80', status: 'soon'   },
+    { id: 'counter-culture', name: 'Counter Culture Coffee',   short: 'Counter Culture', hood: 'Durham, North Carolina',     coords: [35.9293,  -78.8794], drinks: ['Pour-over', 'Espresso', 'Cappuccino'],                   photoUrl: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&q=80', status: 'soon'   },
+    { id: 'intelligentsia',  name: 'Intelligentsia Coffee',    short: 'Intelligentsia',  hood: 'Chicago, Illinois',          coords: [41.9081,  -87.7079], drinks: ['Black Cat espresso', 'Pour-over', 'Cortado'],            photoUrl: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=400&q=80', status: 'soon'   },
+    { id: 'sweet-bloom',     name: 'Sweet Bloom Coffee',       short: 'Sweet Bloom',     hood: 'Lakewood, Colorado',         coords: [39.7392, -105.0844], drinks: ['Pour-over', 'Espresso', 'Cortado'],                      photoUrl: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&q=80', status: 'soon'   },
+    { id: 'cuvee',           name: 'Cuvée Coffee Bar',         short: 'Cuvée',           hood: 'Austin, Texas',              coords: [30.2625,  -97.7295], drinks: ['Black & White', 'Cold brew', 'Latte'],                   photoUrl: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=400&q=80', status: 'soon'   },
+    { id: 'stumptown',       name: 'Stumptown Coffee',         short: 'Stumptown',       hood: 'Portland, Oregon',           coords: [45.5230, -122.6760], drinks: ['Hair Bender espresso', 'Cold brew', 'Pour-over'],        photoUrl: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=400&q=80', status: 'soon'   },
+    { id: 'blue-bottle',     name: 'Blue Bottle Coffee',       short: 'Blue Bottle',     hood: 'San Francisco, California',  coords: [37.7820, -122.4079], drinks: ['New Orleans iced coffee', 'Gibraltar', 'Pour-over'],     photoUrl: 'https://images.unsplash.com/photo-1507133750040-4a8f57021571?w=400&q=80', status: 'soon'   }
+  ],
+
   /* ---------------- Coffee Wall (community photo feed) ---------------- */
   /* Like a feed of coffee photos. Anyone can post. */
   wallPosts: [

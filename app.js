@@ -1459,12 +1459,8 @@ function renderHome(main) {
     )
   ));
 
-  /* 4. Discover near you — map + cafe row */
-  const shops = [
-    { name: 'Dirt Cowboy Cafe',         short: 'Dirt Cowboy',     hood: 'Hanover, New Hampshire', coords: [43.7022, -72.2896], roaster: 'Counter Culture',   featured: 'Counter Culture Apollo',         status: 'active', tone: 'cream' },
-    { name: 'The Works Bakery Cafe',    short: 'The Works',       hood: 'Hanover, New Hampshire', coords: [43.7018, -72.2898], roaster: 'Green Mountain',    featured: 'Green Mountain Vermont Country', status: 'soon',   tone: 'green' },
-    { name: "Umpleby's Bakery & Cafe",  short: "Umpleby's",       hood: 'Norwich, Vermont', coords: [43.7155, -72.3057], roaster: 'Vermont Coffee Co.', featured: 'Vermont Coffee Mocha Java',     status: 'soon',   tone: 'gold'  }
-  ];
+  /* 4. Discover near you — map + horizontally scrollable cafe row */
+  const cafes = DATA.cafes;
   const mapEl = el('div', { id: 'discover-map', class: 'nearby-map' });
   const legend = el('div', { class: 'nearby-legend' },
     el('div', { class: 'nearby-legend-item' },
@@ -1486,7 +1482,7 @@ function renderHome(main) {
       ),
       el('div', { class: 'nearby-map-wrap' }, mapEl, legend),
       el('div', { class: 'cafe-row' },
-        shops.map(s => el('a', {
+        cafes.map(s => el('a', {
           href: '#/discover',
           class: 'cafe-card',
           onclick: (e) => {
@@ -1495,12 +1491,15 @@ function renderHome(main) {
             else toast('Story playback coming soon');
           }
         },
-          el('div', { class: 'cafe-card-img pick-tone-' + s.tone },
-            el('span', { class: 'cafe-card-glyph' }, '☕')
-          ),
+          el('div', {
+            class: 'cafe-card-img',
+            style: 'background-image:url(\'' + s.photoUrl + '\')',
+            role: 'img',
+            'aria-label': s.name
+          }),
           el('div', { class: 'cafe-card-body' },
             el('h3', { class: 'cafe-card-name' }, s.name),
-            el('p', { class: 'cafe-card-sub' }, s.hood + ' · pours ' + s.roaster),
+            el('p', { class: 'cafe-card-sub' }, s.hood),
             s.status === 'active'
               ? el('p', { class: 'cafe-card-status is-active' }, 'Watch their story →')
               : el('p', { class: 'cafe-card-status is-soon' }, 'Story coming soon')
@@ -1512,12 +1511,21 @@ function renderHome(main) {
 
   requestAnimationFrame(() => {
     if (!window.L || !document.body.contains(mapEl)) return;
-    const map = L.map(mapEl, { zoomControl: true, attributionControl: true })
-      .setView([43.708, -72.297], 13);
+
+    // Continental US bounds. maxBoundsViscosity:1.0 makes drag snap back.
+    const usBounds = [[24.396308, -125.0], [49.384358, -66.93457]];
+    const map = L.map(mapEl, {
+      zoomControl: true,
+      attributionControl: true,
+      maxBounds: usBounds,
+      maxBoundsViscosity: 1.0,
+      minZoom: 4,
+      maxZoom: 16
+    }).setView([39.8283, -98.5795], 4);
+
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap &copy; Carto',
-      subdomains: 'abcd',
-      maxZoom: 19
+      subdomains: 'abcd'
     }).addTo(map);
 
     const activeIcon = L.divIcon({
@@ -1535,19 +1543,23 @@ function renderHome(main) {
       popupAnchor: [0, -14]
     });
 
-    shops.forEach(s => {
+    cafes.forEach(s => {
+      const pills = s.drinks.map(d =>
+        '<span class="discover-popup-pill">' + d + '</span>'
+      ).join('');
       const html =
         '<div class="discover-popup">' +
-          '<div class="discover-popup-name">' + s.name + '</div>' +
-          '<div class="discover-popup-hood">' + s.hood + '</div>' +
-          '<div class="discover-popup-feat">' +
-            '<span class="discover-popup-feat-label">Featured this week</span>' +
-            s.featured +
+          '<div class="discover-popup-photo" style="background-image:url(\'' + s.photoUrl + '\')"></div>' +
+          '<div class="discover-popup-body">' +
+            '<div class="discover-popup-name">' + s.name + '</div>' +
+            '<div class="discover-popup-hood">' + s.hood + '</div>' +
+            '<div class="discover-popup-drinks-label">Signature drinks</div>' +
+            '<div class="discover-popup-drinks">' + pills + '</div>' +
           '</div>' +
         '</div>';
       L.marker(s.coords, { icon: s.status === 'active' ? activeIcon : soonIcon })
         .addTo(map)
-        .bindPopup(html, { closeButton: false, offset: [0, -4] });
+        .bindPopup(html, { closeButton: false, offset: [0, -4], minWidth: 220 });
     });
 
     setTimeout(() => map.invalidateSize(), 0);
