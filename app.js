@@ -18,7 +18,7 @@ const state = {
   completedClasses: [], // [classId]
   lattVotes: {},      // { pourId: true }
   ownedProducts: [],  // [productId]
-  following: ['maya-r', 'diego-p', 'tessa-l'], // [memberId] - seeded with 3 friends so leaderboard is populated
+  following: ['catherine', 'aleks', 'andrew', 'zach', 'dan'], // FYP team seed
   streak: 0,          // current daily streak
   lastCheckIn: null,  // YYYY-MM-DD of last check-in
   todayQuestId: null, // id of today's quest
@@ -623,7 +623,40 @@ const VIBE_ICONS = {
     { tag: 'circle', cx: '16', cy: '16', r: '11', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' },
     { tag: 'path', d: 'M16 9 V16 L21 19', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round' }
   ],
-  slow:   [{ tag: 'path', d: 'M10 5 H22 V9 L16 16 L22 23 V27 H10 V23 L16 16 L10 9 Z', fill: 'currentColor' }]
+  slow:   [{ tag: 'path', d: 'M10 5 H22 V9 L16 16 L22 23 V27 H10 V23 L16 16 L10 9 Z', fill: 'currentColor' }],
+  // New flavor / character wedges
+  nutty:    [
+    { tag: 'ellipse', cx: '16', cy: '16', rx: '8', ry: '10', fill: 'currentColor', transform: 'rotate(-15 16 16)' },
+    { tag: 'path', d: 'M14 8 Q16 12 14 16 Q12 20 14 24', stroke: 'rgba(255,255,255,0.5)', 'stroke-width': '1.5', fill: 'none' }
+  ],
+  fruity:   [
+    { tag: 'circle', cx: '12', cy: '20', r: '6', fill: 'currentColor' },
+    { tag: 'circle', cx: '20', cy: '20', r: '6', fill: 'currentColor', opacity: '0.85' },
+    { tag: 'path', d: 'M16 4 L16 14 M14 6 Q16 10 18 6', stroke: 'currentColor', 'stroke-width': '1.5', fill: 'none', 'stroke-linecap': 'round' }
+  ],
+  chocolate:[
+    { tag: 'rect', x: '5', y: '8', width: '22', height: '16', rx: '2', fill: 'currentColor' },
+    { tag: 'path', d: 'M11 8 V24 M17 8 V24 M23 8 V24 M5 16 H27', stroke: 'rgba(255,255,255,0.35)', 'stroke-width': '1.5', fill: 'none' }
+  ],
+  floral:   [
+    { tag: 'circle', cx: '16', cy: '16', r: '3', fill: 'currentColor' },
+    { tag: 'circle', cx: '16', cy: '8',  r: '4', fill: 'currentColor', opacity: '0.7' },
+    { tag: 'circle', cx: '16', cy: '24', r: '4', fill: 'currentColor', opacity: '0.7' },
+    { tag: 'circle', cx: '8',  cy: '16', r: '4', fill: 'currentColor', opacity: '0.7' },
+    { tag: 'circle', cx: '24', cy: '16', r: '4', fill: 'currentColor', opacity: '0.7' }
+  ],
+  spiced:   [
+    { tag: 'path', d: 'M16 4 Q12 8 14 14 Q10 14 10 20 Q14 22 16 26 Q18 22 22 20 Q22 14 18 14 Q20 8 16 4 Z', fill: 'currentColor' },
+    { tag: 'circle', cx: '16', cy: '16', r: '2', fill: 'rgba(255,255,255,0.4)' }
+  ],
+  earthy:   [
+    { tag: 'path', d: 'M4 24 Q10 14 16 22 Q22 12 28 24 Z', fill: 'currentColor' },
+    { tag: 'path', d: 'M4 24 H28', stroke: 'currentColor', 'stroke-width': '1.5', fill: 'none' }
+  ],
+  citrus:   [
+    { tag: 'circle', cx: '16', cy: '16', r: '11', fill: 'currentColor' },
+    { tag: 'path', d: 'M16 6 V26 M6 16 H26 M9 9 L23 23 M9 23 L23 9', stroke: 'rgba(255,255,255,0.4)', 'stroke-width': '1.5', fill: 'none' }
+  ]
 };
 
 const BARISTA_CLIPART_URL = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="%23FAEDD7"/><path d="M22 28h18a4 4 0 0 1 4 4v6a8 8 0 0 1-8 8h-10a8 8 0 0 1-8-8v-6a4 4 0 0 1 4-4z" fill="%232A1A14"/><path d="M40 30h2a4 4 0 0 1 4 4v2a4 4 0 0 1-4 4h-2" fill="none" stroke="%232A1A14" stroke-width="2" stroke-linecap="round"/><path d="M26 22c0-2 1-4 3-4s3 2 3 4-1 4-3 4-3-2-3-4z" fill="%23C5962B" opacity="0.7"/><path d="M32 20c0-2 1-4 3-4s3 2 3 4-1 4-3 4-3-2-3-4z" fill="%23C5962B" opacity="0.7"/></svg>';
@@ -632,16 +665,28 @@ const BARISTA_CLIPART_URL = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.o
 // milk, time. Order is clockwise from 12 o'clock so opposites sit
 // roughly across from each other on the wheel.
 const BARISTA_VIBES = [
-  { id: 'hot',    label: 'Hot',    bg: '#FAECE7', sel: '#F0997B', text: '#4A1B0C', iconKey: 'hot' },
-  { id: 'sweet',  label: 'Sweet',  bg: '#FBEAF0', sel: '#ED93B1', text: '#4B1528', iconKey: 'sweet' },
-  { id: 'bold',   label: 'Bold',   bg: '#EAF3DE', sel: '#97C459', text: '#173404', iconKey: 'bold' },
-  { id: 'creamy', label: 'Creamy', bg: '#FAEEDA', sel: '#FAC775', text: '#412402', iconKey: 'creamy' },
-  { id: 'quick',  label: 'Quick',  bg: '#EEEDFE', sel: '#AFA9EC', text: '#26215C', iconKey: 'quick' },
-  { id: 'iced',   label: 'Iced',   bg: '#E6F1FB', sel: '#85B7EB', text: '#042C53', iconKey: 'iced' },
-  { id: 'bitter', label: 'Bitter', bg: '#ECE5DC', sel: '#8A6D4C', text: '#2D1F0E', iconKey: 'bitter' },
-  { id: 'mellow', label: 'Mellow', bg: '#EBEFE3', sel: '#A4B881', text: '#2F3A1E', iconKey: 'mellow' },
-  { id: 'black',  label: 'Black',  bg: '#ECEDEE', sel: '#5C5651', text: '#1A1614', iconKey: 'black'  },
-  { id: 'slow',   label: 'Slow',   bg: '#F1E9F2', sel: '#B68FBE', text: '#3D2A4A', iconKey: 'slow'   }
+  // Temperature
+  { id: 'hot',       label: 'Hot',       bg: '#FAECE7', sel: '#F0997B', text: '#4A1B0C', iconKey: 'hot' },
+  { id: 'iced',      label: 'Iced',      bg: '#E6F1FB', sel: '#85B7EB', text: '#042C53', iconKey: 'iced' },
+  // Strength
+  { id: 'bold',      label: 'Bold',      bg: '#EAF3DE', sel: '#97C459', text: '#173404', iconKey: 'bold' },
+  { id: 'mellow',    label: 'Mellow',    bg: '#EBEFE3', sel: '#A4B881', text: '#2F3A1E', iconKey: 'mellow' },
+  // Sweetness / character
+  { id: 'sweet',     label: 'Sweet',     bg: '#FBEAF0', sel: '#ED93B1', text: '#4B1528', iconKey: 'sweet' },
+  { id: 'bitter',    label: 'Bitter',    bg: '#ECE5DC', sel: '#8A6D4C', text: '#2D1F0E', iconKey: 'bitter' },
+  // Milk
+  { id: 'creamy',    label: 'Creamy',    bg: '#FAEEDA', sel: '#FAC775', text: '#412402', iconKey: 'creamy' },
+  { id: 'black',     label: 'Black',     bg: '#ECEDEE', sel: '#5C5651', text: '#1A1614', iconKey: 'black'  },
+  // Time
+  { id: 'quick',     label: 'Quick',     bg: '#EEEDFE', sel: '#AFA9EC', text: '#26215C', iconKey: 'quick' },
+  { id: 'slow',      label: 'Slow',      bg: '#F1E9F2', sel: '#B68FBE', text: '#3D2A4A', iconKey: 'slow'   },
+  // Flavor profile (NEW)
+  { id: 'nutty',     label: 'Nutty',     bg: '#F4EAD8', sel: '#C9A678', text: '#4A3520', iconKey: 'nutty' },
+  { id: 'fruity',    label: 'Fruity',    bg: '#FDE8E2', sel: '#E89478', text: '#5C2517', iconKey: 'fruity' },
+  { id: 'chocolate', label: 'Chocolate', bg: '#EFE0D2', sel: '#7A4828', text: '#2A1610', iconKey: 'chocolate' },
+  { id: 'floral',    label: 'Floral',    bg: '#F4E5F0', sel: '#C895C2', text: '#4A2A48', iconKey: 'floral' },
+  { id: 'spiced',    label: 'Spiced',    bg: '#FAE7D7', sel: '#D08A4F', text: '#4A2511', iconKey: 'spiced' },
+  { id: 'citrus',    label: 'Citrus',    bg: '#FDF4D2', sel: '#E5C24A', text: '#5C470A', iconKey: 'citrus' }
 ];
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -1439,7 +1484,7 @@ function renderHome(main) {
 
   /* 1. Today's brew hero */
   const heroWheel = buildVibeWheelSvg({
-    size: 280,
+    size: 380,
     onWedgeClick: () => openBaristaWheel(),
     isWedgeSelected: () => false
   });
@@ -1525,30 +1570,41 @@ function renderHome(main) {
     )
   ));
 
-  /* 3b. Compete & win — two contest cards */
-  const contests = [
-    {
-      title: 'Pour-over showdown',
-      body: 'Brew the perfect V60 and share it. Top three win a Cuisinart espresso machine.',
-      daysLeft: '8 days left',
-      cta: 'Enter now →',
-      tone: 'cream'
-    },
-    {
-      title: 'Counter Culture giveaway',
-      body: 'One winner takes a 12-month subscription to Counter Culture beans.',
-      daysLeft: '14 days left',
-      cta: 'Enter →',
-      tone: 'gold'
-    }
-  ];
+  /* 3b. Compete & win — pulled from real DATA.challenges + DATA.giveaways */
+  const homeChallenge = (DATA.challenges || []).find(c => c.featured) || (DATA.challenges || [])[0];
+  const homeGiveaway  = (DATA.giveaways || [])[0];
+  const contests = [];
+  if (homeChallenge) contests.push({
+    kind: 'challenge', id: homeChallenge.id, title: homeChallenge.icon + ' ' + homeChallenge.name,
+    body: homeChallenge.desc, daysLeft: homeChallenge.duration + ' · ' + homeChallenge.participants.toLocaleString() + ' brewing along',
+    cta: 'Join challenge →', tone: 'cream'
+  });
+  if (homeGiveaway) contests.push({
+    kind: 'giveaway', id: homeGiveaway.id, title: homeGiveaway.icon + ' ' + homeGiveaway.name,
+    body: homeGiveaway.desc, daysLeft: homeGiveaway.status, cta: 'Enter →', tone: 'gold'
+  });
   page.appendChild(el('section', { class: 'discover-section' },
     el('div', { class: 'container' },
       el('div', { class: 'compete-band' },
         el('p', { class: 'compete-eyebrow' }, 'Compete & win'),
         el('h2', { class: 'compete-headline' }, 'Win things. Brew better.'),
         el('div', { class: 'compete-row' },
-          contests.map(co => el('a', { href: '#/community', class: 'compete-card' },
+          contests.map(co => el('a', {
+            href: '#/community#' + co.kind + '-' + co.id,
+            class: 'compete-card',
+            onclick: (e) => {
+              // After navigation, scroll to and highlight the matching item
+              setTimeout(() => {
+                const target = document.getElementById(co.kind + '-' + co.id);
+                if (target) {
+                  target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  target.style.transition = 'box-shadow 0.4s';
+                  target.style.boxShadow = '0 0 0 3px var(--caramel)';
+                  setTimeout(() => { target.style.boxShadow = ''; }, 1800);
+                }
+              }, 250);
+            }
+          },
             el('div', { class: 'compete-card-img pick-tone-' + co.tone }),
             el('div', { class: 'compete-card-body' },
               el('h3', { class: 'compete-card-title' }, co.title),
@@ -3583,14 +3639,14 @@ function sendBaristaMsg(text) {
 function communityFeedList() {
   const wrap = el('div', { class: 'card', style: 'padding:8px 0;overflow:hidden' });
   const FEED = [
-    { who: 'Tessa L.', handle: '@tessa.pours', avatarBg: 'linear-gradient(135deg, #C8762D 0%, #2A1A14 100%)', verb: 'liked', target: 'Cinnamon Honey Latte', kind: 'recipe', icon: '❤️', when: '4m ago', linkTo: 'recipe/sat-morning-latte' },
-    { who: 'Diego P.', handle: '@diego.pulls', avatarBg: 'linear-gradient(135deg, #2D4A3A 0%, #1d3327 100%)', verb: 'recommended', target: 'Stumptown Hair Bender', kind: 'bean', icon: '💬', when: '12m ago', detail: 'Best espresso for milk drinks I have tried this year.', linkTo: 'devices' },
-    { who: 'Maya R.',  handle: '@maya.brews',  avatarBg: 'linear-gradient(135deg, #C8762D 0%, #A85F1F 100%)', verb: 'shared a brew',  target: 'Ethiopian Yirgacheffe V60', kind: 'recipe', icon: '☕', when: '36m ago', detail: 'Bloom for 45 sec. The lemon notes finally come out.', linkTo: 'recipe/pour-over-light' },
-    { who: 'Priya S.', handle: '@priya.passport', avatarBg: 'linear-gradient(135deg, #C5962B 0%, #806017 100%)', verb: 'collected', target: 'Yemen passport stamp', kind: 'passport', icon: '🌍', when: '1h ago' },
-    { who: 'Marcus B.', handle: '@marcus.learns', avatarBg: 'linear-gradient(135deg, #2D4A3A 0%, #C5962B 100%)', verb: 'completed', target: 'Espresso Fundamentals', kind: 'class', icon: '📚', when: '2h ago', linkTo: 'class/espresso-fundamentals' },
-    { who: 'Naomi K.', handle: '@naomi.purist', avatarBg: 'linear-gradient(135deg, #1F1410 0%, #4A3A30 100%)', verb: 'liked', target: 'Vanilla Maple Cold Brew', kind: 'recipe', icon: '❤️', when: '3h ago', linkTo: 'recipe/cold-brew-classic' },
-    { who: 'Sam K.',   handle: '@sam.steams',  avatarBg: 'linear-gradient(135deg, #4A3A30 0%, #2A1A14 100%)', verb: 'recommended', target: 'Heart Stereo blend', kind: 'bean', icon: '💬', when: '5h ago', detail: 'Bright and floral. Skip if you only like dark roasts.', linkTo: 'devices' },
-    { who: 'Jordan W.', handle: '@jordan.cafe', avatarBg: 'linear-gradient(135deg, #6B5D54 0%, #3D2418 100%)', verb: 'shared a brew', target: 'Iced Brown Sugar Oat Latte', kind: 'recipe', icon: '☕', when: '7h ago', detail: 'Use cinnamon, not vanilla. Trust me.', linkTo: 'recipe/iced-vanilla-latte' }
+    { who: 'Catherine', handle: '@catherine.brews', avatarBg: 'linear-gradient(135deg, #C8762D 0%, #A85F1F 100%)', verb: 'shared a brew', target: 'Ethiopian Yirgacheffe V60', kind: 'recipe', icon: '☕', when: '6m ago', detail: 'Bloom for 45 sec. The lemon notes finally come out.', linkTo: 'recipe/pour-over-light' },
+    { who: 'Aleks',     handle: '@aleks.pulls',     avatarBg: 'linear-gradient(135deg, #2D4A3A 0%, #1d3327 100%)', verb: 'recommended', target: 'Klatch Belle Espresso', kind: 'bean', icon: '💬', when: '24m ago', detail: 'Mid-dark, low acid. Pulls a syrupy shot every time.', linkTo: 'devices' },
+    { who: 'Andrew',    handle: '@andrew.brewer',   avatarBg: 'linear-gradient(135deg, #5476A6 0%, #2c4869 100%)', verb: 'liked', target: 'Cinnamon Honey Latte', kind: 'recipe', icon: '❤️', when: '1h ago', linkTo: 'recipe/sat-morning-latte' },
+    { who: 'Zach',      handle: '@zach.cup',        avatarBg: 'linear-gradient(135deg, #6B5D54 0%, #3D2418 100%)', verb: 'completed', target: 'Espresso Fundamentals', kind: 'class', icon: '📚', when: '2h ago', linkTo: 'class/espresso-fundamentals' },
+    { who: 'Dan',       handle: '@dan.dripper',     avatarBg: 'linear-gradient(135deg, #C5962B 0%, #806017 100%)', verb: 'recommended', target: 'Daterra Bourbon Santos', kind: 'bean', icon: '💬', when: '4h ago', detail: 'Best cold brew base I have used. Sweet, low acid, no bitter finish.', linkTo: 'devices' },
+    { who: 'Catherine', handle: '@catherine.brews', avatarBg: 'linear-gradient(135deg, #C8762D 0%, #A85F1F 100%)', verb: 'collected', target: 'Yemen passport stamp', kind: 'passport', icon: '🌍', when: '5h ago' },
+    { who: 'Aleks',     handle: '@aleks.pulls',     avatarBg: 'linear-gradient(135deg, #2D4A3A 0%, #1d3327 100%)', verb: 'liked', target: 'Vanilla Maple Cold Brew', kind: 'recipe', icon: '❤️', when: '7h ago', linkTo: 'recipe/cold-brew-classic' },
+    { who: 'Andrew',    handle: '@andrew.brewer',   avatarBg: 'linear-gradient(135deg, #5476A6 0%, #2c4869 100%)', verb: 'shared a brew', target: 'Iced Brown Sugar Oat Latte', kind: 'recipe', icon: '☕', when: '9h ago', detail: 'Use cinnamon, not vanilla. Trust me.', linkTo: 'recipe/iced-vanilla-latte' }
   ];
   FEED.forEach(item => {
     wrap.appendChild(el('div', {
@@ -3636,7 +3692,7 @@ function renderCommunity(main) {
   c.appendChild(el('div', { style: 'height:8px' }));
   const giveawayGrid = el('div', { class: 'grid grid-3', style: 'margin-bottom:48px' });
   (DATA.giveaways || []).forEach(g => {
-    giveawayGrid.appendChild(el('div', { class: 'card', style: 'padding:0;overflow:hidden;cursor:pointer', onclick: () => toast('Entered into ' + g.name + ' (demo)') },
+    giveawayGrid.appendChild(el('div', { id: 'giveaway-' + g.id, class: 'card', style: 'padding:0;overflow:hidden;cursor:pointer;border-radius:14px', onclick: () => toast('Entered into ' + g.name + ' (demo)') },
       el('div', { style: 'aspect-ratio:5/3;background:' + g.bg + ';color:white;display:flex;align-items:center;justify-content:center;font-size:3.5rem' }, g.icon),
       el('div', { style: 'padding:18px 20px' },
         el('div', { class: 'eyebrow', style: 'margin-bottom:6px' }, g.kind),
@@ -3654,7 +3710,7 @@ function renderCommunity(main) {
   const challengeGrid = el('div', { class: 'grid grid-2' });
   DATA.challenges.forEach(ch => {
     const joined = state.joinedChallenges.includes(ch.id);
-    challengeGrid.appendChild(el('div', { class: 'card' + (ch.featured ? ' card-accent' : '') },
+    challengeGrid.appendChild(el('div', { id: 'challenge-' + ch.id, class: 'card' + (ch.featured ? ' card-accent' : '') },
       el('div', { style: 'display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px' },
         el('div', { style: 'font-size:2rem' }, ch.icon),
         ch.featured ? el('span', { class: 'pill pill-accent' }, 'Featured') : null
@@ -3712,13 +3768,12 @@ function renderCommunity(main) {
   const lbCard = el('div', { class: 'card' });
   lbCard.appendChild(el('div', { class: 'section-title' }, el('h3', { class: 'h3' }, 'Weekly leaderboard'), null));
   const lbList = [
-    ['1', 'Maya R.', 4830],
-    ['2', 'Diego P.', 4210],
-    ['3', 'Priya S.', 3905],
-    ['4', state.user?.name || 'You', state.points + 3000],
-    ['5', 'Alex T.', 3120],
-    ['6', 'Sam K.', 2890],
-    ['7', 'Jordan W.', 2540]
+    ['1', 'Catherine', 4180],
+    ['2', 'Aleks',     3640],
+    ['3', 'Andrew',    3290],
+    ['4', state.user?.name || 'You', state.points + 1500],
+    ['5', 'Zach',      2480],
+    ['6', 'Dan',       2120]
   ];
   lbList.forEach(([rank, name, score]) => {
     const isYou = name === state.user?.name || name === 'You';

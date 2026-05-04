@@ -1610,7 +1610,7 @@ input, select, textarea { font: inherit; color: inherit; }
 /* 1. Today's brew hero — warm amber/brown palette */
 .today-hero {
   display: grid;
-  grid-template-columns: 1.4fr 1px 1fr;
+  grid-template-columns: 1fr 1px 1.2fr;
   gap: 48px;
   align-items: center;
   background: #FAEEDA;
