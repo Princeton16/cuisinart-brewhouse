@@ -1554,6 +1554,286 @@ function dayOfYear(d) {
 }
 
 function renderHome(main) {
+  return renderMagazineHome(main);
+}
+
+// Magazine-style home (matches design system marketing_site UI kit)
+function renderMagazineHome(main) {
+  main.innerHTML = '';
+  const page = el('div', {});
+  main.appendChild(page);
+
+  const today = new Date();
+  const monthName = today.toLocaleDateString('en-US', { month: 'long' });
+  const weekdayShort = today.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+  const drink = DAILY_DRINKS[dayOfYear(today) % DAILY_DRINKS.length];
+  const giveaway = (DATA.giveaways || [])[0];
+  const featuredChallenge = (DATA.challenges || []).find(ch => ch.featured) || (DATA.challenges || [])[0];
+  const issueNum = 14;
+
+  /* === COVER === */
+  const cover = el('section', { style: 'padding:48px 0 80px;position:relative' },
+    el('div', { class: 'container' },
+      // Meta bar
+      el('div', { class: 'cover-meta' },
+        el('div', { class: 'left' },
+          el('span', { class: 'vol' }, 'Vol. III'),
+          el('span', { class: 'date' }, 'Issue ' + issueNum + ' · ' + monthName + ' ' + today.getFullYear())
+        ),
+        el('div', { class: 'chip-bar' },
+          el('span', { class: 'chip tomato' }, '★ Cover'),
+          el('span', { class: 'chip' }, 'Brewed today'),
+          el('span', { class: 'chip teal' }, 'Iced season'),
+          el('span', { class: 'chip leaf' }, '142 cafés')
+        )
+      ),
+      // Grid: text + cover photo
+      el('div', { class: 'cover-grid' },
+        el('div', {},
+          el('span', { class: 'eyebrow' },
+            el('span', { class: 'num', style: 'font-family:var(--font-mono);color:var(--ink-faint);font-weight:500;margin-right:10px' }, '/ 01'),
+            'The cover'
+          ),
+          el('h1', { style: 'margin-top:14px' },
+            "Let's talk ",
+            el('em', {}, 'pour-over.'),
+            el('br', {}),
+            'Sounds intimidating.',
+            el('br', {}),
+            el('span', { class: 'tomato-block' }, "It isn't.")
+          ),
+          el('p', { class: 'lede' },
+            'A coffee magazine, a brew lab, an atlas of beans worth chasing, and a barista who lives ',
+            el('em', {}, 'in your browser'),
+            ". Tell us how you feel — we'll pour something."
+          ),
+          el('div', { class: 'cover-ctas' },
+            el('button', {
+              class: 'btn btn-sticker',
+              onclick: () => openBaristaWheel()
+            }, '☕ Ask the barista →'),
+            el('button', {
+              class: 'btn btn-secondary',
+              onclick: () => navigate('recipes')
+            }, 'Browse recipes')
+          ),
+          el('div', { class: 'cat-row' },
+            el('a', { class: 'cat-chip tomato',   href: '#/recipes' }, '● Hot'),
+            el('a', { class: 'cat-chip teal',     href: '#/recipes' }, '❄ Iced'),
+            el('a', { class: 'cat-chip cream',    href: '#/recipes' }, '▼ Espresso'),
+            el('a', { class: 'cat-chip cream',    href: '#/recipes' }, '○ Pour-over'),
+            el('a', { class: 'cat-chip leaf',     href: '#/recipes' }, '▲ Origins'),
+            el('a', { class: 'cat-chip marigold', href: '#/learn' },   '★ Learn'),
+            el('a', { class: 'cat-chip plum',     href: '#/community' }, '◆ Community')
+          )
+        ),
+        // Cover photo
+        el('div', { class: 'cover-photo' },
+          el('div', { class: 'cover-ribbon' },
+            el('small', {}, 'COVER'),
+            'This week:',
+            el('br', {}),
+            'Latte Foam, Decoded'
+          ),
+          coverPhotoSvg(),
+          el('div', { class: 'stamp' }, 'PHOTO BY R. NAGAMINE · ' + monthName.toUpperCase() + ' ' + today.getFullYear())
+        )
+      )
+    )
+  );
+  page.appendChild(cover);
+
+  /* === FEATURE TILE STRIP === */
+  const featStrip = el('section', { class: 'feat-strip' },
+    el('div', { class: 'container' },
+      el('div', { class: 'feat-grid' },
+        // 1. BARISTA TILE (tall, tomato red)
+        el('a', {
+          class: 'tile barista',
+          onclick: () => openBaristaWheel()
+        },
+          el('div', { class: 'tag' },
+            el('span', {}, '● The Virtual Barista'),
+            el('span', { class: 'num' }, '/ NEW')
+          ),
+          el('h3', {},
+            'Tell me how you ',
+            el('em', {}, 'feel.'),
+            " I'll pour you something."
+          ),
+          el('p', {}, 'Hot or cold. Strong or weak. Fancy or lazy. A few quick taps and a drink lands in your morning.'),
+          el('div', { class: 'barista-tile-toggles' },
+            el('div', { class: 'b-tog' }, el('span', { class: 'on' }, 'Hot'),  el('span', {}, 'Iced')),
+            el('div', { class: 'b-tog' }, el('span', {}, 'Mild'), el('span', { class: 'on' }, 'Strong')),
+            el('div', { class: 'b-tog' }, el('span', { class: 'on' }, 'Milky'), el('span', {}, 'Black')),
+            el('div', { class: 'b-tog' }, el('span', {}, 'Sweet'), el('span', { class: 'on' }, 'Not'))
+          ),
+          el('span', { class: 'arrow-cta' }, 'Open the barista ', el('span', { class: 'ar' }, '→'))
+        ),
+        // 2. DRINK OF THE DAY (marigold)
+        el('a', {
+          class: 'tile dotd',
+          onclick: () => navigate(drink.recipeId ? 'recipe/' + drink.recipeId : 'recipes')
+        },
+          el('div', { class: 'tag' },
+            el('span', {}, '★ Drink of the day'),
+            el('span', { class: 'num' }, '/ ' + weekdayShort)
+          ),
+          el('h3', {}, drink.name.split(' ').slice(0, -1).join(' '), ' ',
+            el('em', {}, drink.name.split(' ').slice(-1)[0] + '.')
+          ),
+          el('p', {}, drink.desc.split('.').slice(0, 1).join('.') + '.'),
+          el('div', { class: 'dotd-art' },
+            el('div', { class: 'dotd-cup' })
+          ),
+          el('div', { class: 'dotd-meta' },
+            el('span', {}, el('strong', {}, '5 min')),
+            el('span', {}, el('strong', {}, '★★★★★'), ' 4.8'),
+            el('span', {}, '2 ingredients')
+          ),
+          el('span', { class: 'arrow-cta' }, 'See the recipe ', el('span', { class: 'ar' }, '→'))
+        ),
+        // 3. ATLAS (rainforest green)
+        el('a', {
+          class: 'tile atlas',
+          onclick: () => navigate('community')
+        },
+          el('div', { class: 'tag' },
+            el('span', {}, '● The Atlas'),
+            el('span', { class: 'num' }, '/ 03')
+          ),
+          el('h3', {},
+            'Beans, ',
+            el('em', {}, 'mapped.')
+          ),
+          el('p', {}, '142 partner cafés. 38 origins. From Yirgacheffe to Brooklyn.'),
+          atlasArtSvg(),
+          el('div', { style: 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;padding-top:10px;border-top:1px solid rgba(255,245,235,0.3);margin-bottom:14px' },
+            atlasStat('142', 'Cafés'),
+            atlasStat('38', 'Origins'),
+            atlasStat('17', 'Countries')
+          ),
+          el('span', { class: 'arrow-cta' }, 'Open the atlas ', el('span', { class: 'ar' }, '→'))
+        ),
+        // 4. GIVEAWAY (wide, ink black)
+        giveaway ? el('a', {
+          class: 'tile give',
+          onclick: () => {
+            navigate('community');
+            setTimeout(() => {
+              const target = document.getElementById('giveaway-' + giveaway.id);
+              if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 250);
+          }
+        },
+          el('div', { class: 'tag' },
+            el('span', { style: 'color:var(--marigold)' }, '★ Giveaways · live now'),
+            el('span', { class: 'num' }, '/ ' + giveaway.status.toUpperCase())
+          ),
+          el('div', { class: 'give-grid' },
+            el('div', { class: 'give-sticker' }, 'WIN', el('br', {}), el('em', {}, 'ME')),
+            el('div', { class: 'give-info' },
+              el('h3', {},
+                'The ',
+                el('em', {}, giveaway.name),
+                ' is live.'
+              ),
+              el('p', { class: 'meta' },
+                el('span', {}, el('strong', {}, 'One winner'), ' · ' + giveaway.desc.split('.')[0]),
+                el('span', {}, el('strong', {}, '4,128'), ' entered')
+              )
+            ),
+            el('div', { class: 'countdown' },
+              el('div', { class: 'cd' }, el('div', { class: 'n' }, '14'), el('div', { class: 'u' }, 'DAYS')),
+              el('div', { class: 'cd' }, el('div', { class: 'n' }, '06'), el('div', { class: 'u' }, 'HRS')),
+              el('div', { class: 'cd' }, el('div', { class: 'n' }, '42'), el('div', { class: 'u' }, 'MIN'))
+            )
+          ),
+          el('span', { class: 'arrow-cta', style: 'color:var(--marigold)' }, 'Enter to win ', el('span', { class: 'ar' }, '→'))
+        ) : null
+      )
+    )
+  );
+  page.appendChild(featStrip);
+  return; // skip the legacy sections below
+}
+
+// Cover photo SVG — coffee cup illustration matching the design system kit
+function coverPhotoSvg() {
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 400 500');
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+  svg.innerHTML = `
+    <defs>
+      <radialGradient id="cup-g" cx="50%" cy="40%" r="50%">
+        <stop offset="0%" stop-color="#A07E59"/>
+        <stop offset="100%" stop-color="#1F0E05"/>
+      </radialGradient>
+      <linearGradient id="bg-g" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stop-color="#3D2818"/>
+        <stop offset="100%" stop-color="#0F0703"/>
+      </linearGradient>
+      <linearGradient id="steam-g" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stop-color="#FFF5EB" stop-opacity=".5"/>
+        <stop offset="100%" stop-color="#FFF5EB" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <rect width="400" height="500" fill="url(#bg-g)"/>
+    <circle cx="80" cy="80" r="120" fill="#E84F1A" opacity=".15"/>
+    <circle cx="350" cy="380" r="100" fill="#F5C518" opacity=".18"/>
+    <path d="M170,80 Q150,40 180,20 Q210,40 195,90" stroke="url(#steam-g)" stroke-width="3" fill="none" opacity=".55"/>
+    <path d="M210,90 Q230,40 200,10 Q175,50 215,100" stroke="url(#steam-g)" stroke-width="3" fill="none" opacity=".5"/>
+    <path d="M240,80 Q260,50 240,30 Q220,55 235,90" stroke="url(#steam-g)" stroke-width="3" fill="none" opacity=".4"/>
+    <ellipse cx="200" cy="180" rx="135" ry="22" fill="#1F0E05"/>
+    <ellipse cx="200" cy="178" rx="125" ry="14" fill="url(#cup-g)"/>
+    <path d="M75,180 Q60,360 100,440 L300,440 Q340,360 325,180" fill="#FFF5EB" stroke="#1F1A14" stroke-width="2"/>
+    <ellipse cx="200" cy="178" rx="125" ry="14" fill="url(#cup-g)" opacity=".95"/>
+    <path d="M200,160 Q175,170 165,180 Q175,190 200,185 Q225,190 235,180 Q225,170 200,160 Z" fill="#FFF5EB" opacity=".92"/>
+    <ellipse cx="200" cy="178" rx="35" ry="6" fill="#FFF5EB" opacity=".85"/>
+    <ellipse cx="320" cy="280" rx="28" ry="50" fill="none" stroke="#FFF5EB" stroke-width="14"/>
+    <ellipse cx="200" cy="450" rx="170" ry="20" fill="#1F1A14" opacity=".4"/>
+    <ellipse cx="200" cy="445" rx="160" ry="14" fill="#FBE9D0" stroke="#1F1A14" stroke-width="2"/>
+  `;
+  return svg;
+}
+
+// Atlas tile abstract map SVG
+function atlasArtSvg() {
+  const NS = 'http://www.w3.org/2000/svg';
+  const wrap = el('div', { style: 'flex:1;position:relative;margin:10px 0;display:flex;align-items:center;justify-content:center' });
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 280 140');
+  svg.setAttribute('style', 'width:100%;height:auto;max-height:160px');
+  svg.innerHTML = `
+    <defs>
+      <pattern id="leaf-p" width="40" height="40" patternUnits="userSpaceOnUse">
+        <path d="M20,8 Q10,18 12,28 Q22,30 28,22 Q30,12 20,8" fill="#5A7A3D" opacity=".3"/>
+      </pattern>
+    </defs>
+    <rect width="280" height="140" fill="url(#leaf-p)" opacity=".5"/>
+    <path d="M20,40 Q60,30 80,60 Q100,90 70,110 Q40,100 20,80 Z" fill="#1F4D2E" opacity=".7" stroke="#FFF5EB" stroke-width="1"/>
+    <path d="M120,30 Q160,40 180,70 Q170,100 130,110 Q100,90 120,30 Z" fill="#2A6B3D" opacity=".7" stroke="#FFF5EB" stroke-width="1"/>
+    <path d="M210,50 Q250,60 260,90 Q230,120 210,100 Z" fill="#1F4D2E" opacity=".7" stroke="#FFF5EB" stroke-width="1"/>
+    <g><circle cx="50" cy="65" r="6" fill="#E84F1A" stroke="#1F1A14" stroke-width="1.5"/><circle cx="50" cy="65" r="2" fill="#FFF5EB"/></g>
+    <g><circle cx="140" cy="80" r="6" fill="#F5C518" stroke="#1F1A14" stroke-width="1.5"/><circle cx="140" cy="80" r="2" fill="#1F1A14"/></g>
+    <g><circle cx="225" cy="78" r="6" fill="#E84F1A" stroke="#1F1A14" stroke-width="1.5"/><circle cx="225" cy="78" r="2" fill="#FFF5EB"/></g>
+    <g><circle cx="80" cy="92" r="6" fill="#E84F1A" stroke="#1F1A14" stroke-width="1.5"/><circle cx="80" cy="92" r="2" fill="#FFF5EB"/></g>
+    <g><circle cx="165" cy="55" r="6" fill="#F5C518" stroke="#1F1A14" stroke-width="1.5"/><circle cx="165" cy="55" r="2" fill="#1F1A14"/></g>
+  `;
+  wrap.appendChild(svg);
+  return wrap;
+}
+
+function atlasStat(value, label) {
+  return el('div', {},
+    el('div', { style: 'font-family:var(--font-display);font-weight:800;font-size:22px;line-height:1;color:var(--marigold)' }, value),
+    el('div', { style: 'font-family:var(--font-body);font-weight:700;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;opacity:0.7;margin-top:4px' }, label)
+  );
+}
+
+// Legacy renderHome below — replaced by renderMagazineHome above. Kept for reference only.
+function renderHome_legacy(main) {
   main.innerHTML = '';
   const page = el('div', { class: 'discover-page' });
   main.appendChild(page);

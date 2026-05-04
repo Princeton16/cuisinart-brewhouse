@@ -52,6 +52,370 @@
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+/* ============================================================
+   HOME — magazine cover layout (matches marketing_site UI kit)
+   ============================================================ */
+
+/* Cover meta bar */
+.cover-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  padding-bottom: 18px;
+  border-bottom: 2px solid var(--ink);
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.cover-meta .left { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.cover-meta .vol {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--tomato);
+}
+.cover-meta .date {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.cover-meta .chip-bar { display: flex; gap: 6px; flex-wrap: wrap; }
+.cover-meta .chip {
+  background: var(--ink);
+  color: var(--cream);
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.cover-meta .chip.tomato { background: var(--tomato); }
+.cover-meta .chip.teal   { background: var(--teal); }
+.cover-meta .chip.leaf   { background: var(--leaf); }
+
+/* Cover grid (left text, right photo) */
+.cover-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+.cover-grid h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(56px, 8vw, 124px);
+  line-height: 0.93;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  margin-bottom: 24px;
+}
+.cover-grid h1 em { font-style: italic; color: var(--tomato); font-weight: 700; }
+.cover-grid h1 .tomato-block {
+  background: var(--tomato);
+  color: var(--cream);
+  padding: 0 14px;
+  display: inline-block;
+  transform: rotate(-1deg);
+}
+.cover-grid h1 .teal-block {
+  background: var(--teal);
+  color: var(--cream);
+  padding: 0 14px;
+  display: inline-block;
+  transform: rotate(1deg);
+}
+.cover-grid .lede {
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1.45;
+  color: var(--ink-soft);
+  max-width: 560px;
+  margin-bottom: 28px;
+}
+.cover-grid .lede em { font-style: italic; color: var(--tomato); font-weight: 600; }
+.cover-ctas {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 36px;
+}
+
+/* Category chips row */
+.cat-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 20px;
+  border-top: 1px solid var(--hairline);
+}
+.cat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  border: 1.5px solid var(--ink);
+  transition: all 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+}
+.cat-chip:hover { transform: translateY(-2px); box-shadow: 3px 3px 0 0 var(--ink); }
+.cat-chip.tomato   { background: var(--tomato);       color: var(--cream); }
+.cat-chip.teal     { background: var(--teal);         color: var(--cream); }
+.cat-chip.leaf     { background: var(--leaf);         color: var(--cream); }
+.cat-chip.marigold { background: var(--marigold);     color: var(--ink); }
+.cat-chip.plum     { background: var(--plum-bright);  color: var(--cream); }
+.cat-chip.cream    { background: var(--cream);        color: var(--ink); }
+
+/* Cover photo with ribbon */
+.cover-photo {
+  position: relative;
+  aspect-ratio: 4/5;
+  background: linear-gradient(135deg, #3D2818 0%, #1A0D06 100%);
+  border-radius: 22px;
+  overflow: hidden;
+  border: 2px solid var(--ink);
+  box-shadow: 8px 8px 0 0 var(--ink);
+}
+.cover-photo img, .cover-photo svg { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cover-photo .stamp {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(255, 245, 235, 0.55);
+  text-transform: uppercase;
+}
+.cover-ribbon {
+  position: absolute;
+  top: 18px;
+  right: -8px;
+  background: var(--marigold);
+  color: var(--ink);
+  padding: 12px 18px;
+  border-radius: 4px;
+  transform: rotate(4deg);
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 0 var(--ink);
+  z-index: 2;
+}
+.cover-ribbon small { display: block; font-size: 9px; font-weight: 700; opacity: 0.7; margin-bottom: 2px; }
+
+/* Feature tile strip */
+.feat-strip { padding: 64px 0 96px; background: var(--cream); }
+.feat-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 24px;
+}
+.feat-grid .tile {
+  position: relative;
+  border-radius: 22px;
+  padding: 32px;
+  border: 2px solid var(--ink);
+  box-shadow: 8px 8px 0 0 var(--ink);
+  overflow: hidden;
+  transition: all 0.25s var(--ease);
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+.feat-grid .tile:hover { transform: translate(-3px, -3px); box-shadow: 11px 11px 0 0 var(--ink); }
+.feat-grid .tile.barista { background: linear-gradient(135deg, var(--tomato) 0%, #A32C0A 100%); color: var(--cream); grid-row: span 2; }
+.feat-grid .tile.dotd { background: var(--marigold); color: var(--ink); }
+.feat-grid .tile.atlas { background: linear-gradient(160deg, var(--canopy) 0%, var(--jungle-dark) 100%); color: var(--cream); }
+.feat-grid .tile.give { background: var(--ink); color: var(--cream); grid-column: span 2; }
+
+.feat-grid .tile .tag {
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.feat-grid .tile .tag .num { font-family: var(--font-mono); font-weight: 500; opacity: 0.7; }
+.feat-grid .tile h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 42px;
+  line-height: 0.96;
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+  color: inherit;
+}
+.feat-grid .tile h3 em { font-style: italic; color: var(--marigold); }
+.feat-grid .tile.dotd h3 em { color: var(--tomato); }
+.feat-grid .tile p {
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1.4;
+  opacity: 0.9;
+  margin-bottom: 20px;
+}
+.feat-grid .tile .arrow-cta {
+  margin-top: auto;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.feat-grid .tile .arrow-cta .ar {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 24px;
+  transition: transform 0.25s;
+}
+.feat-grid .tile:hover .arrow-cta .ar { transform: translateX(6px); }
+
+/* Giveaway tile internals */
+.give-grid {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 24px;
+  align-items: center;
+  flex: 1;
+}
+.give-sticker {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: var(--marigold);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 26px;
+  line-height: 0.9;
+  border: 3px solid var(--ink);
+  transform: rotate(-8deg);
+  box-shadow: 6px 6px 0 0 var(--tomato);
+  flex-shrink: 0;
+}
+.give-sticker em { font-style: italic; font-size: 14px; font-weight: 600; margin-top: 4px; color: var(--tomato); }
+.give-info h3 { font-size: 32px; line-height: 1; }
+.give-info h3 em { font-style: italic; color: var(--marigold); }
+.give-info .meta {
+  display: flex;
+  gap: 18px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 245, 235, 0.85);
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.give-info .meta strong { font-weight: 800; color: var(--cream); }
+.countdown { display: flex; gap: 6px; flex-shrink: 0; }
+.cd {
+  background: var(--cream);
+  color: var(--ink);
+  min-width: 64px;
+  padding: 10px;
+  text-align: center;
+  border-radius: 6px;
+  border: 2px solid var(--marigold);
+}
+.cd .n { font-family: var(--font-display); font-weight: 800; font-size: 28px; line-height: 1; }
+.cd .u { font-family: var(--font-body); font-weight: 700; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; margin-top: 4px; color: var(--ink-soft); }
+
+/* Barista tile toggles (decorative - shown on home, full wheel is in modal) */
+.barista-tile-toggles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.b-tog {
+  display: flex;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 999px;
+  padding: 4px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.b-tog span { flex: 1; padding: 8px 0; text-align: center; border-radius: 999px; transition: all 0.2s; cursor: pointer; }
+.b-tog span.on { background: var(--cream); color: var(--ink); }
+
+/* DOTD cup spinner */
+.dotd-art { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; margin: 14px 0; }
+.dotd-cup {
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #7B5836 0%, #1A0D06 100%);
+  display: flex; align-items: center; justify-content: center;
+  border: 6px solid var(--ink);
+  position: relative;
+}
+.dotd-cup::before {
+  content: "";
+  position: absolute;
+  inset: -22px;
+  border: 2px dashed var(--ink);
+  border-radius: 50%;
+  animation: dotd-spin 30s linear infinite;
+}
+@keyframes dotd-spin { to { transform: rotate(360deg); } }
+.dotd-meta {
+  display: flex;
+  gap: 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.dotd-meta strong { color: var(--tomato); }
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .cover-grid { grid-template-columns: 1fr; }
+  .feat-grid { grid-template-columns: 1fr 1fr; }
+  .feat-grid .tile.barista { grid-row: auto; grid-column: span 2; }
+  .feat-grid .tile.give { grid-column: span 2; }
+  .give-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 680px) {
+  .feat-grid { grid-template-columns: 1fr; }
+  .feat-grid .tile.barista, .feat-grid .tile.give { grid-column: auto; }
+}
+
 /* Subtle noise overlay (from the design system) gives the paper-magazine feel */
 body::before {
   content: "";
