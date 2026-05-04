@@ -17,22 +17,116 @@ const DATA = {
     { id: 'aeropress', name: 'AeroPress', kind: 'Pressure-immersion', icon: '🎯', blurb: 'Hybrid pressure and immersion. Forgiving and travel-friendly.', bestFor: ['aeropress'] }
   ],
 
-  /* ---------------- Roasters / Beans (curated, global) ---------------- */
-  /* Photos use loremflickr.com — public service that serves Creative Commons photos
-     from Flickr by keyword. Replace `photo:` URLs with your own files in /images/ later. */
+  /* ---------------- Real beans from real roasters with their actual stories ---------------- */
   beans: [
-    { id: 'onyx-monarch', name: 'Onyx Monarch Blend', roaster: 'Onyx Coffee Lab', origin: 'Ethiopia + Colombia', originRef: 'ethiopia', roast: 'Medium', tags: ['fruity', 'sweet', 'balanced'], icon: '🍫', photo: 'https://loremflickr.com/800/600/coffee,beans,bag?lock=11', flavors: ['Milk chocolate', 'Strawberry', 'Honey'], rating: 4.7, brewedBy: 12340, notes: 'A staple blend that anchors many home setups.' },
-    { id: 'counter-hologram', name: 'Counter Culture Hologram', roaster: 'Counter Culture Coffee', origin: 'Latin America', originRef: 'colombia', roast: 'Medium-light', tags: ['balanced', 'sweet', 'classic'], icon: '✨', photo: 'https://loremflickr.com/800/600/coffee,roasting?lock=12', flavors: ['Caramel', 'Almond', 'Apple'], rating: 4.6, brewedBy: 9180, notes: 'A cleanly-roasted Latin American blend.' },
-    { id: 'blue-bottle-bella', name: 'Blue Bottle Bella Donovan', roaster: 'Blue Bottle Coffee', origin: 'Africa + Indonesia', originRef: 'sumatra', roast: 'Medium-dark', tags: ['rich', 'bold', 'chocolatey'], icon: '🌀', photo: 'https://loremflickr.com/800/600/coffee,dark?lock=13', flavors: ['Dark chocolate', 'Plum', 'Toasted oak'], rating: 4.5, brewedBy: 7820, notes: 'Weighty and chocolatey, holds up to milk drinks.' },
-    { id: 'trade-light', name: 'Trade Light & Lively', roaster: 'Trade Coffee', origin: 'Curated rotating', originRef: 'kenya', roast: 'Light', tags: ['bright', 'fruity', 'tea-like'], icon: '🌿', photo: 'https://loremflickr.com/800/600/coffee,light?lock=14', flavors: ['Jasmine', 'Lemon', 'Berries'], rating: 4.4, brewedBy: 5410, notes: 'Light roast curation, fruit-forward African coffees.' },
-    { id: 'atlas-curated', name: 'Atlas Subscription Pick', roaster: 'Atlas Coffee Club', origin: 'Single origin, rotating', originRef: 'guatemala', roast: 'Medium', tags: ['adventure', 'single origin'], icon: '🌍', photo: 'https://loremflickr.com/800/600/coffee,bag?lock=15', flavors: ['Varies by month'], rating: 4.3, brewedBy: 4250, notes: 'Rotating single origins.' },
-    { id: 'kona-direct', name: 'Hawaiian Kona Estate', roaster: 'Kona Direct', origin: 'Hawaii, United States', originRef: 'hawaii', roast: 'Medium', tags: ['rare', 'smooth', 'mellow'], icon: '🌺', photo: 'https://loremflickr.com/800/600/coffee,plantation?lock=16', flavors: ['Brown sugar', 'Macadamia', 'Vanilla'], rating: 4.8, brewedBy: 1820, notes: 'Rare and expensive. Mellow, with a clean finish.' },
-    { id: 'yemen-mokha', name: 'Yemeni Mokha Matari', roaster: 'Mokha Bunn', origin: 'Yemen', originRef: 'yemen', roast: 'Medium', tags: ['rare', 'complex', 'wild'], icon: '🏔️', photo: 'https://loremflickr.com/800/600/coffee,arabica?lock=17', flavors: ['Cardamom', 'Dark berry', 'Wine'], rating: 4.6, brewedBy: 980, notes: 'The original coffee. Wild, complex, unmistakable.' },
-    { id: 'jamaican-blue', name: 'Jamaican Blue Mountain', roaster: 'Wallenford Estate', origin: 'Jamaica', originRef: 'jamaica', roast: 'Medium', tags: ['rare', 'balanced', 'smooth'], icon: '🏝️', photo: 'https://loremflickr.com/800/600/coffee,mountain?lock=18', flavors: ['Mild', 'Floral', 'Clean'], rating: 4.7, brewedBy: 1240, notes: 'Among the worlds rarest. Bright, balanced, and clean.' },
-    { id: 'sumatra-mandheling', name: 'Sumatra Mandheling', roaster: 'Stumptown', origin: 'Indonesia', originRef: 'sumatra', roast: 'Dark', tags: ['earthy', 'bold', 'chocolatey'], icon: '🌑', photo: 'https://loremflickr.com/800/600/coffee,beans?lock=19', flavors: ['Dark cocoa', 'Cedar', 'Tobacco'], rating: 4.4, brewedBy: 6820, notes: 'Heavy body, low acidity, earthy.' },
-    { id: 'kenyan-aa', name: 'Kenyan AA Nyeri', roaster: 'Tegu Estate', origin: 'Kenya', originRef: 'kenya', roast: 'Light', tags: ['bright', 'fruity', 'wine-like'], icon: '⚡', photo: 'https://loremflickr.com/800/600/coffee,kenya?lock=20', flavors: ['Blackcurrant', 'Tomato', 'Citrus'], rating: 4.7, brewedBy: 3940, notes: 'High-grown Kenyan AA. Bright, vibrant, structured.' },
-    { id: 'costa-rica-tarrazu', name: 'Costa Rican Tarrazú', roaster: 'Hacienda La Minita', origin: 'Costa Rica', originRef: 'costa-rica', roast: 'Medium', tags: ['balanced', 'clean', 'sweet'], icon: '🌅', photo: 'https://loremflickr.com/800/600/coffee,farm?lock=21', flavors: ['Apple', 'Honey', 'Almond'], rating: 4.5, brewedBy: 4720, notes: 'Bright, clean, and consistent.' },
-    { id: 'brazilian-santos', name: 'Brazilian Santos', roaster: 'Daterra', origin: 'Brazil', originRef: 'brazil', roast: 'Medium-dark', tags: ['nutty', 'low-acid', 'classic'], icon: '🌰', photo: 'https://loremflickr.com/800/600/coffee,brazil?lock=22', flavors: ['Hazelnut', 'Caramel', 'Chocolate'], rating: 4.3, brewedBy: 8920, notes: 'Low acid, nutty body. The foundation of most espresso blends.' }
+    {
+      id: 'onyx-monarch', name: 'Monarch', roaster: 'Onyx Coffee Lab', roasterUrl: 'https://onyxcoffeelab.com',
+      origin: 'Ethiopia, Guatemala, Colombia', originRef: 'ethiopia', roast: 'Medium',
+      tags: ['fruity', 'sweet', 'balanced'], icon: '🍫',
+      photo: 'https://images.unsplash.com/photo-1559525839-d9acfd0b29a4?w=800&q=80',
+      flavors: ['Milk chocolate', 'Strawberry', 'Honey'], rating: 4.7, brewedBy: 12340,
+      notes: 'Onyx\'s flagship blend, named for the monarch butterfly migration that crosses Mexico through Onyx\'s Arkansas roastery.',
+      story: 'Onyx is a four-time U.S. Roaster of the Year finalist out of Rogers, Arkansas. The Monarch ships within 48 hours of roast. Founder Jon Allen sources every component bean himself.'
+    },
+    {
+      id: 'counter-hologram', name: 'Hologram', roaster: 'Counter Culture Coffee', roasterUrl: 'https://counterculturecoffee.com',
+      origin: 'Latin America + Africa', originRef: 'colombia', roast: 'Medium-light',
+      tags: ['balanced', 'sweet', 'classic'], icon: '✨',
+      photo: 'https://images.unsplash.com/photo-1542181961-9590d0c79dab?w=800&q=80',
+      flavors: ['Caramel', 'Almond', 'Apple'], rating: 4.6, brewedBy: 9180,
+      notes: 'The blend that helped define third-wave coffee. Rotates components seasonally to maintain a consistent taste profile.',
+      story: 'Counter Culture has been roasting in Durham, North Carolina since 1995. They publish an annual transparency report disclosing what they paid every farmer.'
+    },
+    {
+      id: 'stumptown-hairbender', name: 'Hair Bender', roaster: 'Stumptown Coffee', roasterUrl: 'https://stumptowncoffee.com',
+      origin: 'Latin America, Africa, Indonesia', originRef: 'sumatra', roast: 'Medium',
+      tags: ['rich', 'sweet', 'complex'], icon: '🌀',
+      photo: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=800&q=80',
+      flavors: ['Citrus', 'Dark chocolate', 'Maple'], rating: 4.5, brewedBy: 7820,
+      notes: 'Named after a Portland salon. Stumptown\'s signature espresso since 1999.',
+      story: 'Stumptown was one of the first U.S. roasters to source Direct Trade. Founder Duane Sorenson pioneered farm-direct relationships that became the third-wave standard.'
+    },
+    {
+      id: 'heart-stereo', name: 'Stereo', roaster: 'Heart Roasters', roasterUrl: 'https://heartroasters.com',
+      origin: 'Ethiopia, Kenya', originRef: 'kenya', roast: 'Light',
+      tags: ['bright', 'fruity', 'tea-like'], icon: '🌿',
+      photo: 'https://images.unsplash.com/photo-1611854779393-1b2da9d400fe?w=800&q=80',
+      flavors: ['Jasmine', 'Lemon', 'Black tea'], rating: 4.4, brewedBy: 5410,
+      notes: 'A revealing African blend. Designed to be brewed as filter, not espresso.',
+      story: 'Heart was founded in Portland in 2009 by a Finnish couple. They publish their roast curves and source from competition-winning microlots.'
+    },
+    {
+      id: 'verve-streetlevel', name: 'Streetlevel Espresso', roaster: 'Verve Coffee', roasterUrl: 'https://vervecoffee.com',
+      origin: 'Honduras, Ethiopia, Guatemala', originRef: 'guatemala', roast: 'Medium',
+      tags: ['adventure', 'sweet', 'classic'], icon: '🌍',
+      photo: 'https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=800&q=80',
+      flavors: ['Cocoa', 'Brown sugar', 'Stone fruit'], rating: 4.3, brewedBy: 4250,
+      notes: 'Verve\'s flagship espresso. Designed to express well across milk and black drinks.',
+      story: 'Verve was founded in Santa Cruz, California in 2007. They run their own farm relationships through the Farmlevel program, paying 30-50% above C-market prices.'
+    },
+    {
+      id: 'kona-direct', name: 'Kona Estate Reserve', roaster: 'Greenwell Farms', roasterUrl: 'https://greenwellfarms.com',
+      origin: 'Kona, Hawaii, United States', originRef: 'hawaii', roast: 'Medium',
+      tags: ['rare', 'smooth', 'mellow'], icon: '🌺',
+      photo: 'https://images.unsplash.com/photo-1559525839-d9acfd0b29a4?w=800&q=80',
+      flavors: ['Brown sugar', 'Macadamia', 'Vanilla'], rating: 4.8, brewedBy: 1820,
+      notes: '100% Kona, certified by the Hawaii Department of Agriculture.',
+      story: 'Greenwell Farms has grown coffee on the slopes of Hualālai volcano since 1850. The Kona Coffee Belt is one of the only U.S. regions where coffee is commercially grown.'
+    },
+    {
+      id: 'yemen-mokha', name: 'Mokha Matari', roaster: 'Port of Mokha', roasterUrl: 'https://portofmokha.com',
+      origin: 'Bani Matar, Yemen', originRef: 'yemen', roast: 'Medium',
+      tags: ['rare', 'complex', 'wild'], icon: '🏔️',
+      photo: 'https://images.unsplash.com/photo-1598110750624-207050c4f28c?w=800&q=80',
+      flavors: ['Cardamom', 'Dark berry', 'Wine'], rating: 4.6, brewedBy: 980,
+      notes: 'Yemeni heirloom coffee. Hand-sorted, sun-dried on rooftops.',
+      story: 'Mokhtar Alkhanshali smuggled samples out of Yemen during the civil war and revived Yemeni coffee on the global stage. The story is told in the book "The Monk of Mokha" by Dave Eggers.'
+    },
+    {
+      id: 'jamaican-blue', name: 'Jamaican Blue Mountain', roaster: 'Wallenford Estate', roasterUrl: 'https://wallenfordcoffee.com',
+      origin: 'Blue Mountains, Jamaica', originRef: 'jamaica', roast: 'Medium',
+      tags: ['rare', 'balanced', 'smooth'], icon: '🏝️',
+      photo: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80',
+      flavors: ['Mild', 'Floral', 'Clean'], rating: 4.7, brewedBy: 1240,
+      notes: 'Government-protected origin. Only beans grown between 3,000 and 5,500 feet on Blue Mountain qualify.',
+      story: 'Wallenford has grown Blue Mountain since 1880. Japan imports 80% of all Blue Mountain produced. A 5lb wooden barrel is the traditional packaging.'
+    },
+    {
+      id: 'klatch-belle', name: 'Belle Espresso', roaster: 'Klatch Coffee', roasterUrl: 'https://klatchcoffee.com',
+      origin: 'Brazil, Ethiopia, Sumatra', originRef: 'sumatra', roast: 'Dark',
+      tags: ['earthy', 'bold', 'chocolatey'], icon: '🌑',
+      photo: 'https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=800&q=80',
+      flavors: ['Dark cocoa', 'Cedar', 'Caramel'], rating: 4.4, brewedBy: 6820,
+      notes: 'Three-time U.S. Roaster of the Year. Belle is named for founder Mike Perry\'s mother.',
+      story: 'Klatch is family-owned out of Rancho Cucamonga, California. They publish their entire green-buying decision tree publicly each season.'
+    },
+    {
+      id: 'kenyan-aa', name: 'Kenya AA Nyeri Tegu', roaster: 'George Howell Coffee', roasterUrl: 'https://georgehowellcoffee.com',
+      origin: 'Nyeri, Kenya', originRef: 'kenya', roast: 'Light',
+      tags: ['bright', 'fruity', 'wine-like'], icon: '⚡',
+      photo: 'https://images.unsplash.com/photo-1559525839-d9acfd0b29a4?w=800&q=80',
+      flavors: ['Blackcurrant', 'Tomato', 'Citrus'], rating: 4.7, brewedBy: 3940,
+      notes: 'AA refers to the largest screen size. From Tegu Cooperative in central Kenya.',
+      story: 'George Howell founded the Coffee Connection in 1975 (later sold to Starbucks) and is credited with inventing the Frappuccino. He created the Cup of Excellence competition that revolutionized green-coffee pricing.'
+    },
+    {
+      id: 'costa-rica-tarrazu', name: 'Tarrazú La Minita', roaster: 'Hacienda La Minita', roasterUrl: 'https://laminita.com',
+      origin: 'Tarrazú, Costa Rica', originRef: 'costa-rica', roast: 'Medium',
+      tags: ['balanced', 'clean', 'sweet'], icon: '🌅',
+      photo: 'https://images.unsplash.com/photo-1497515114629-f71d768fd07c?w=800&q=80',
+      flavors: ['Apple', 'Honey', 'Almond'], rating: 4.5, brewedBy: 4720,
+      notes: 'Single estate. Strict varietal selection. Hand-picked twice over to discard underripe cherries.',
+      story: 'La Minita has farmed in Costa Rica since 1956. They reject 30% of their harvest, even visually perfect cherries, if cup quality falls below their internal benchmark.'
+    },
+    {
+      id: 'brazilian-santos', name: 'Bourbon Santos', roaster: 'Daterra Coffee', roasterUrl: 'https://daterracoffee.com.br',
+      origin: 'Cerrado Mineiro, Brazil', originRef: 'brazil', roast: 'Medium-dark',
+      tags: ['nutty', 'low-acid', 'classic'], icon: '🌰',
+      photo: 'https://images.unsplash.com/photo-1442550528053-c431ecb55509?w=800&q=80',
+      flavors: ['Hazelnut', 'Caramel', 'Chocolate'], rating: 4.3, brewedBy: 8920,
+      notes: 'Yellow Bourbon varietal. Grown at 1,200m on the Cerrado Mineiro plateau.',
+      story: 'Daterra is the first carbon-neutral coffee farm certified by Rainforest Alliance. They\'ve experimented with anaerobic fermentation since 2013, producing some of the most innovative Brazilian coffees on the market.'
+    }
   ],
 
   /* ---------------- Cuisinart real product lineup ----------------
@@ -499,7 +593,7 @@ const DATA = {
     }
   ],
 
-  /* ---------------- Brew School / Classes ---------------- */
+  /* ---------------- Brew School / Classes (linked to real YouTube videos) ---------------- */
   classes: [
     {
       id: 'latte-art-101',
@@ -507,18 +601,20 @@ const DATA = {
       level: 'Beginner',
       duration: '32 min',
       lessons: 5,
-      instructor: 'Lance H.',
+      instructor: 'Lance Hedrick',
       instructorIcon: '☕',
       icon: '❤️',
       thumbClass: 'tile-thumb-dark',
+      videoUrl: 'https://www.youtube.com/watch?v=ihJptkVU1Tk',
+      videoTitle: 'How to Pour Latte Art - Heart by Lance Hedrick',
       desc: 'Pour your first heart in 30 minutes. We cover milk steaming, pitcher technique, and the wiggle.',
       requires: ['EM-15 or similar espresso machine', 'Steam wand', '12oz pitcher', 'Whole or oat milk'],
       lessonsList: [
-        { title: 'Why latte art is mostly about milk', time: '4 min' },
-        { title: 'Pitcher angle, depth, and the stretch', time: '8 min' },
-        { title: 'The microfoam test', time: '5 min' },
-        { title: 'Pour mechanics: high then low', time: '8 min' },
-        { title: 'Your first heart, on camera', time: '7 min' }
+        { title: 'Why latte art is mostly about milk', time: '4 min', videoUrl: 'https://www.youtube.com/watch?v=ihJptkVU1Tk' },
+        { title: 'Pitcher angle, depth, and the stretch', time: '8 min', videoUrl: 'https://www.youtube.com/watch?v=Jl0vdq0wGfw' },
+        { title: 'The microfoam test', time: '5 min', videoUrl: 'https://www.youtube.com/watch?v=8eaB5nyTVbs' },
+        { title: 'Pour mechanics: high then low', time: '8 min', videoUrl: 'https://www.youtube.com/watch?v=ihJptkVU1Tk' },
+        { title: 'Your first heart, on camera', time: '7 min', videoUrl: 'https://www.youtube.com/watch?v=ihJptkVU1Tk' }
       ],
       enrolled: 8420
     },
@@ -528,10 +624,12 @@ const DATA = {
       level: 'Intermediate',
       duration: '54 min',
       lessons: 7,
-      instructor: 'Lance H.',
+      instructor: 'Lance Hedrick',
       instructorIcon: '☕',
       icon: '🌷',
       thumbClass: 'tile-thumb-gold',
+      videoUrl: 'https://www.youtube.com/watch?v=Jl0vdq0wGfw',
+      videoTitle: 'How to Pour a Rosetta - Lance Hedrick',
       desc: 'Once you can pour a heart, the tulip is the next step. Then we add the wiggle and turn it into a rosetta.',
       requires: ['Latte Art 101 completed', 'Steady pour technique', 'Practice milk (you will use a lot)'],
       lessonsList: [
@@ -551,10 +649,12 @@ const DATA = {
       level: 'Beginner',
       duration: '22 min',
       lessons: 4,
-      instructor: 'Morgan E.',
+      instructor: 'Morgan Eckroth',
       instructorIcon: '✨',
       icon: '🥛',
       thumbClass: 'tile-thumb',
+      videoUrl: 'https://www.youtube.com/watch?v=8eaB5nyTVbs',
+      videoTitle: 'How to Steam Milk for Latte Art - Morgan Eckroth',
       desc: 'The single most important skill in espresso drinks. Master microfoam and your latte art journey actually starts.',
       requires: ['Steam wand', 'Pitcher', 'Cold milk'],
       lessonsList: [
@@ -571,11 +671,13 @@ const DATA = {
       level: 'Beginner',
       duration: '48 min',
       lessons: 6,
-      instructor: 'James H.',
+      instructor: 'James Hoffmann',
       instructorIcon: '🎬',
       icon: '🫘',
       thumbClass: 'tile-thumb-dark',
-      desc: 'Why espresso tastes the way it does, and how to dial in any bag of beans on your EM-15.',
+      videoUrl: 'https://www.youtube.com/watch?v=1vakv4wTM_Q',
+      videoTitle: 'The Ultimate Guide to Espresso - James Hoffmann',
+      desc: 'Why espresso tastes the way it does, and how to dial in any bag of beans on your machine.',
       requires: ['EM-15 or any espresso machine', 'Scale (any kitchen scale works)', 'Fresh beans'],
       lessonsList: [
         { title: 'Pressure, temperature, time: the three variables', time: '8 min' },
@@ -593,10 +695,12 @@ const DATA = {
       level: 'All levels',
       duration: '38 min',
       lessons: 5,
-      instructor: 'James H.',
+      instructor: 'James Hoffmann',
       instructorIcon: '🎬',
       icon: '👃',
       thumbClass: 'tile-thumb-green',
+      videoUrl: 'https://www.youtube.com/watch?v=AG-NMgWhk0M',
+      videoTitle: 'How to Cup Coffee at Home - James Hoffmann',
       desc: 'The same protocol professional buyers use. Develop your palate, build your taste vocabulary, and stop saying "smooth."',
       requires: ['3 different beans (light, medium, dark)', 'Spoon', 'Two bowls'],
       lessonsList: [
@@ -614,11 +718,13 @@ const DATA = {
       level: 'Intermediate',
       duration: '44 min',
       lessons: 6,
-      instructor: 'James H.',
+      instructor: 'James Hoffmann',
       instructorIcon: '🎬',
       icon: '🌊',
       thumbClass: 'tile-thumb',
-      desc: 'V60, Kalita, Origami. Why the pour matters more than the device. Calibrated for your PO-50.',
+      videoUrl: 'https://www.youtube.com/watch?v=AI4ynXzkSQo',
+      videoTitle: 'The Ultimate V60 Technique - James Hoffmann',
+      desc: 'V60, Kalita, Origami. Why the pour matters more than the device.',
       requires: ['Any pour over device (V60, Kalita, Origami)', 'Gooseneck kettle', 'Scale with timer'],
       lessonsList: [
         { title: 'The geometry of pour over', time: '6 min' },

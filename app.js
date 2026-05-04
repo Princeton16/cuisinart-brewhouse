@@ -81,6 +81,13 @@ function fmtDate(d) {
 function fmtTime(t) { return t || ''; }
 function pluralize(n, word) { return n + ' ' + word + (n === 1 ? '' : 's'); }
 
+// Extract YouTube video id from a typical youtube.com/watch?v=... or youtu.be/... URL
+function ytIdFromUrl(url) {
+  if (!url) return null;
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+  return m ? m[1] : null;
+}
+
 function getMachine() {
   if (!state.profile?.machine) return null;
   return DATA.machines.find(m => m.id === state.profile.machine);
@@ -404,11 +411,12 @@ window.addEventListener('hashchange', render);
 
 function mountAppShell() {
   const tabs = [
-    { route: 'home',    label: 'Home',    href: '#/home' },
-    { route: 'learn',   label: 'Learn',   href: '#/learn' },
-    { route: 'recipes', label: 'Recipes', href: '#/recipes' },
-    { route: 'devices', label: 'Products', href: '#/devices' },
-    { route: 'profile', label: 'Profile', href: '#/profile' }
+    { route: 'home',      label: 'Home',      href: '#/home' },
+    { route: 'recipes',   label: 'Recipes',   href: '#/recipes' },
+    { route: 'learn',     label: 'Learn',     href: '#/learn' },
+    { route: 'community', label: 'Community', href: '#/community' },
+    { route: 'devices',   label: 'Products',  href: '#/devices' },
+    { route: 'profile',   label: 'Profile',   href: '#/profile' }
   ];
 
   const header = el('header', { class: 'bl-header' },
@@ -1397,21 +1405,22 @@ function renderBrew(main) {
 }
 
 /* ----- Home — Today's brew, cafe story, picks, places ----- */
+// Each daily drink links to an actual recipe from DATA.recipes (recipeId)
 const DAILY_DRINKS = [
-  { name: 'Maple bourbon cold brew',     desc: 'Cold brew concentrate kissed with maple syrup and a thread of bourbon barrel-aged bitters. The grown-up summer drink.' },
-  { name: 'Honey lavender latte',        desc: 'Steamed milk infused with dried lavender, drizzled with raw honey, finished with a double shot. A garden in a glass.' },
-  { name: 'Saigon egg coffee',           desc: 'Vietnamese-style. A whipped egg yolk and condensed milk float on a bed of dark roast espresso. Velvet and caramel.' },
-  { name: 'Dirty matcha latte',          desc: 'Ceremonial matcha whisked with oat milk, a single shot of espresso poured down the side. Two worlds collide.' },
-  { name: 'Cinnamon brown sugar shaken espresso', desc: 'Iced espresso shaken with brown sugar and a dash of cinnamon. Frothy, sweet, cold-coffee perfection.' },
-  { name: 'Spanish latte',               desc: 'Espresso, sweetened condensed milk, steamed milk. Liquid caramel that tastes like every bakery in Madrid.' },
-  { name: 'Espresso tonic',              desc: 'A double shot poured over ice and tonic water with a twist of lemon. Bitter, bright, weirdly refreshing.' },
-  { name: 'Japanese iced pour over',     desc: 'Brewed hot directly onto ice on a V60. Locks in florals that flash-cooling preserves. Cleanest cold coffee you will taste.' },
-  { name: 'Tahini date oat milk latte',  desc: 'Steamed oat milk with tahini and date syrup, espresso poured slowly. Nutty, caramelly, like halva in a mug.' },
-  { name: 'Cardamom rose cortado',       desc: 'Equal parts espresso and rose-water cardamom milk. Floral, spiced, the small drink with the big finish.' },
-  { name: 'Cold brew old fashioned',     desc: 'Cold brew concentrate, demerara syrup, orange peel, a dash of bitters. Stirred, served on a single big rock.' },
-  { name: 'Coconut cardamom cortado',    desc: 'Coconut milk steamed with green cardamom pods, espresso pulled short. Tropical with a backbone.' },
-  { name: 'Brown butter mocha',          desc: 'Espresso, brown-buttered chocolate ganache, steamed milk. Toasted, deep, almost dessert.' },
-  { name: 'Affogato al cafe',            desc: 'A scoop of vanilla bean gelato. A double shot of hot espresso poured over the top. The rules of dessert and coffee, broken.' }
+  { name: 'Maple bourbon cold brew',     recipeId: 'cold-brew-classic',     desc: 'Cold brew concentrate kissed with maple syrup and a thread of bourbon barrel-aged bitters. The grown-up summer drink.' },
+  { name: 'Honey lavender latte',        recipeId: 'sat-morning-latte',     desc: 'Steamed milk infused with dried lavender, drizzled with raw honey, finished with a double shot. A garden in a glass.' },
+  { name: 'Saigon egg coffee',           recipeId: 'sat-morning-latte',     desc: 'Vietnamese-style. A whipped egg yolk and condensed milk float on a bed of dark roast espresso. Velvet and caramel.' },
+  { name: 'Dirty matcha latte',          recipeId: 'sat-morning-latte',     desc: 'Ceremonial matcha whisked with oat milk, a single shot of espresso poured down the side. Two worlds collide.' },
+  { name: 'Cinnamon brown sugar shaken espresso', recipeId: 'iced-vanilla-latte', desc: 'Iced espresso shaken with brown sugar and a dash of cinnamon. Frothy, sweet, cold-coffee perfection.' },
+  { name: 'Spanish latte',               recipeId: 'sat-morning-latte',     desc: 'Espresso, sweetened condensed milk, steamed milk. Liquid caramel that tastes like every bakery in Madrid.' },
+  { name: 'Espresso tonic',              recipeId: 'sat-morning-latte',     desc: 'A double shot poured over ice and tonic water with a twist of lemon. Bitter, bright, weirdly refreshing.' },
+  { name: 'Japanese iced pour over',     recipeId: 'pour-over-light',       desc: 'Brewed hot directly onto ice on a V60. Locks in florals that flash-cooling preserves. Cleanest cold coffee you will taste.' },
+  { name: 'Tahini date oat milk latte',  recipeId: 'sat-morning-latte',     desc: 'Steamed oat milk with tahini and date syrup, espresso poured slowly. Nutty, caramelly, like halva in a mug.' },
+  { name: 'Cardamom rose cortado',       recipeId: 'sat-morning-latte',     desc: 'Equal parts espresso and rose-water cardamom milk. Floral, spiced, the small drink with the big finish.' },
+  { name: 'Cold brew old fashioned',     recipeId: 'cold-brew-classic',     desc: 'Cold brew concentrate, demerara syrup, orange peel, a dash of bitters. Stirred, served on a single big rock.' },
+  { name: 'Coconut cardamom cortado',    recipeId: 'sat-morning-latte',     desc: 'Coconut milk steamed with green cardamom pods, espresso pulled short. Tropical with a backbone.' },
+  { name: 'Brown butter mocha',          recipeId: 'sat-morning-latte',     desc: 'Espresso, brown-buttered chocolate ganache, steamed milk. Toasted, deep, almost dessert.' },
+  { name: 'Affogato al cafe',            recipeId: 'sat-morning-latte',     desc: 'A scoop of vanilla bean gelato. A double shot of hot espresso poured over the top. The rules of dessert and coffee, broken.' }
 ];
 
 function dayOfYear(d) {
@@ -1442,7 +1451,7 @@ function renderHome(main) {
           el('p', { class: 'today-eyebrow' }, 'Today’s brew · ' + weekday),
           el('h1', { class: 'today-title' }, drink.name),
           el('p', { class: 'today-desc' }, drink.desc),
-          el('button', { class: 'btn-discover-cta', onclick: () => navigate('recipes') }, 'Try this brew')
+          el('button', { class: 'btn-discover-cta', onclick: () => navigate(drink.recipeId ? 'recipe/' + drink.recipeId : 'recipes') }, 'Try this brew')
         ),
         el('div', { class: 'today-hero-divider', 'aria-hidden': 'true' },
           el('span', { class: 'today-hero-or' }, 'OR')
@@ -2228,6 +2237,9 @@ function renderYou(main) {
   // Taste tracker — flavor pinwheel built from journal entries
   c.appendChild(tasteTrackerCard());
 
+  // Brew journal — recent log with shortcut to add a new one
+  c.appendChild(brewJournalCard());
+
   // Leaderboard with tabs (Global / Friends)
   const lbCard = el('div', { class: 'card', style: 'margin-bottom:32px' });
   lbCard.appendChild(el('div', { class: 'section-title' }, el('h3', { class: 'h3' }, '📈 Leaderboard'), null));
@@ -2356,6 +2368,107 @@ function renderYou(main) {
     )
   ));
   c.appendChild(split2);
+}
+
+/* ---------------- Brew Journal card (lives on the You page) ---------------- */
+function brewJournalCard() {
+  const recent = state.journal.slice(0, 5);
+  const card = el('div', { class: 'card', style: 'margin-bottom:32px;padding:0;overflow:hidden' });
+
+  card.appendChild(el('div', { style: 'padding:24px 28px 12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px' },
+    el('div', {},
+      el('div', { class: 'eyebrow', style: 'margin-bottom:6px' }, '📓 Brew journal'),
+      el('h3', { class: 'h3' }, 'Recent brews'),
+      el('p', { style: 'color:var(--ink-soft);font-size:0.88rem;margin-top:4px' }, 'Each entry tunes your taste profile and recommendations.')
+    ),
+    el('button', {
+      class: 'btn btn-accent btn-sm',
+      onclick: () => navigate('journal')
+    }, '+ Log a brew')
+  ));
+
+  if (!recent.length) {
+    card.appendChild(el('div', { style: 'padding:0 28px 24px' },
+      el('div', { class: 'empty', style: 'background:var(--surface-2)' },
+        el('div', { class: 'empty-icon' }, '☕'),
+        el('p', {}, 'No brews logged yet. Start your journal to fill in the pinwheel.')
+      )
+    ));
+    return card;
+  }
+
+  const list = el('div', { class: 'list', style: 'padding:0 28px 24px' });
+  recent.forEach(e => {
+    const recipe = getRecipe(e.recipe);
+    const bean = getBean(e.bean);
+    const stars = '★'.repeat(e.rating || 0) + '☆'.repeat(5 - (e.rating || 0));
+    list.appendChild(el('div', { class: 'list-item', style: 'padding:14px 0' },
+      el('div', { class: 'list-item-thumb', style: 'background:var(--bg-subtle);font-size:1.4rem' }, recipe?.icon || '☕'),
+      el('div', { class: 'list-item-body' },
+        el('div', { class: 'list-item-title' }, recipe?.name || e.recipe || 'Brew'),
+        el('div', { class: 'list-item-meta' }, [bean?.name, fmtDate(e.date), e.method].filter(Boolean).join(' · ')),
+        e.notes ? el('div', { style: 'font-size:0.82rem;color:var(--ink-soft);margin-top:4px;font-style:italic' }, '"' + e.notes + '"') : null
+      ),
+      el('div', { class: 'stars', style: 'font-size:0.85rem' }, stars)
+    ));
+  });
+  card.appendChild(list);
+
+  if (state.journal.length > 5) {
+    card.appendChild(el('div', { style: 'padding:0 28px 22px' },
+      el('a', { href: '#/journal', style: 'color:var(--caramel-deep);font-weight:500;font-size:0.9rem' }, 'See all ' + state.journal.length + ' entries →')
+    ));
+  }
+  return card;
+}
+
+// Re-derive the user's brew profile preferences from journal patterns
+function updateBrewProfileFromJournal() {
+  if (!state.journal.length) return;
+  state.profile = state.profile || {};
+
+  // Pick most-loved tags
+  const tagFreq = {};
+  state.journal.forEach(e => {
+    const recipe = getRecipe(e.recipe);
+    const bean = getBean(e.bean);
+    const weight = (e.rating || 3) - 2; // 4-5 stars boost; 1-2 stars discount
+    [].concat(recipe?.tags || [], bean?.tags || []).forEach(t => {
+      tagFreq[t] = (tagFreq[t] || 0) + weight;
+    });
+  });
+
+  // Find top 3 tags
+  const topTags = Object.keys(tagFreq).sort((a, b) => tagFreq[b] - tagFreq[a]).slice(0, 3);
+
+  // Map tags into profile fields
+  const flavors = new Set(state.profile.flavors || []);
+  topTags.forEach(t => {
+    if (['fruity', 'berry', 'citrus'].includes(t)) flavors.add('fruity');
+    if (['chocolate', 'chocolatey', 'cocoa'].includes(t)) flavors.add('chocolate');
+    if (['nutty', 'caramel', 'sweet'].includes(t)) flavors.add('nutty');
+    if (['floral', 'tea-like', 'jasmine'].includes(t)) flavors.add('floral');
+    if (['spice', 'cinnamon', 'cardamom'].includes(t)) flavors.add('spicy');
+    if (['sweet', 'honey', 'syrup'].includes(t)) flavors.add('sweet');
+  });
+  state.profile.flavors = Array.from(flavors).slice(0, 5);
+
+  // Update roast preference based on most-rated bean roast
+  const roastFreq = {};
+  state.journal.forEach(e => {
+    const bean = getBean(e.bean);
+    if (bean?.roast) roastFreq[bean.roast] = (roastFreq[bean.roast] || 0) + (e.rating || 3);
+  });
+  const topRoast = Object.keys(roastFreq).sort((a, b) => roastFreq[b] - roastFreq[a])[0];
+  if (topRoast) state.profile.roast = topRoast.toLowerCase().split(' ').join('-');
+
+  // Re-derive milk preference based on method usage
+  const methodCount = {};
+  state.journal.forEach(e => methodCount[e.method] = (methodCount[e.method] || 0) + 1);
+  const milkMethods = (methodCount['Espresso'] || 0);
+  const blackMethods = (methodCount['Drip'] || 0) + (methodCount['Pour over'] || 0);
+  if (milkMethods > blackMethods * 1.5) state.profile.milk = 'latte';
+  else if (blackMethods > milkMethods * 1.5) state.profile.milk = 'black';
 }
 
 /* ---------------- Taste Tracker (flavor pinwheel) ---------------- */
@@ -3077,6 +3190,8 @@ function renderJournal(main) {
         if (beans >= 5 && !state.badges.includes('explorer')) state.badges.push('explorer');
         if (state.journal.length >= 25 && !state.badges.includes('critic')) state.badges.push('critic');
         state.points += 10;
+        // Auto-update brew profile based on journal patterns
+        updateBrewProfileFromJournal();
         save();
         // Sync to Supabase if signed in
         if (state.user && !state.user.isGuest) {
@@ -3464,6 +3579,41 @@ function sendBaristaMsg(text) {
 }
 
 /* ----- Community ----- */
+// Mock feed of community activity — likes, recommendations, recipe posts
+function communityFeedList() {
+  const wrap = el('div', { class: 'card', style: 'padding:8px 0;overflow:hidden' });
+  const FEED = [
+    { who: 'Tessa L.', handle: '@tessa.pours', avatarBg: 'linear-gradient(135deg, #C8762D 0%, #2A1A14 100%)', verb: 'liked', target: 'Cinnamon Honey Latte', kind: 'recipe', icon: '❤️', when: '4m ago', linkTo: 'recipe/sat-morning-latte' },
+    { who: 'Diego P.', handle: '@diego.pulls', avatarBg: 'linear-gradient(135deg, #2D4A3A 0%, #1d3327 100%)', verb: 'recommended', target: 'Stumptown Hair Bender', kind: 'bean', icon: '💬', when: '12m ago', detail: 'Best espresso for milk drinks I have tried this year.', linkTo: 'devices' },
+    { who: 'Maya R.',  handle: '@maya.brews',  avatarBg: 'linear-gradient(135deg, #C8762D 0%, #A85F1F 100%)', verb: 'shared a brew',  target: 'Ethiopian Yirgacheffe V60', kind: 'recipe', icon: '☕', when: '36m ago', detail: 'Bloom for 45 sec. The lemon notes finally come out.', linkTo: 'recipe/pour-over-light' },
+    { who: 'Priya S.', handle: '@priya.passport', avatarBg: 'linear-gradient(135deg, #C5962B 0%, #806017 100%)', verb: 'collected', target: 'Yemen passport stamp', kind: 'passport', icon: '🌍', when: '1h ago' },
+    { who: 'Marcus B.', handle: '@marcus.learns', avatarBg: 'linear-gradient(135deg, #2D4A3A 0%, #C5962B 100%)', verb: 'completed', target: 'Espresso Fundamentals', kind: 'class', icon: '📚', when: '2h ago', linkTo: 'class/espresso-fundamentals' },
+    { who: 'Naomi K.', handle: '@naomi.purist', avatarBg: 'linear-gradient(135deg, #1F1410 0%, #4A3A30 100%)', verb: 'liked', target: 'Vanilla Maple Cold Brew', kind: 'recipe', icon: '❤️', when: '3h ago', linkTo: 'recipe/cold-brew-classic' },
+    { who: 'Sam K.',   handle: '@sam.steams',  avatarBg: 'linear-gradient(135deg, #4A3A30 0%, #2A1A14 100%)', verb: 'recommended', target: 'Heart Stereo blend', kind: 'bean', icon: '💬', when: '5h ago', detail: 'Bright and floral. Skip if you only like dark roasts.', linkTo: 'devices' },
+    { who: 'Jordan W.', handle: '@jordan.cafe', avatarBg: 'linear-gradient(135deg, #6B5D54 0%, #3D2418 100%)', verb: 'shared a brew', target: 'Iced Brown Sugar Oat Latte', kind: 'recipe', icon: '☕', when: '7h ago', detail: 'Use cinnamon, not vanilla. Trust me.', linkTo: 'recipe/iced-vanilla-latte' }
+  ];
+  FEED.forEach(item => {
+    wrap.appendChild(el('div', {
+      style: 'padding:14px 22px;display:flex;gap:14px;align-items:flex-start;border-bottom:1px solid var(--line-soft);cursor:' + (item.linkTo ? 'pointer' : 'default'),
+      onclick: () => item.linkTo && navigate(item.linkTo)
+    },
+      el('div', { style: 'width:40px;height:40px;border-radius:50%;background:' + item.avatarBg + ';color:white;display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-weight:600;flex-shrink:0' }, item.who.split(' ').map(s => s[0]).join('').slice(0, 2)),
+      el('div', { style: 'flex:1;min-width:0' },
+        el('div', { style: 'font-size:0.93rem' },
+          el('strong', {}, item.who),
+          el('span', { style: 'color:var(--ink-muted);font-size:0.82rem;margin-left:6px' }, item.handle),
+          el('span', { style: 'color:var(--ink-soft);margin:0 4px' }, ' · '),
+          el('span', { style: 'color:var(--ink-soft)' }, item.icon + ' ' + item.verb + ' '),
+          el('strong', { style: 'color:var(--ink)' }, item.target)
+        ),
+        item.detail ? el('p', { style: 'font-size:0.88rem;color:var(--ink-soft);margin-top:4px;font-style:italic;line-height:1.45' }, '"' + item.detail + '"') : null,
+        el('div', { style: 'font-size:0.78rem;color:var(--ink-muted);margin-top:6px' }, item.when)
+      )
+    ));
+  });
+  return wrap;
+}
+
 function renderCommunity(main) {
   main.innerHTML = '';
   const c = el('div', { class: 'container' });
@@ -3472,8 +3622,31 @@ function renderCommunity(main) {
   c.appendChild(el('div', { class: 'page-head' },
     el('div', { class: 'eyebrow' }, 'Community'),
     el('h1', { class: 'h1' }, 'Brew with people who care'),
-    el('p', {}, 'Weekly challenges, taste-along events, and creator content. Earn badges, win drops, learn from people who know more than you.')
+    el('p', {}, 'Challenges, giveaways, and the feed. See what other members are loving, recommending, and making this week.')
   ));
+
+  // ========== Feed of liked coffees, recommendations, recipes ==========
+  c.appendChild(el('h3', { class: 'h3 mb' }, 'The feed'));
+  c.appendChild(el('div', { style: 'height:8px' }));
+  c.appendChild(communityFeedList());
+  c.appendChild(el('div', { style: 'height:48px' }));
+
+  // ========== Active giveaways ==========
+  c.appendChild(el('h3', { class: 'h3 mb' }, 'Giveaways'));
+  c.appendChild(el('div', { style: 'height:8px' }));
+  const giveawayGrid = el('div', { class: 'grid grid-3', style: 'margin-bottom:48px' });
+  (DATA.giveaways || []).forEach(g => {
+    giveawayGrid.appendChild(el('div', { class: 'card', style: 'padding:0;overflow:hidden;cursor:pointer', onclick: () => toast('Entered into ' + g.name + ' (demo)') },
+      el('div', { style: 'aspect-ratio:5/3;background:' + g.bg + ';color:white;display:flex;align-items:center;justify-content:center;font-size:3.5rem' }, g.icon),
+      el('div', { style: 'padding:18px 20px' },
+        el('div', { class: 'eyebrow', style: 'margin-bottom:6px' }, g.kind),
+        el('div', { class: 'h4' }, g.name),
+        el('p', { class: 'mt-sm muted', style: 'font-size:0.88rem;line-height:1.55' }, g.desc),
+        el('div', { style: 'margin-top:12px;font-size:0.82rem;color:var(--caramel-deep);font-weight:600' }, g.status)
+      )
+    ));
+  });
+  c.appendChild(giveawayGrid);
 
   // Challenges
   c.appendChild(el('h3', { class: 'h3 mb' }, 'Active challenges'));
@@ -4373,9 +4546,29 @@ function renderClassDetail(main, id) {
     el('p', { style: 'max-width:680px' }, cls.desc)
   ));
 
-  // Video preview card
-  const video = el('div', { class: 'card', style: 'padding:0;overflow:hidden;margin-bottom:24px' },
-    el('div', {
+  // Video — embed real YouTube if videoUrl present, else placeholder
+  const videoCard = el('div', { class: 'card', style: 'padding:0;overflow:hidden;margin-bottom:24px' });
+  if (cls.videoUrl) {
+    const ytId = ytIdFromUrl(cls.videoUrl);
+    if (ytId) {
+      videoCard.appendChild(el('div', { style: 'position:relative;aspect-ratio:16/9;background:#000' },
+        el('iframe', {
+          src: 'https://www.youtube.com/embed/' + ytId + '?rel=0',
+          style: 'position:absolute;inset:0;width:100%;height:100%;border:0',
+          allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
+          allowfullscreen: 'true',
+          title: cls.videoTitle || cls.name
+        })
+      ));
+      if (cls.videoTitle) {
+        videoCard.appendChild(el('div', { style: 'padding:12px 16px;background:var(--surface-2);font-size:0.85rem;color:var(--ink-soft)' },
+          el('span', {}, cls.videoTitle + ' · '),
+          el('a', { href: cls.videoUrl, target: '_blank', rel: 'noopener', style: 'color:var(--caramel-deep);font-weight:500' }, 'Watch on YouTube ↗')
+        ));
+      }
+    }
+  } else {
+    videoCard.appendChild(el('div', {
       style: 'aspect-ratio:16/8;background:linear-gradient(135deg, var(--espresso) 0%, #3D2418 100%);display:flex;align-items:center;justify-content:center;color:var(--bg);position:relative;cursor:pointer',
       onclick: () => toast('Starting class (demo)')
     },
@@ -4384,9 +4577,9 @@ function renderClassDetail(main, id) {
         el('div', { style: 'margin-top:14px;font-family:var(--font-display);font-size:1.6rem' }, cls.name),
         el('div', { style: 'margin-top:6px;font-size:0.9rem;opacity:0.7' }, '▶ Preview · ' + cls.duration + ' total')
       )
-    )
-  );
-  c.appendChild(video);
+    ));
+  }
+  c.appendChild(videoCard);
 
   // Two-column: lessons + sidebar
   c.appendChild(el('div', { class: 'split' },
@@ -4404,8 +4597,12 @@ function renderClassDetail(main, id) {
             ),
             el('button', {
               class: 'btn btn-ghost btn-sm',
-              onclick: () => toast('Playing lesson ' + (i + 1) + ' (demo)')
-            }, 'Play')
+              onclick: () => {
+                const url = lesson.videoUrl || cls.videoUrl;
+                if (url) window.open(url, '_blank', 'noopener');
+                else toast('Playing lesson ' + (i + 1) + ' (demo)');
+              }
+            }, lesson.videoUrl || cls.videoUrl ? '▶ Watch' : 'Play')
           ));
         });
         return list;
