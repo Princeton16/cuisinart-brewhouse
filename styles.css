@@ -406,6 +406,15 @@
   92%, 100%{ opacity: 0; transform: scale(0.6); }
 }
 
+/* Heart latte art — appears as the pour nears completion */
+.milk-anim .latte-art { transform-origin: 175px 167px; animation: heart-bloom 6s ease-out infinite; }
+@keyframes heart-bloom {
+  0%, 35%  { opacity: 0; transform: scale(0.3) translateY(8px); }
+  55%      { opacity: 0.92; transform: scale(1.08) translateY(0); }
+  62%, 80% { opacity: 1; transform: scale(1) translateY(0); }
+  92%, 100%{ opacity: 0; transform: scale(0.6) translateY(4px); }
+}
+
 /* Tiny milk-foam dots ripple where the stream lands */
 .milk-anim .ripple { transform-origin: 175px 168px; animation: ripple-out 6s ease-out infinite; }
 @keyframes ripple-out {
@@ -1193,11 +1202,14 @@ input, select, textarea { font: inherit; color: inherit; }
             #D63A2F roast red accent
    ============================================================ */
 .bl-header {
-  /* Scrolls with the page now (was sticky) */
-  position: relative;
-  z-index: 50;
+  /* Frozen at the top of the viewport */
+  position: sticky;
+  top: 0;
+  z-index: 100;
   background: var(--cream);
   border-bottom: 1px solid var(--hairline);
+  backdrop-filter: saturate(140%) blur(6px);
+  -webkit-backdrop-filter: saturate(140%) blur(6px);
 }
 .bl-header-inner {
   max-width: 1200px;
@@ -1480,7 +1492,7 @@ input, select, textarea { font: inherit; color: inherit; }
 .bw-card {
   background: #FFFFFF;
   border-radius: 16px;
-  width: 440px;
+  width: 540px;
   max-width: 100%;
   max-height: calc(100vh - 48px);
   overflow-y: auto;
@@ -1524,8 +1536,9 @@ input, select, textarea { font: inherit; color: inherit; }
 
 .bw-wheel-wrap {
   position: relative;
-  width: 320px;
-  height: 320px;
+  width: min(460px, 100%);
+  aspect-ratio: 1;
+  height: auto;
   margin: 8px auto 4px;
 }
 .bw-wheel { display: block; width: 100%; height: 100%; }
@@ -2496,7 +2509,9 @@ input, select, textarea { font: inherit; color: inherit; }
 .tile.barista,
 .tile.dotd,
 .tile.atlas,
-.tile.give {
+.tile.give,
+.tile.compete,
+.tile.cafeweek {
   position: relative;
   border-radius: 22px;
   padding: 32px;
@@ -2513,7 +2528,9 @@ input, select, textarea { font: inherit; color: inherit; }
 .tile.barista:hover,
 .tile.dotd:hover,
 .tile.atlas:hover,
-.tile.give:hover {
+.tile.give:hover,
+.tile.compete:hover,
+.tile.cafeweek:hover {
   transform: translate(-3px, -3px);
   box-shadow: 11px 11px 0 0 var(--ink);
   border-color: var(--ink);
@@ -2524,12 +2541,16 @@ input, select, textarea { font: inherit; color: inherit; }
 .tile.dotd    { background: var(--marigold); color: var(--ink); }
 .tile.atlas   { background: linear-gradient(160deg, var(--canopy) 0%, var(--jungle-dark) 100%); color: var(--cream); }
 .tile.give    { background: var(--ink); color: var(--cream); }
+.tile.compete { background: linear-gradient(150deg, var(--tomato) 0%, #B33B0F 100%); color: var(--cream); }
+.tile.cafeweek { background: var(--cream); color: var(--ink); padding: 0; }
 
 /* Inner elements scoped to the variants so they don't leak to recipe tiles */
 .tile.barista .tag,
 .tile.dotd .tag,
 .tile.atlas .tag,
-.tile.give .tag {
+.tile.give .tag,
+.tile.compete .tag,
+.tile.cafeweek .tag {
   font-family: var(--font-body);
   font-weight: 800;
   font-size: 11px;
@@ -2544,7 +2565,9 @@ input, select, textarea { font: inherit; color: inherit; }
 .tile.barista h3,
 .tile.dotd h3,
 .tile.atlas h3,
-.tile.give h3 {
+.tile.give h3,
+.tile.compete h3,
+.tile.cafeweek h3 {
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 42px;
@@ -2555,12 +2578,16 @@ input, select, textarea { font: inherit; color: inherit; }
 }
 .tile.barista h3 em,
 .tile.atlas h3 em,
-.tile.give h3 em { font-style: italic; color: var(--marigold); }
-.tile.dotd h3 em { font-style: italic; color: var(--tomato); }
+.tile.give h3 em,
+.tile.compete h3 em { font-style: italic; color: var(--marigold); }
+.tile.dotd h3 em,
+.tile.cafeweek h3 em { font-style: italic; color: var(--tomato); }
 .tile.barista p,
 .tile.dotd p,
 .tile.atlas p,
-.tile.give p {
+.tile.give p,
+.tile.compete p,
+.tile.cafeweek p {
   font-family: var(--font-display);
   font-size: 17px;
   line-height: 1.4;
@@ -2570,7 +2597,9 @@ input, select, textarea { font: inherit; color: inherit; }
 .tile.barista .arrow-cta,
 .tile.dotd .arrow-cta,
 .tile.atlas .arrow-cta,
-.tile.give .arrow-cta {
+.tile.give .arrow-cta,
+.tile.compete .arrow-cta,
+.tile.cafeweek .arrow-cta {
   margin-top: auto;
   font-family: var(--font-body);
   font-weight: 700;
