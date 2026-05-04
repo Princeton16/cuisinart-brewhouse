@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 380" fill="none">
+  <path d="M120 60 Q115 40 130 25 Q145 10 135 -5" stroke="#C5962B" stroke-width="2" stroke-linecap="round" opacity="0.6">
+    
+  </path>
+  <path d="M150 70 Q140 50 155 35 Q170 15 160 0" stroke="#C5962B" stroke-width="2" stroke-linecap="round" opacity="0.5">
+    
+  </path>
+  <path d="M180 60 Q175 40 190 25 Q205 10 195 -5" stroke="#C5962B" stroke-width="2" stroke-linecap="round" opacity="0.6">
+    
+  </path>
+  <ellipse cx="150" cy="330" rx="120" ry="18" fill="#C5962B" opacity="0.3"></ellipse>
+  <ellipse cx="150" cy="320" rx="115" ry="14" fill="#FAF6F0"></ellipse>
+  <path d="M70 110 L95 290 Q100 320 150 320 Q200 320 205 290 L230 110 Z" fill="#FAF6F0"></path>
+  <ellipse cx="150" cy="110" rx="80" ry="14" fill="#FAF6F0"></ellipse>
+  <ellipse cx="150" cy="110" rx="74" ry="12" fill="#3A2418"></ellipse>
+  <ellipse cx="150" cy="110" rx="74" ry="11" fill="#5D3A24"></ellipse>
+  <ellipse cx="150" cy="108" rx="68" ry="9" fill="#C5962B" opacity="0.4"></ellipse>
+  <ellipse cx="135" cy="108" rx="12" ry="3" fill="#FAF6F0" opacity="0.4"></ellipse>
+  <ellipse cx="170" cy="110" rx="8" ry="2" fill="#FAF6F0" opacity="0.3"></ellipse>
+  <path d="M230 140 Q280 160 270 220 Q260 260 220 250" stroke="#FAF6F0" stroke-width="14" fill="none" stroke-linecap="round"></path>
+  <text x="150" y="220" text-anchor="middle" font-family="Fraunces, serif" font-size="14" fill="#C5962B" letter-spacing="2" font-style="italic">cuisinart</text>
+  <line x1="120" y1="230" x2="180" y2="230" stroke="#C5962B" stroke-width="0.5"></line>
+  <text x="150" y="244" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="7" fill="#C5962B" letter-spacing="2">EST 1971</text>
+</svg>

@@ -1,55 +1,76 @@
 /* ============================================================
-   Brew Lab by Cuisinart — Design System
+   Brew Lab by Cuisinart — Component layer
+   Design tokens come from design-tokens.css (Cuisinart Brew House
+   design system: NYT Cooking × Tasty palette + Source Serif 4).
+   This file maps our legacy variable names onto the new tokens
+   so existing components pick up the new look automatically.
    ============================================================ */
 
 :root {
-  /* Palette - clean, refined, with warm coffee accents */
-  --bg: #FFFFFF;
-  --bg-subtle: #F5F4F1;
-  --surface: #FFFFFF;
-  --surface-2: #FAFAF7;
-  --ink: #1A1614;
-  --ink-soft: #4A4039;
-  --ink-muted: #8C857E;
-  --line: #ECE7DF;
-  --line-soft: #F4EFE6;
+  /* Map legacy names → design system tokens */
+  --bg: var(--cream);
+  --bg-subtle: var(--cream-warm);
+  --surface: var(--paper);
+  --surface-2: var(--cream-warm);
+  --ink-muted: var(--ink-faint);
+  --line: var(--hairline);
+  --line-soft: var(--hairline);
 
-  /* Brand accents — Roast Orange (the attention-grabber) */
-  --espresso: #2A1A14;
-  --caramel: #D85A2A;
-  --caramel-deep: #B5481E;
+  /* Brand accents — now the design system tomato/marigold */
+  --espresso: var(--ink);
+  --caramel: var(--tomato);
+  --caramel-deep: var(--tomato-dark);
   --caramel-soft: #FAEAD9;
-  --green: #2D4A3A;        /* Cuisinart heritage green, used sparingly */
+  --green: var(--jungle);
   --green-soft: #DCE6DF;
-  --gold: #C5962B;
-  --gold-soft: #F4E9C8;
-  --crema: #E8C896;
+  --gold: var(--marigold);
+  --gold-soft: #FAE9B6;
+  --crema: var(--cream);
 
   /* Semantic */
-  --success: #4F7B5C;
-  --warning: #C8762D;
-  --danger: #B5332A;
-  --info: #5476A6;
+  --warning: var(--marigold-dark);
+  --danger: var(--error);
+  --info: var(--sky);
 
-  /* Type */
-  --font-display: 'Fraunces', Georgia, serif;
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* Type — keep aliases that styles.css uses, font-display/body/mono are
+     already defined in design-tokens.css */
 
-  /* Spacing */
+  /* Radii — keep our existing names */
   --r-xs: 6px;
   --r-sm: 10px;
   --r: 14px;
   --r-lg: 20px;
   --r-xl: 28px;
 
-  /* Shadow */
-  --shadow-sm: 0 1px 2px rgba(31, 20, 16, 0.04), 0 1px 3px rgba(31, 20, 16, 0.06);
-  --shadow: 0 2px 4px rgba(31, 20, 16, 0.04), 0 8px 24px rgba(31, 20, 16, 0.06);
-  --shadow-lg: 0 4px 8px rgba(31, 20, 16, 0.04), 0 16px 40px rgba(31, 20, 16, 0.10);
+  /* Shadows — sticker-style hard offsets where it counts */
+  --shadow-sm: 0 1px 2px rgba(31, 26, 20, 0.06), 0 1px 3px rgba(31, 26, 20, 0.08);
+  --shadow:    0 2px 4px rgba(31, 26, 20, 0.06), 0 14px 30px -18px rgba(31, 26, 20, 0.30);
+  --shadow-lg: 0 4px 8px rgba(31, 26, 20, 0.06), 0 28px 60px -28px rgba(31, 26, 20, 0.35);
+  --shadow-sticker: 6px 6px 0 0 var(--ink);
 
   /* Motion */
-  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Subtle noise overlay (from the design system) gives the paper-magazine feel */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.10 0 0 0 0 0.08 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+}
+body > * { position: relative; z-index: 2; }
+
+/* The italic-tomato accent treatment for headlines */
+.italic-accent { font-style: italic; color: var(--tomato); font-weight: 700; }
+em.italic-accent, h1 em, h2 em, h3 em, .h1 em, .h2 em, .h3 em {
+  font-style: italic;
+  color: var(--tomato);
+  font-weight: 700;
 }
 
 /* Reset */
@@ -74,16 +95,20 @@ input, select, textarea { font: inherit; color: inherit; }
 .h-display { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.02em; line-height: 1.05; }
 .h1 { font-family: var(--font-display); font-weight: 500; font-size: clamp(2.5rem, 6vw, 4.25rem); line-height: 1.02; letter-spacing: -0.025em; }
 .h2 { font-family: var(--font-display); font-weight: 500; font-size: clamp(1.75rem, 3.5vw, 2.5rem); line-height: 1.1; letter-spacing: -0.02em; }
-.h3 { font-family: var(--font-display); font-weight: 500; font-size: 1.5rem; line-height: 1.2; letter-spacing: -0.015em; }
-.h4 { font-family: var(--font-display); font-weight: 500; font-size: 1.2rem; line-height: 1.25; }
+.h-display { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.025em; line-height: 0.96; }
+.h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.6rem, 7vw, 5.5rem); line-height: 0.94; letter-spacing: -0.025em; color: var(--ink); }
+.h2 { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.9rem, 4.5vw, 3.5rem); line-height: 0.96; letter-spacing: -0.022em; color: var(--ink); }
+.h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.65rem; line-height: 1.1; letter-spacing: -0.018em; color: var(--ink); }
+.h4 { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; line-height: 1.2; letter-spacing: -0.012em; color: var(--ink); }
 .eyebrow {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--caramel-deep);
+  color: var(--tomato);
 }
-.lead { font-size: 1.15rem; color: var(--ink-soft); line-height: 1.5; }
+.lead { font-family: var(--font-display); font-size: 1.25rem; color: var(--ink-soft); line-height: 1.45; font-weight: 400; }
 .muted { color: var(--ink-muted); }
 .mono { font-family: var(--font-mono); }
 
@@ -104,43 +129,58 @@ input, select, textarea { font: inherit; color: inherit; }
   .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
 }
 
-/* Buttons */
+/* Buttons — magazine pill, tomato accent, ink ghost. Sticker variant for big CTAs. */
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
+  gap: 10px;
+  padding: 13px 22px;
   border-radius: 999px;
-  font-weight: 600;
+  font-family: var(--font-body);
+  font-weight: 700;
   font-size: 0.95rem;
   letter-spacing: 0.005em;
-  transition: transform 0.15s var(--ease), background 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  transition: transform 0.18s var(--ease), background 0.2s var(--ease), box-shadow 0.2s var(--ease);
   white-space: nowrap;
+  border: none;
+  cursor: pointer;
 }
-.btn:active { transform: translateY(1px); }
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
 .btn-primary {
-  background: var(--espresso);
-  color: var(--surface);
+  background: var(--ink);
+  color: var(--cream);
 }
-.btn-primary:hover { background: #3a261d; box-shadow: var(--shadow); }
+.btn-primary:hover { background: #000; }
 .btn-accent {
-  background: var(--caramel);
-  color: var(--surface);
+  background: var(--tomato);
+  color: var(--cream);
 }
-.btn-accent:hover { background: var(--caramel-deep); box-shadow: var(--shadow); }
+.btn-accent:hover { background: var(--tomato-dark); }
 .btn-secondary {
-  background: var(--surface);
+  background: transparent;
   color: var(--ink);
-  border: 1px solid var(--line);
+  border: 1.5px solid var(--ink);
 }
-.btn-secondary:hover { background: var(--surface-2); border-color: var(--ink-muted); }
+.btn-secondary:hover { background: var(--ink); color: var(--cream); }
 .btn-ghost {
   background: transparent;
   color: var(--ink);
-  padding: 10px 16px;
+  padding: 11px 18px;
 }
-.btn-ghost:hover { background: var(--bg-subtle); }
-.btn-sm { padding: 8px 14px; font-size: 0.85rem; }
+.btn-ghost:hover { background: rgba(31, 26, 20, 0.06); }
+/* Sticker button — marigold + ink border + offset shadow (signature look) */
+.btn-sticker {
+  background: var(--marigold);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  padding: 13px 22px;
+  font-weight: 800;
+  box-shadow: 6px 6px 0 0 var(--ink);
+}
+.btn-sticker:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 0 var(--ink); background: var(--marigold); }
+.btn-sm { padding: 9px 16px; font-size: 0.85rem; }
 .btn-lg { padding: 16px 28px; font-size: 1.05rem; }
 .btn-block { width: 100%; justify-content: center; }
 .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
@@ -786,14 +826,16 @@ input, select, textarea { font: inherit; color: inherit; }
   color: #233C28;
 }
 .bl-brand-mark {
-  width: 30px; height: 30px;
-  border-radius: 8px;
-  background: #233C28;
-  color: #FAF6F0;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--tomato);
+  color: var(--cream);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.95rem;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
 }
 .bl-brand-text {
   display: inline-flex;
@@ -803,18 +845,18 @@ input, select, textarea { font: inherit; color: inherit; }
 }
 .bl-brand-name {
   font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 1.2rem;
-  letter-spacing: -0.01em;
-  color: #233C28;
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: -0.018em;
+  color: var(--ink);
 }
 .bl-brand-tag {
-  font-family: 'Inter', system-ui, sans-serif;
-  font-weight: 500;
-  font-size: 0.6rem;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 0.58rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #8C857E;
+  color: var(--ink-faint);
   margin-top: 4px;
 }
 
@@ -826,27 +868,27 @@ input, select, textarea { font: inherit; color: inherit; }
 }
 .bl-nav-link {
   position: relative;
-  padding: 10px 18px;
+  padding: 10px 16px;
   font-size: 0.95rem;
-  font-weight: 500;
-  color: rgba(35, 60, 40, 0.7);
+  font-weight: 600;
+  color: var(--ink);
   transition: color 0.15s var(--ease);
 }
 .bl-nav-link::after {
   content: '';
   position: absolute;
-  left: 18px;
-  right: 18px;
-  bottom: 4px;
-  height: 2px;
-  background: #D63A2F;
-  border-radius: 2px;
+  left: 16px;
+  right: 16px;
+  bottom: -2px;
+  height: 3px;
+  background: var(--tomato);
+  border-radius: 0;
   transform: scaleX(0);
   transform-origin: center;
   transition: transform 0.18s var(--ease);
 }
-.bl-nav-link:hover { color: #233C28; }
-.bl-nav-link.active { color: #233C28; font-weight: 600; }
+.bl-nav-link:hover { color: var(--tomato); }
+.bl-nav-link.active { color: var(--tomato); }
 .bl-nav-link.active::after { transform: scaleX(1); }
 @media (max-width: 720px) {
   .bl-header-inner { grid-template-columns: auto 1fr auto; gap: 12px; }

@@ -1,0 +1,238 @@
+/* =====================================================================
+   Cuisinart Brew House — Design Tokens (v2)
+   "Refined first, playful only in accents."
+   NYT Cooking refinement × Tasty pop, on a warm cream base.
+
+   Source serif (display) + Inter (sans) + JetBrains Mono (labels).
+   All Google-Fonts; no licensed substitutes required.
+   ===================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;0,8..60,900;1,8..60,400;1,8..60,600&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* =========================================================
+     COLOR — warm cream base, four punchy accents, deep ink
+     ========================================================= */
+
+  /* Surfaces */
+  --cream:        #FFF5EB;   /* page background */
+  --cream-warm:   #FBE9D0;   /* cards on cream pages */
+  --paper:        #FFFEFB;   /* over-cream cards / tables */
+  --linen:        #F4DDB4;   /* deeper warm panel */
+
+  /* Ink */
+  --ink:          #1F1A14;   /* body text, headlines */
+  --ink-soft:     #4A4239;   /* secondary text */
+  --ink-faint:    #8A7E6E;   /* tertiary, captions */
+
+  /* Accents — used like sticker colors */
+  --tomato:       #E84F1A;   /* primary accent · CTAs · badges */
+  --tomato-dark:  #C73E0F;   /* hover */
+  --marigold:     #F5C518;   /* secondary accent · highlight, ratings */
+  --marigold-dark:#D9AC0E;
+  --leaf:         #31A14B;   /* tertiary accent · success, vegan/organic, map pins */
+  --leaf-dark:    #237A38;
+  --plum:         #6B2D5C;   /* rare quaternary · special-issue ribbons */
+  --plum-bright:  #8B3D7C;
+  --teal:         #0E8B91;   /* cold drinks, iced category */
+  --teal-dark:    #075E63;
+  --teal-soft:    #7FCDD0;
+  --jungle:       #1F4D2E;   /* rainforest deep */
+  --jungle-dark:  #0E2A18;
+  --moss:         #5A7A3D;
+  --canopy:       #2A6B3D;
+  --berry:        #B5283F;   /* hot accent for giveaways/contests */
+  --sky:          #5BA8C4;
+
+  /* System */
+  --hairline:     rgba(31, 26, 20, 0.14);
+  --hairline-bold:rgba(31, 26, 20, 0.30);
+  --hairline-on-dark: rgba(255, 245, 235, 0.18);
+  --error:        #C73E0F;
+  --success:      #31A14B;
+
+  /* Semantic */
+  --bg:           var(--cream);
+  --bg-card:      var(--paper);
+  --bg-warm:      var(--cream-warm);
+  --bg-deep:      var(--linen);
+  --bg-ink:       var(--ink);
+  --fg:           var(--ink);
+  --fg-soft:      var(--ink-soft);
+  --fg-faint:     var(--ink-faint);
+  --fg-on-dark:   var(--cream);
+  --accent:       var(--tomato);
+  --accent-2:     var(--marigold);
+  --accent-3:     var(--leaf);
+  --link:         var(--tomato);
+  --border:       var(--hairline);
+
+  /* =========================================================
+     TYPE
+     Display:  Source Serif 4   (variable, opsz 8..60)
+     Sans:     Inter
+     Mono:     JetBrains Mono   (sparingly, for tags + status)
+     ========================================================= */
+
+  --font-display: 'Source Serif 4', 'Tiempos Headline', 'Charter', Georgia, serif;
+  --font-body:    'Inter', 'Söhne', system-ui, -apple-system, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Display weights / opsz */
+  --fw-display-regular:  400;
+  --fw-display-medium:   500;
+  --fw-display-bold:     700;
+  --fw-display-black:    900;
+  --display-opsz-large:  60;     /* hero */
+  --display-opsz-small:  18;     /* card titles */
+
+  /* Body weights */
+  --fw-body-regular:  400;
+  --fw-body-medium:   500;
+  --fw-body-semibold: 600;
+  --fw-body-bold:     700;
+  --fw-body-black:    800;       /* small caps eyebrows in Inter Black tracked */
+
+  /* Mono weights */
+  --fw-mono-regular: 400;
+  --fw-mono-medium:  500;
+  --fw-mono-bold:    600;
+
+  /* Type scale (clamped where the source uses it) */
+  --type-display-xxl: clamp(64px, 9vw, 144px);   /* hero magazine title */
+  --type-display-xl:  clamp(48px, 6vw, 96px);    /* section magazine title */
+  --type-display-l:   clamp(36px, 4.5vw, 64px);  /* h2 */
+  --type-display-m:   44px;                      /* card big title */
+  --type-display-s:   32px;                      /* recipe-tile title */
+  --type-h3:          26px;
+  --type-h4:          22px;
+  --type-h5:          18px;
+
+  --type-body-l:      19px;     /* hero lede */
+  --type-body-m:      16px;     /* default body */
+  --type-body-s:      14px;     /* card meta */
+  --type-body-xs:     12px;     /* fine print */
+
+  --type-mono-eyebrow:11px;     /* SECTION 03 / SAVED / LIVE */
+  --type-mono-tag:    10px;
+  --type-mono-stat:   13px;
+
+  /* Line heights */
+  --lh-display:       0.96;
+  --lh-display-loose: 1.04;
+  --lh-tight:         1.18;
+  --lh-body:          1.55;
+  --lh-loose:         1.7;
+
+  /* Letter spacing */
+  --tracked-display:  -0.022em;
+  --tracked-eyebrow:  0.14em;
+  --tracked-mono:     0.06em;
+
+  /* =========================================================
+     SPACING + LAYOUT
+     ========================================================= */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  24px;
+  --space-6:  32px;
+  --space-7:  48px;
+  --space-8:  64px;
+  --space-9:  96px;
+  --space-10: 128px;
+
+  --container:        1320px;
+  --container-narrow: 720px;
+  --container-wide:   1480px;
+  --pad-page:         clamp(20px, 4vw, 40px);
+  --section-y:        clamp(56px, 9vw, 120px);
+
+  /* =========================================================
+     RADII (chunkier than v1 — playful undercurrent)
+     ========================================================= */
+  --r-xs:  4px;       /* tag chips */
+  --r-sm:  8px;       /* small cards */
+  --r-md:  14px;      /* cards */
+  --r-lg:  22px;      /* feature cards */
+  --r-xl:  32px;      /* hero panels */
+  --r-pill: 999px;    /* buttons, chips */
+
+  /* =========================================================
+     SHADOWS — "sticker" style (offset, hard-ish)
+     ========================================================= */
+  --shadow-card: 0 14px 30px -18px rgba(31, 26, 20, 0.30);
+  --shadow-lift: 0 28px 60px -28px rgba(31, 26, 20, 0.35);
+  --shadow-sticker-tomato:   6px 6px 0 0 var(--ink);
+  --shadow-sticker-marigold: 6px 6px 0 0 var(--ink);
+
+  /* =========================================================
+     MOTION
+     ========================================================= */
+  --ease-brand:   cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-snappy:  cubic-bezier(0.32, 0.72, 0, 1);
+  --dur-quick:    160ms;
+  --dur:          240ms;
+  --dur-slow:     420ms;
+}
+
+/* ---------------------------------------------------------------------
+   BASELINE TYPE PRIMITIVES
+   --------------------------------------------------------------------- */
+
+.font-display { font-family: var(--font-display); font-weight: 700; letter-spacing: var(--tracked-display); }
+.font-body    { font-family: var(--font-body); }
+.font-mono    { font-family: var(--font-mono); letter-spacing: var(--tracked-mono); }
+
+/* The brand "eyebrow" — Inter Black, tiny, tracked, all caps */
+.eyebrow {
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: var(--type-mono-eyebrow);
+  letter-spacing: var(--tracked-eyebrow);
+  text-transform: uppercase;
+  color: var(--tomato);
+}
+
+/* Numbered section markers (e.g. "SECTION 03 / RECIPES") */
+.section-mark {
+  font-family: var(--font-mono);
+  font-size: var(--type-mono-tag);
+  letter-spacing: var(--tracked-eyebrow);
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* "Issue ribbon" — the sticker corner-tag */
+.ribbon {
+  display: inline-block;
+  background: var(--tomato);
+  color: var(--cream);
+  padding: 4px 10px;
+  border-radius: var(--r-xs);
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: var(--type-mono-tag);
+  letter-spacing: var(--tracked-eyebrow);
+  text-transform: uppercase;
+  transform: rotate(-2deg);
+}
+
+/* Hero magazine title — Source Serif 4 at large opsz, weight 800–900 */
+.h-magazine {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-variation-settings: 'opsz' 60;
+  font-size: var(--type-display-xxl);
+  line-height: var(--lh-display);
+  letter-spacing: var(--tracked-display);
+  color: var(--ink);
+}
+
+/* Italic accent — used inline like NYT pull-quotes */
+.italic-accent {
+  font-style: italic;
+  font-weight: 600;
+  color: var(--tomato);
+}
