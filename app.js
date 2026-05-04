@@ -328,10 +328,10 @@ async function signOut() {
 
 /* ---------------- Router ---------------- */
 const ROUTES = {
-  '': renderDashboard,
-  'home': renderDashboard,
+  '': renderHome,
+  'home': renderHome,
   'brew': renderBrew,
-  'discover': renderDiscover,
+  'discover': renderHome,
   'learn': renderLearn,
   'you': renderYou,
 
@@ -370,7 +370,7 @@ function navigate(path) {
 
 function render() {
   const { route, param } = parseRoute();
-  const fn = ROUTES[route] || renderDashboard;
+  const fn = ROUTES[route] || renderHome;
 
   const main = document.getElementById('main');
   if (!main) return;
@@ -524,11 +524,17 @@ function openBrewLogModal() {
     )
   );
 
+  const existingCount = loadBrewLog().length;
+  const countLabel = existingCount === 0
+    ? 'Your first one — make it count.'
+    : (existingCount === 1 ? '1 brew logged so far.' : existingCount + ' brews logged so far.');
+
   const card = el('div', { class: 'bl-modal-card', onclick: (e) => e.stopPropagation() },
     el('div', { class: 'bl-modal-head' },
       el('div', {},
         el('div', { class: 'bl-modal-eyebrow' }, 'Log brew'),
-        el('h2', { class: 'bl-modal-title' }, 'How was it?')
+        el('h2', { class: 'bl-modal-title' }, 'How was it?'),
+        el('p', { class: 'bl-modal-count' }, countLabel)
       ),
       el('button', { type: 'button', class: 'bl-modal-close', onclick: close, 'aria-label': 'Close' }, '×')
     ),
@@ -695,8 +701,17 @@ function renderOnboarding(main) {
   paint();
 }
 
-/* ----- Home (The Grind-inspired narrative + Cuisinart-influenced specs) ----- */
+/* ----- Home (retired)
+   The previous Apprentice Brewer dashboard (greeting + Grind Score +
+   Today's Pour + daily quest + community scroll + challenge + Latte Art /
+   Passport CTAs) was retired. Home now renders the same view as
+   renderHome (Today's brew, cafe story, picks, map, cafe row).
+   Routes for '', 'home', 'discover' all resolve to renderHome.
+   The dashboard implementation is parked below in case any logic
+   needs to be revived; this stub does not render. */
 function renderDashboard(main) {
+  return renderHome(main);
+  /*
   main.innerHTML = '';
   const c = el('div', { class: 'container-narrow', style: 'max-width:760px' });
   main.appendChild(c);
@@ -787,6 +802,7 @@ function renderDashboard(main) {
     )
   ));
   c.appendChild(ctaPair);
+  */
 }
 
 /* ----- Helper components for Home ----- */
@@ -1105,15 +1121,16 @@ function renderBrew(main) {
   c.appendChild(flavorGrid);
 }
 
-/* ----- Discover tab — Today's brew, picks, places, trending ----- */
+/* ----- Home — Today's brew, cafe story, picks, places ----- */
 const DAILY_DRINKS = [
-  { name: 'Spanish latte',         desc: 'Espresso, sweetened condensed milk, and steamed milk. Rich, sweet, dessert in a cup.',    glyph: '🥛' },
-  { name: 'Espresso tonic',        desc: 'A double shot poured over ice and tonic water. Bitter, bright, surprisingly refreshing.', glyph: '🫧' },
-  { name: 'Japanese iced V60',     desc: 'Brewed hot directly onto ice. Locks in floral aromatics that flash-cooling preserves.',   glyph: '🧊' },
-  { name: 'Dirty horchata',        desc: 'Cinnamon-rice horchata with a shot pulled straight through. Cool, creamy, caffeinated.',  glyph: '🥤' },
-  { name: 'Cortado',               desc: 'Equal parts espresso and warm milk. Smooth, balanced, no foam to hide behind.',           glyph: '☕' },
-  { name: 'Cold brew old fashioned', desc: 'Cold brew concentrate, demerara, orange peel, a dash of bitters. Stirred, not shaken.', glyph: '🥃' },
-  { name: 'Cardamom latte',        desc: 'Espresso steamed with green cardamom milk. Warm spice, lingering finish.',                glyph: '✨' }
+  { name: 'Spanish latte',           desc: 'Espresso, sweetened condensed milk, and steamed milk. Rich, sweet, dessert in a cup.' },
+  { name: 'Espresso tonic',          desc: 'A double shot poured over ice and tonic water. Bitter, bright, surprisingly refreshing.' },
+  { name: 'Japanese iced V60',       desc: 'Brewed hot directly onto ice. Locks in floral aromatics that flash-cooling preserves.' },
+  { name: 'Dirty horchata',          desc: 'Cinnamon-rice horchata with a shot pulled straight through. Cool, creamy, caffeinated.' },
+  { name: 'Cortado',                 desc: 'Equal parts espresso and warm milk. Smooth, balanced, no foam to hide behind.' },
+  { name: 'Cold brew old fashioned', desc: 'Cold brew concentrate, demerara, orange peel, a dash of bitters. Stirred, not shaken.' },
+  { name: 'Cardamom latte',          desc: 'Espresso steamed with green cardamom milk. Warm spice, lingering finish.' },
+  { name: 'Saturday morning latte',  desc: 'A no-rush double shot with steamed whole milk and a slow micro-foam. The weekend in a cup.' }
 ];
 
 function dayOfYear(d) {
@@ -1121,7 +1138,7 @@ function dayOfYear(d) {
   return Math.floor((d - start) / 86400000);
 }
 
-function renderDiscover(main) {
+function renderHome(main) {
   main.innerHTML = '';
   const page = el('div', { class: 'discover-page' });
   main.appendChild(page);
@@ -1138,11 +1155,9 @@ function renderDiscover(main) {
           el('p', { class: 'today-eyebrow' }, 'Today’s brew · ' + weekday),
           el('h1', { class: 'today-title' }, drink.name),
           el('p', { class: 'today-desc' }, drink.desc),
-          el('button', { class: 'btn-discover-cta', onclick: openBrewLogModal }, 'Try this brew')
+          el('button', { class: 'btn-discover-cta', onclick: () => navigate('recipes') }, 'Try this brew')
         ),
-        el('div', { class: 'today-hero-img', 'aria-hidden': 'true' },
-          el('span', { class: 'today-hero-glyph' }, drink.glyph)
-        )
+        el('div', { class: 'today-hero-img', 'aria-hidden': 'true' })
       )
     )
   ));
@@ -1156,6 +1171,12 @@ function renderDiscover(main) {
           role: 'button',
           tabindex: '0',
           onclick: () => toast('Story playback coming soon'),
+          onkeydown: (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              toast('Story playback coming soon');
+            }
+          },
           'aria-label': 'Play Dirt Cowboy story'
         },
           el('div', { class: 'cafe-story-play', 'aria-hidden': 'true' }),
@@ -1286,34 +1307,6 @@ function renderDiscover(main) {
     setTimeout(() => map.invalidateSize(), 0);
   });
 
-  /* 4. Trending this week */
-  const trending = [
-    { name: 'Espresso tonic',     meta: '3 min · Easy',   glyph: '🫧', tone: 'cream' },
-    { name: 'Japanese iced V60',  meta: '5 min · Medium', glyph: '🧊', tone: 'green' },
-    { name: 'Cortado three ways', meta: '4 min · Easy',   glyph: '☕', tone: 'gold'  }
-  ];
-  page.appendChild(el('section', { class: 'discover-section' },
-    el('div', { class: 'container' },
-      el('div', { class: 'discover-section-head' },
-        el('div', {},
-          el('p', { class: 'discover-eyebrow' }, 'Trending this week'),
-          el('h2', { class: 'discover-h2' }, 'What members are brewing')
-        ),
-        el('a', { href: '#/recipes', class: 'discover-link' }, 'See all →')
-      ),
-      el('div', { class: 'trending-row' },
-        trending.map(t => el('a', { href: '#/recipes', class: 'trending-card' },
-          el('div', { class: 'trending-card-thumb pick-tone-' + t.tone },
-            el('span', {}, t.glyph)
-          ),
-          el('div', { class: 'trending-card-body' },
-            el('h4', { class: 'trending-card-name' }, t.name),
-            el('p', { class: 'trending-card-meta' }, t.meta)
-          )
-        ))
-      )
-    )
-  ));
 }
 
 /* ----- Products ----- */
