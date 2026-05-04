@@ -380,17 +380,18 @@
   overflow: visible;
 }
 
-/* Heart latte art blooms up out of the coffee surface */
-.milk-anim .latte-art {
-  transform-origin: 120px 152px;
-  animation: heart-bloom 5s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+/* Top-down rosetta latte art — slow rotation + gentle pulse */
+.milk-anim .rosetta {
+  transform-origin: 120px 120px;
+  animation: rosetta-spin 14s linear infinite, rosetta-pulse 5s ease-in-out infinite;
 }
-@keyframes heart-bloom {
-  0%        { opacity: 0; transform: scale(0.2) translateY(10px); }
-  35%       { opacity: 0; transform: scale(0.2) translateY(10px); }
-  55%       { opacity: 1; transform: scale(1.06) translateY(-1px); }
-  72%, 88%  { opacity: 1; transform: scale(1) translateY(0); }
-  100%      { opacity: 0; transform: scale(0.85) translateY(2px); }
+@keyframes rosetta-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes rosetta-pulse {
+  0%, 100% { opacity: 0.92; }
+  50%      { opacity: 1; }
 }
 
 /* Steam wisps rise slowly */

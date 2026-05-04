@@ -25,6 +25,7 @@ const state = {
   todayQuestDone: false,
   freezesAvailable: 1,
   isMember: true,
+  communityPosts: [], // [{ id, text, kind, icon, verb, when, timestamp }]
 };
 
 function load() {
@@ -1729,13 +1730,18 @@ function renderMagazineHome(main) {
       <path d="M22,8 Q24,5 21,2" stroke="#1F1A14" stroke-width="1.4" fill="none" stroke-linecap="round" opacity="0.55"/>
     </svg>`;
 
-    const beanPinHtml = `<svg viewBox="0 0 32 32" width="30" height="30" xmlns="http://www.w3.org/2000/svg" style="display:block;filter:drop-shadow(0 2px 4px rgba(31,26,20,0.4))">
-      <!-- Bean shape (rotated oval with classic seam) -->
-      <ellipse cx="16" cy="16" rx="9" ry="12" fill="#5C3920" stroke="#1F1A14" stroke-width="1.6" transform="rotate(-22 16 16)"/>
-      <!-- Highlight -->
-      <ellipse cx="13" cy="11" rx="2.5" ry="4" fill="#9C6F44" opacity="0.55" transform="rotate(-22 16 16)"/>
-      <!-- Center seam -->
-      <path d="M16,5 Q12,16 16,27" stroke="#F5C518" stroke-width="1.8" fill="none" stroke-linecap="round" transform="rotate(-22 16 16)"/>
+    const beanPinHtml = `<svg viewBox="0 0 36 36" width="32" height="32" xmlns="http://www.w3.org/2000/svg" style="display:block;filter:drop-shadow(0 2px 4px rgba(31,26,20,0.4))">
+      <!-- Marigold disc backdrop -->
+      <circle cx="18" cy="18" r="14" fill="#F5C518" stroke="#1F1A14" stroke-width="1.6"/>
+      <!-- Coffee cherry / bean inside the disc — proper kidney shape -->
+      <g transform="translate(18 18) rotate(-15)">
+        <path d="M-7,-9 Q-9,-2 -7,7 Q-3,11 5,9 Q9,5 9,-2 Q7,-9 0,-10 Q-5,-10 -7,-9 Z"
+              fill="#3C2110" stroke="#1F1A14" stroke-width="1.2"/>
+        <!-- Seam (classic coffee bean groove) -->
+        <path d="M-4,-7 Q-2,0 -3,8" stroke="#F5C518" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <!-- Highlight -->
+        <ellipse cx="-3" cy="-5" rx="1.5" ry="3" fill="#7A4F2A" opacity="0.7"/>
+      </g>
     </svg>`;
 
     const cafeIcon = L.divIcon({
@@ -1899,7 +1905,7 @@ const CAFE_AWARDS = {
   'blue-bottle':     ['Founded 2002, Oakland CA', 'Sources from George Howell network', 'New Orleans iced coffee is the original viral cold brew']
 };
 
-// Crisp animated coffee cup: heart blooms up from the surface, no pitcher
+// Top-down coffee cup with rotating latte art rosetta — looking straight into the coffee
 function milkPourSmileySvg() {
   const NS = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(NS, 'svg');
@@ -1907,67 +1913,62 @@ function milkPourSmileySvg() {
   svg.setAttribute('class', 'milk-anim');
   svg.innerHTML = `
     <defs>
-      <radialGradient id="coffee-deep" cx="50%" cy="42%" r="60%">
-        <stop offset="0%" stop-color="#7A4F2A"/>
-        <stop offset="55%" stop-color="#3C2110"/>
+      <radialGradient id="coffee-top" cx="50%" cy="50%" r="55%">
+        <stop offset="0%" stop-color="#A07142"/>
+        <stop offset="40%" stop-color="#5C3920"/>
         <stop offset="100%" stop-color="#1A0D05"/>
       </radialGradient>
-      <linearGradient id="cup-body" x1="0" x2="0" y1="0" y2="1">
+      <radialGradient id="saucer-top" cx="50%" cy="50%" r="55%">
         <stop offset="0%" stop-color="#FFFEFB"/>
-        <stop offset="55%" stop-color="#F2DEC1"/>
+        <stop offset="80%" stop-color="#F2DEC1"/>
         <stop offset="100%" stop-color="#C9AC85"/>
-      </linearGradient>
-      <linearGradient id="saucer-grad" x1="0" x2="0" y1="0" y2="1">
-        <stop offset="0%" stop-color="#FFF5E6"/>
-        <stop offset="100%" stop-color="#D9BB8C"/>
-      </linearGradient>
-      <radialGradient id="crema-shine" cx="40%" cy="20%" r="80%">
-        <stop offset="0%" stop-color="#C99466" stop-opacity="0.55"/>
-        <stop offset="50%" stop-color="#9F6634" stop-opacity="0.18"/>
+      </radialGradient>
+      <radialGradient id="crema-glow" cx="40%" cy="40%" r="60%">
+        <stop offset="0%" stop-color="#D8A66B" stop-opacity="0.7"/>
+        <stop offset="50%" stop-color="#9F6634" stop-opacity="0.25"/>
         <stop offset="100%" stop-color="#5C3920" stop-opacity="0"/>
       </radialGradient>
     </defs>
 
-    <!-- Saucer shadow on table -->
-    <ellipse cx="120" cy="220" rx="100" ry="6" fill="#1F1A14" opacity="0.16"/>
-    <!-- Saucer -->
-    <ellipse cx="120" cy="212" rx="96" ry="9" fill="#1F1A14"/>
-    <ellipse cx="120" cy="210" rx="94" ry="8" fill="url(#saucer-grad)"/>
-    <ellipse cx="120" cy="207" rx="86" ry="5" fill="#FFFEFB" opacity="0.45"/>
+    <!-- Drop shadow under the cup -->
+    <ellipse cx="120" cy="200" rx="98" ry="14" fill="#1F1A14" opacity="0.15"/>
 
-    <!-- Cup body — clean tapered shape -->
-    <path d="M52,148 Q47,192 76,206 Q98,212 120,212 Q142,212 164,206 Q193,192 188,148 Z"
-          fill="url(#cup-body)" stroke="#1F1A14" stroke-width="2.2" stroke-linejoin="round"/>
+    <!-- Saucer (top-down circle) -->
+    <circle cx="120" cy="120" r="115" fill="url(#saucer-top)" stroke="#1F1A14" stroke-width="2"/>
+    <circle cx="120" cy="120" r="100" fill="none" stroke="#1F1A14" stroke-width="0.8" opacity="0.25"/>
 
-    <!-- Inner shadow at base of cup for depth -->
-    <path d="M70,200 Q98,208 120,208 Q142,208 170,200" stroke="#1F1A14" stroke-width="1.2" fill="none" opacity="0.18"/>
+    <!-- Cup rim ring (we're looking straight down into the cup) -->
+    <circle cx="120" cy="120" r="88" fill="#FFFEFB" stroke="#1F1A14" stroke-width="2.2"/>
+    <circle cx="120" cy="120" r="80" fill="#1F1A14"/>
 
-    <!-- Cup handle: clean ear shape -->
-    <path d="M188,158 Q216,160 216,178 Q216,196 188,198" fill="none" stroke="#1F1A14" stroke-width="5.5" stroke-linecap="round"/>
-    <path d="M192,164 Q210,166 210,178 Q210,190 192,192" fill="none" stroke="#FFFFFF" stroke-width="1.2" opacity="0.55"/>
+    <!-- Coffee surface — circular, top-down -->
+    <circle cx="120" cy="120" r="76" fill="url(#coffee-top)"/>
+    <circle cx="120" cy="120" r="76" fill="url(#crema-glow)"/>
 
-    <!-- Coffee surface ellipse: rim dark + crema gradient -->
-    <ellipse cx="120" cy="148" rx="68" ry="10" fill="#1F1A14"/>
-    <ellipse cx="120" cy="147" rx="64" ry="8.5" fill="url(#coffee-deep)"/>
-    <ellipse cx="120" cy="146" rx="64" ry="8.5" fill="url(#crema-shine)"/>
+    <!-- Crema swirl ring -->
+    <circle cx="120" cy="120" r="70" fill="none" stroke="#C9A06A" stroke-width="0.8" opacity="0.3"/>
 
-    <!-- Steam — three slow rising wisps, animated -->
-    <g class="steam">
-      <path class="wisp w1" d="M96,128 C92,114 100,104 102,96" stroke="#1F1A14" stroke-width="2" fill="none" opacity="0.35" stroke-linecap="round"/>
-      <path class="wisp w2" d="M120,122 C116,106 124,92 124,82"  stroke="#1F1A14" stroke-width="2" fill="none" opacity="0.4" stroke-linecap="round"/>
-      <path class="wisp w3" d="M144,128 C148,114 140,104 138,96" stroke="#1F1A14" stroke-width="2" fill="none" opacity="0.32" stroke-linecap="round"/>
+    <!-- Rotating rosetta latte art -->
+    <g class="rosetta">
+      <!-- Center stem -->
+      <path d="M120,68 L120,172" stroke="#FFFEFB" stroke-width="3" stroke-linecap="round"/>
+      <!-- Rosetta leaves — symmetric pairs sweeping outward -->
+      <path d="M120,90 Q104,98 96,112 Q108,108 120,104 Q132,108 144,112 Q136,98 120,90 Z"
+            fill="#FFFEFB" opacity="0.95"/>
+      <path d="M120,108 Q100,118 88,134 Q104,128 120,122 Q136,128 152,134 Q140,118 120,108 Z"
+            fill="#FFFEFB" opacity="0.95"/>
+      <path d="M120,128 Q98,140 84,158 Q104,150 120,144 Q136,150 156,158 Q142,140 120,128 Z"
+            fill="#FFFEFB" opacity="0.95"/>
+      <!-- Heart at the top -->
+      <path d="M120,72 C115,66 105,66 105,74 C105,82 115,86 120,90 C125,86 135,82 135,74 C135,66 125,66 120,72 Z"
+            fill="#FFFEFB"/>
     </g>
 
-    <!-- HEART — crisp, single white silhouette, blooms up out of the coffee -->
-    <g class="latte-art" opacity="0">
-      <path d="M120,144
-               C114,136 100,136 100,146
-               C100,156 110,162 120,170
-               C130,162 140,156 140,146
-               C140,136 126,136 120,144 Z"
-            fill="#FFFFFF" stroke="#E8DECB" stroke-width="0.8"/>
-      <!-- subtle inner curl, single arc — keeps it crisp, not cartoony -->
-      <path d="M114,148 C112,146 110,148 110,150" stroke="#E8DECB" stroke-width="1" fill="none" opacity="0.7" stroke-linecap="round"/>
+    <!-- Steam wisps rising from the cup -->
+    <g class="steam">
+      <path class="wisp w1" d="M88,46 C84,32 92,22 94,14" stroke="#1F1A14" stroke-width="2.2" fill="none" opacity="0.32" stroke-linecap="round"/>
+      <path class="wisp w2" d="M120,38 C116,22 124,8 124,0"  stroke="#1F1A14" stroke-width="2.2" fill="none" opacity="0.38" stroke-linecap="round"/>
+      <path class="wisp w3" d="M152,46 C156,32 148,22 146,14" stroke="#1F1A14" stroke-width="2.2" fill="none" opacity="0.3" stroke-linecap="round"/>
     </g>
   `;
   return svg;
@@ -3406,15 +3407,98 @@ function passportStampCount() {
 
 function passportPreview() {
   const stamps = collectedStamps();
-  const grid = el('div', { style: 'display:grid;grid-template-columns:repeat(6, 1fr);gap:10px' });
-  DATA.passportRegions.forEach(r => {
+  // 4x4 grid: 12 regions on the perimeter, robot barista in the center 2x2
+  const grid = el('div', {
+    style: 'display:grid;grid-template-columns:repeat(4, 1fr);grid-template-rows:repeat(4, 1fr);gap:10px;aspect-ratio:1;max-width:520px;margin:0 auto'
+  });
+
+  // Cell positions on a 4x4 grid (row, col) — perimeter, clockwise from top-left
+  const perimeter = [
+    [1,1],[1,2],[1,3],[1,4],
+    [2,4],[3,4],
+    [4,4],[4,3],[4,2],[4,1],
+    [3,1],[2,1]
+  ];
+
+  DATA.passportRegions.forEach((r, i) => {
+    if (i >= perimeter.length) return;
+    const [row, col] = perimeter[i];
     const collected = stamps.includes(r.id);
     grid.appendChild(el('div', {
-      style: 'aspect-ratio:1;background:' + (collected ? 'var(--green-soft)' : 'var(--surface-2)') + ';border:2px ' + (collected ? 'solid var(--success)' : 'dashed var(--line)') + ';border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;opacity:' + (collected ? '1' : '0.4'),
+      style: 'grid-row:' + row + ';grid-column:' + col + ';background:' + (collected ? 'var(--green-soft)' : 'var(--surface-2)') + ';border:2px ' + (collected ? 'solid var(--success)' : 'dashed var(--line)') + ';border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px;text-align:center;opacity:' + (collected ? '1' : '0.55'),
       title: r.name
-    }, r.flag));
+    },
+      el('div', {
+        style: 'font-family:var(--font-display);font-weight:700;font-size:13px;line-height:1.1;color:var(--ink);letter-spacing:-0.01em'
+      }, r.name),
+      collected ? el('div', { style: 'font-size:10px;color:var(--success);font-weight:700;margin-top:4px;font-family:var(--font-mono);letter-spacing:0.06em' }, '✓ STAMPED') : null
+    ));
   });
+
+  // Robot barista in the center 2x2 (rows 2-3, cols 2-3)
+  grid.appendChild(el('div', {
+    style: 'grid-row:2/4;grid-column:2/4;background:linear-gradient(135deg, var(--ink) 0%, #2A1F14 100%);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;color:var(--cream);position:relative;overflow:hidden'
+  },
+    robotBaristaSvg(),
+    el('div', { style: 'font-family:var(--font-mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--marigold);font-weight:700;margin-top:6px' }, '◉ Brew Bot'),
+    el('div', { style: 'font-family:var(--font-display);font-size:13px;font-weight:600;text-align:center;margin-top:2px;line-height:1.2' }, stamps.length + ' / ' + DATA.passportRegions.length + ' collected')
+  ));
+
   return grid;
+}
+
+// Friendly robot barista SVG — simple, crisp, on-brand
+function robotBaristaSvg() {
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 120 120');
+  svg.setAttribute('style', 'width:80%;max-width:120px;height:auto');
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="rb-body" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stop-color="#FFFEFB"/>
+        <stop offset="100%" stop-color="#D9C2A4"/>
+      </linearGradient>
+      <radialGradient id="rb-eye" cx="35%" cy="30%" r="70%">
+        <stop offset="0%" stop-color="#F5C518"/>
+        <stop offset="100%" stop-color="#C28F0E"/>
+      </radialGradient>
+    </defs>
+    <!-- Antenna -->
+    <line x1="60" y1="22" x2="60" y2="10" stroke="#F5C518" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="60" cy="8" r="3.5" fill="#E84F1A" stroke="#FFF5EB" stroke-width="1"/>
+
+    <!-- Head -->
+    <rect x="32" y="22" width="56" height="42" rx="14" fill="url(#rb-body)" stroke="#FFF5EB" stroke-width="2"/>
+
+    <!-- Eyes (round, friendly, marigold) -->
+    <circle cx="48" cy="40" r="6" fill="url(#rb-eye)" stroke="#1F1A14" stroke-width="1.5"/>
+    <circle cx="72" cy="40" r="6" fill="url(#rb-eye)" stroke="#1F1A14" stroke-width="1.5"/>
+    <!-- Eye highlights -->
+    <circle cx="46" cy="38" r="1.5" fill="#FFF5EB"/>
+    <circle cx="70" cy="38" r="1.5" fill="#FFF5EB"/>
+
+    <!-- Smile -->
+    <path d="M48,52 Q60,58 72,52" stroke="#1F1A14" stroke-width="2" stroke-linecap="round" fill="none"/>
+
+    <!-- Side ears / speakers -->
+    <rect x="26" y="34" width="6" height="14" rx="3" fill="#F5C518" stroke="#FFF5EB" stroke-width="1"/>
+    <rect x="88" y="34" width="6" height="14" rx="3" fill="#F5C518" stroke="#FFF5EB" stroke-width="1"/>
+
+    <!-- Body / apron -->
+    <rect x="38" y="64" width="44" height="28" rx="6" fill="url(#rb-body)" stroke="#FFF5EB" stroke-width="2"/>
+    <!-- Apron tomato stripe -->
+    <rect x="38" y="72" width="44" height="6" fill="#E84F1A"/>
+    <!-- Bow tie -->
+    <path d="M55,66 L65,66 L62,70 L65,74 L55,74 L58,70 Z" fill="#E84F1A" stroke="#1F1A14" stroke-width="0.8"/>
+
+    <!-- Coffee cup the bot is holding -->
+    <ellipse cx="60" cy="98" rx="14" ry="3" fill="#1F1A14" opacity="0.3"/>
+    <path d="M48,84 Q47,94 52,98 L68,98 Q73,94 72,84 Z" fill="#FFF5EB" stroke="#1F1A14" stroke-width="1.5"/>
+    <ellipse cx="60" cy="84" rx="12" ry="2.5" fill="#3C2110"/>
+    <ellipse cx="60" cy="83" rx="10" ry="1.8" fill="#7A4F2A"/>
+  `;
+  return svg;
 }
 
 function collectedStamps() {
@@ -3459,9 +3543,9 @@ function renderPassport(main) {
         style: 'padding:20px;text-align:center;cursor:' + (origin ? 'pointer' : 'default') + ';' + (collected ? 'border-color:var(--success);background:var(--green-soft)' : 'opacity:0.6'),
         onclick: () => origin && navigate('origin/' + origin.id)
       },
-        el('div', { style: 'font-size:3rem;margin-bottom:8px;' + (collected ? '' : 'filter:grayscale(0.6);opacity:0.5') }, r.flag),
-        el('div', { style: 'font-weight:600;font-size:0.95rem' }, r.name),
-        el('div', { style: 'font-size:0.78rem;margin-top:4px' }, collected ? el('span', { style: 'color:var(--success);font-weight:600' }, '✓ Collected') : el('span', { style: 'color:var(--ink-muted)' }, 'Not yet'))
+        el('div', { style: 'font-family:var(--font-display);font-weight:800;font-size:1.4rem;margin-bottom:6px;letter-spacing:-0.01em;color:var(--ink)' + (collected ? '' : ';opacity:0.55') }, r.name),
+        el('div', { style: 'font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px' }, r.region),
+        el('div', { style: 'font-size:0.78rem;margin-top:4px' }, collected ? el('span', { style: 'color:var(--success);font-weight:700;font-family:var(--font-mono);letter-spacing:0.08em' }, '✓ STAMPED') : el('span', { style: 'color:var(--ink-muted);font-family:var(--font-mono);letter-spacing:0.08em' }, 'NOT YET'))
       ));
     });
     c.appendChild(grid);
@@ -4268,8 +4352,113 @@ function sendBaristaMsg(text) {
 
 /* ----- Community ----- */
 // Mock feed of community activity — likes, recommendations, recipe posts
+// Composer card — lets users post to the community feed
+function communityComposer() {
+  const KINDS = [
+    { id: 'brew',   label: 'Share a brew', icon: '☕' },
+    { id: 'tip',    label: 'Drop a tip',   icon: '💬' },
+    { id: 'ask',    label: 'Ask a question', icon: '❓' }
+  ];
+  let activeKind = 'brew';
+
+  const card = el('div', {
+    class: 'card',
+    style: 'padding:18px 20px;border:2px solid var(--ink);border-radius:14px;box-shadow:4px 4px 0 0 var(--ink);background:var(--cream)'
+  });
+
+  const header = el('div', { style: 'display:flex;align-items:center;gap:14px;margin-bottom:12px' },
+    el('div', {
+      style: 'width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg, var(--tomato) 0%, #A32C0A 100%);color:var(--cream);display:flex;align-items:center;justify-content:center;font-weight:700;font-family:var(--font-display);font-size:0.95rem;flex-shrink:0'
+    }, initials(state.user && state.user.name ? state.user.name : 'You')),
+    el('div', {},
+      el('div', { style: 'font-family:var(--font-display);font-weight:700;font-size:1.05rem' }, 'Post to the feed'),
+      el('div', { style: 'font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-soft);margin-top:2px' }, '◆ Section A · Letters to the editor')
+    )
+  );
+
+  const textarea = el('textarea', {
+    placeholder: "What are you brewing? Drop a tip, share a recipe, or ask the community a question...",
+    style: 'width:100%;min-height:90px;padding:12px;border:1.5px solid var(--ink);border-radius:10px;font-family:var(--font-display);font-size:15px;line-height:1.5;background:#FFFEFB;color:var(--ink);resize:vertical;outline:none;box-sizing:border-box'
+  });
+  textarea.addEventListener('focus', () => textarea.style.borderColor = 'var(--tomato)');
+  textarea.addEventListener('blur', () => textarea.style.borderColor = 'var(--ink)');
+
+  const kindRow = el('div', { style: 'display:flex;gap:8px;margin-top:12px;flex-wrap:wrap' });
+  const kindButtons = {};
+  KINDS.forEach(k => {
+    const btn = el('button', {
+      type: 'button',
+      style: 'padding:8px 14px;border-radius:999px;border:1.5px solid var(--ink);background:' + (k.id === activeKind ? 'var(--marigold)' : 'transparent') + ';color:var(--ink);font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:background 0.15s',
+      onclick: () => {
+        activeKind = k.id;
+        Object.keys(kindButtons).forEach(id => {
+          kindButtons[id].style.background = id === activeKind ? 'var(--marigold)' : 'transparent';
+        });
+      }
+    }, k.icon + ' ' + k.label);
+    kindButtons[k.id] = btn;
+    kindRow.appendChild(btn);
+  });
+
+  const postBtn = el('button', {
+    type: 'button',
+    style: 'background:var(--ink);color:var(--cream);border:2px solid var(--ink);border-radius:999px;padding:10px 22px;font-family:var(--font-body);font-weight:700;font-size:14px;letter-spacing:0.04em;cursor:pointer;box-shadow:3px 3px 0 0 var(--marigold);transition:transform 0.15s, box-shadow 0.15s',
+    onmouseenter: function() { this.style.transform = 'translate(-1px,-1px)'; this.style.boxShadow = '4px 4px 0 0 var(--marigold)'; },
+    onmouseleave: function() { this.style.transform = 'translate(0,0)'; this.style.boxShadow = '3px 3px 0 0 var(--marigold)'; },
+    onclick: () => {
+      const text = textarea.value.trim();
+      if (!text) {
+        textarea.style.borderColor = 'var(--tomato)';
+        textarea.placeholder = 'Add some text first.';
+        return;
+      }
+      state.communityPosts = state.communityPosts || [];
+      const kindMeta = KINDS.find(k => k.id === activeKind);
+      state.communityPosts.unshift({
+        id: 'post-' + Date.now(),
+        text: text,
+        kind: activeKind,
+        icon: kindMeta.icon,
+        verb: activeKind === 'brew' ? 'shared a brew' : activeKind === 'tip' ? 'dropped a tip' : 'asked the community',
+        when: 'just now',
+        timestamp: Date.now()
+      });
+      save();
+      textarea.value = '';
+      toast('Posted to the feed.');
+      render();
+    }
+  }, 'Post');
+
+  const actionsRow = el('div', { style: 'display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap' },
+    kindRow,
+    postBtn
+  );
+
+  card.appendChild(header);
+  card.appendChild(textarea);
+  card.appendChild(actionsRow);
+  return card;
+}
+
 function communityFeedList() {
   const wrap = el('div', { class: 'card', style: 'padding:8px 0;overflow:hidden' });
+
+  // User's own posts (most recent first)
+  const userPosts = (state.communityPosts || []).map(p => ({
+    who: state.user && state.user.name ? state.user.name : 'You',
+    handle: '@' + (state.user && state.user.name ? state.user.name.toLowerCase().split(' ')[0] : 'you'),
+    avatarBg: 'linear-gradient(135deg, var(--tomato) 0%, #A32C0A 100%)',
+    verb: p.verb,
+    target: p.text.length > 60 ? p.text.slice(0, 60) + '...' : p.text,
+    kind: p.kind,
+    icon: p.icon,
+    when: p.when,
+    detail: p.text.length > 60 ? p.text : null,
+    isOwn: true,
+    postId: p.id
+  }));
+
   const FEED = [
     { who: 'Catherine', handle: '@catherine.brews', avatarBg: 'linear-gradient(135deg, #C8762D 0%, #A85F1F 100%)', verb: 'shared a brew', target: 'Ethiopian Yirgacheffe V60', kind: 'recipe', icon: '☕', when: '6m ago', detail: 'Bloom for 45 sec. The lemon notes finally come out.', linkTo: 'recipe/pour-over-light' },
     { who: 'Aleks',     handle: '@aleks.pulls',     avatarBg: 'linear-gradient(135deg, #2D4A3A 0%, #1d3327 100%)', verb: 'recommended', target: 'Klatch Belle Espresso', kind: 'bean', icon: '💬', when: '24m ago', detail: 'Mid-dark, low acid. Pulls a syrupy shot every time.', linkTo: 'devices' },
@@ -4280,7 +4469,9 @@ function communityFeedList() {
     { who: 'Aleks',     handle: '@aleks.pulls',     avatarBg: 'linear-gradient(135deg, #2D4A3A 0%, #1d3327 100%)', verb: 'liked', target: 'Vanilla Maple Cold Brew', kind: 'recipe', icon: '❤️', when: '7h ago', linkTo: 'recipe/cold-brew-classic' },
     { who: 'Andrew',    handle: '@andrew.brewer',   avatarBg: 'linear-gradient(135deg, #5476A6 0%, #2c4869 100%)', verb: 'shared a brew', target: 'Iced Brown Sugar Oat Latte', kind: 'recipe', icon: '☕', when: '9h ago', detail: 'Use cinnamon, not vanilla. Trust me.', linkTo: 'recipe/iced-vanilla-latte' }
   ];
-  FEED.forEach(item => {
+  // User posts go on top
+  const COMBINED = userPosts.concat(FEED);
+  COMBINED.forEach(item => {
     wrap.appendChild(el('div', {
       style: 'padding:14px 22px;display:flex;gap:14px;align-items:flex-start;border-bottom:1px solid var(--line-soft);cursor:' + (item.linkTo ? 'pointer' : 'default'),
       onclick: () => item.linkTo && navigate(item.linkTo)
@@ -4312,6 +4503,10 @@ function renderCommunity(main) {
     el('h1', { class: 'h1' }, 'Brew with people who care'),
     el('p', {}, 'Challenges, giveaways, and the feed. See what other members are loving, recommending, and making this week.')
   ));
+
+  // ========== Composer: post to the feed ==========
+  c.appendChild(communityComposer());
+  c.appendChild(el('div', { style: 'height:32px' }));
 
   // ========== Feed of liked coffees, recommendations, recipes ==========
   c.appendChild(el('h3', { class: 'h3 mb' }, 'The feed'));
