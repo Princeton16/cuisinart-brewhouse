@@ -1023,7 +1023,7 @@ input, select, textarea { font: inherit; color: inherit; }
 .bw-card {
   background: #FFFFFF;
   border-radius: 16px;
-  width: 400px;
+  width: 440px;
   max-width: 100%;
   max-height: calc(100vh - 48px);
   overflow-y: auto;
@@ -1214,8 +1214,8 @@ input, select, textarea { font: inherit; color: inherit; }
 }
 .today-hero-wheel-shell {
   position: relative;
-  width: 240px;
-  height: 240px;
+  width: 280px;
+  height: 280px;
   cursor: pointer;
   transition: transform 0.18s var(--ease);
 }

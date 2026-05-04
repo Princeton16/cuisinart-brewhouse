@@ -595,28 +595,42 @@ function openBrewLogModal() {
    ============================================================ */
 const VIBE_ICONS = {
   hot:    [{ tag: 'path', d: 'M16 4 Q22 12 22 18 a6 6 0 0 1 -12 0 Q10 14 14 10 Q14 14 16 14 Q16 8 16 4 Z', fill: 'currentColor' }],
+  iced:   [{ tag: 'path', d: 'M16 4 V28 M4 16 H28 M7 7 L25 25 M7 25 L25 7', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round' }],
   sweet:  [
     { tag: 'rect', x: '6', y: '6', width: '20', height: '20', rx: '3', fill: 'currentColor' },
     { tag: 'rect', x: '9', y: '9', width: '14', height: '14', rx: '2', fill: 'rgba(255,255,255,0.35)' }
   ],
+  bitter: [
+    { tag: 'ellipse', cx: '16', cy: '16', rx: '7', ry: '11', fill: 'currentColor', transform: 'rotate(20 16 16)' },
+    { tag: 'path', d: 'M16 6 Q 13 16 16 26', stroke: 'rgba(255,255,255,0.55)', 'stroke-width': '1.5', fill: 'none', transform: 'rotate(20 16 16)' }
+  ],
   bold:   [{ tag: 'path', d: 'M18 3 L8 18 L14 18 L12 29 L24 14 L18 14 Z', fill: 'currentColor' }],
+  mellow: [{ tag: 'path', d: 'M5 16 Q 11 8 16 16 T 27 16', stroke: 'currentColor', 'stroke-width': '2.5', fill: 'none', 'stroke-linecap': 'round' }],
+  creamy: [{ tag: 'path', d: 'M16 4 C11 11 8 16 8 21 C8 25 12 28 16 28 C20 28 24 25 24 21 C24 16 21 11 16 4 Z', fill: 'currentColor' }],
+  black:  [{ tag: 'circle', cx: '16', cy: '16', r: '10', fill: 'currentColor' }],
   quick:  [
     { tag: 'circle', cx: '16', cy: '16', r: '11', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' },
     { tag: 'path', d: 'M16 9 V16 L21 19', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round' }
   ],
-  creamy: [{ tag: 'path', d: 'M16 4 C11 11 8 16 8 21 C8 25 12 28 16 28 C20 28 24 25 24 21 C24 16 21 11 16 4 Z', fill: 'currentColor' }],
-  iced:   [{ tag: 'path', d: 'M16 4 V28 M4 16 H28 M7 7 L25 25 M7 25 L25 7', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round' }]
+  slow:   [{ tag: 'path', d: 'M10 5 H22 V9 L16 16 L22 23 V27 H10 V23 L16 16 L10 9 Z', fill: 'currentColor' }]
 };
 
 const BARISTA_CLIPART_URL = 'https://cdn-icons-png.flaticon.com/512/2674/2674515.png';
 
+// MECE pairs across five dimensions: temperature, sweetness, strength,
+// milk, time. Order is clockwise from 12 o'clock so opposites sit
+// roughly across from each other on the wheel.
 const BARISTA_VIBES = [
   { id: 'hot',    label: 'Hot',    bg: '#FAECE7', sel: '#F0997B', text: '#4A1B0C', iconKey: 'hot' },
   { id: 'sweet',  label: 'Sweet',  bg: '#FBEAF0', sel: '#ED93B1', text: '#4B1528', iconKey: 'sweet' },
   { id: 'bold',   label: 'Bold',   bg: '#EAF3DE', sel: '#97C459', text: '#173404', iconKey: 'bold' },
-  { id: 'quick',  label: 'Quick',  bg: '#EEEDFE', sel: '#AFA9EC', text: '#26215C', iconKey: 'quick' },
   { id: 'creamy', label: 'Creamy', bg: '#FAEEDA', sel: '#FAC775', text: '#412402', iconKey: 'creamy' },
-  { id: 'iced',   label: 'Iced',   bg: '#E6F1FB', sel: '#85B7EB', text: '#042C53', iconKey: 'iced' }
+  { id: 'quick',  label: 'Quick',  bg: '#EEEDFE', sel: '#AFA9EC', text: '#26215C', iconKey: 'quick' },
+  { id: 'iced',   label: 'Iced',   bg: '#E6F1FB', sel: '#85B7EB', text: '#042C53', iconKey: 'iced' },
+  { id: 'bitter', label: 'Bitter', bg: '#ECE5DC', sel: '#8A6D4C', text: '#2D1F0E', iconKey: 'bitter' },
+  { id: 'mellow', label: 'Mellow', bg: '#EBEFE3', sel: '#A4B881', text: '#2F3A1E', iconKey: 'mellow' },
+  { id: 'black',  label: 'Black',  bg: '#ECEDEE', sel: '#5C5651', text: '#1A1614', iconKey: 'black'  },
+  { id: 'slow',   label: 'Slow',   bg: '#F1E9F2', sel: '#B68FBE', text: '#3D2A4A', iconKey: 'slow'   }
 ];
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -669,10 +683,11 @@ function buildVibeWheelSvg(opts) {
   svg.setAttribute('aria-hidden', 'true');
 
   const wedgePaths = {};
+  const sweep = 360 / BARISTA_VIBES.length;
   BARISTA_VIBES.forEach((v, i) => {
-    const startCW = i * 60;
-    const endCW = (i + 1) * 60;
-    const midCW = startCW + 30;
+    const startCW = i * sweep;
+    const endCW = (i + 1) * sweep;
+    const midCW = startCW + sweep / 2;
     const iconPos = polar(iconR, midCW);
     const labelPos = polar(labelR, midCW);
 
@@ -722,10 +737,10 @@ function buildVibeWheelSvg(opts) {
 }
 
 function mountVibeChooser(container, opts) {
-  // opts: { size = 320, onSubmit(query) }
+  // opts: { size = 360, onSubmit(query) }
   // Mounts wheel + Ask button + chips + free-form input into container,
   // wiring all behavior. State lives in this closure.
-  const size = opts.size || 320;
+  const size = opts.size || 360;
   const selected = new Set();
 
   const askBtn = el('button', { class: 'bw-ask disabled', type: 'button', onclick: () => askSubmit() }, 'Ask Barista');
@@ -821,7 +836,7 @@ function openBaristaWheel() {
   );
 
   mountVibeChooser(card, {
-    size: 320,
+    size: 360,
     onSubmit: (query) => { close(); sendVibeQueryToBarista(query); }
   });
 
@@ -1406,7 +1421,7 @@ function renderHome(main) {
 
   /* 1. Today's brew hero */
   const heroWheel = buildVibeWheelSvg({
-    size: 240,
+    size: 280,
     onWedgeClick: () => openBaristaWheel(),
     isWedgeSelected: () => false
   });
@@ -2191,7 +2206,7 @@ function aiRecommenderCard() {
     )
   ));
   mountVibeChooser(card, {
-    size: 320,
+    size: 360,
     onSubmit: (query) => sendVibeQueryToBarista(query)
   });
   return card;
