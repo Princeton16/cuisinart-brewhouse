@@ -608,6 +608,8 @@ const VIBE_ICONS = {
   iced:   [{ tag: 'path', d: 'M16 4 V28 M4 16 H28 M7 7 L25 25 M7 25 L25 7', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round' }]
 };
 
+const BARISTA_CLIPART_URL = 'https://cdn-icons-png.flaticon.com/512/2674/2674515.png';
+
 const BARISTA_VIBES = [
   { id: 'hot',    label: 'Hot',    bg: '#FAECE7', sel: '#F0997B', text: '#4A1B0C', iconKey: 'hot' },
   { id: 'sweet',  label: 'Sweet',  bg: '#FBEAF0', sel: '#ED93B1', text: '#4B1528', iconKey: 'sweet' },
@@ -735,9 +737,14 @@ function mountVibeChooser(container, opts) {
     isWedgeSelected: (id) => selected.has(id)
   });
 
+  const hub = el('div', { class: 'bw-hub' },
+    el('img', { src: BARISTA_CLIPART_URL, class: 'bw-hub-img', alt: '' }),
+    askBtn
+  );
+
   const wheelWrap = el('div', { class: 'bw-wheel-wrap', style: 'width:' + size + 'px;height:' + size + 'px' });
   wheelWrap.appendChild(wheel.svg);
-  wheelWrap.appendChild(askBtn);
+  wheelWrap.appendChild(hub);
 
   const chipRow = el('div', { class: 'bw-chips' });
 
@@ -1413,9 +1420,22 @@ function renderHome(main) {
           el('p', { class: 'today-desc' }, drink.desc),
           el('button', { class: 'btn-discover-cta', onclick: () => navigate('recipes') }, 'Try this brew')
         ),
+        el('div', { class: 'today-hero-divider', 'aria-hidden': 'true' },
+          el('span', { class: 'today-hero-or' }, 'OR')
+        ),
         el('div', { class: 'today-hero-right' },
-          el('p', { class: 'today-hero-wheel-label' }, 'Or pick your own vibe →'),
-          el('div', { class: 'today-hero-wheel-shell', onclick: () => openBaristaWheel() }, heroWheel.svg)
+          el('p', { class: 'today-hero-vibe-prompt' }, 'Pick your vibes'),
+          el('p', { class: 'today-hero-vibe-prompt-sub' }, 'Tap as many as you like'),
+          el('div', { class: 'today-hero-wheel-shell', onclick: () => openBaristaWheel() },
+            heroWheel.svg,
+            el('div', { class: 'bw-hub bw-hub-hero' },
+              el('img', {
+                src: BARISTA_CLIPART_URL,
+                class: 'bw-hub-img',
+                alt: ''
+              })
+            )
+          )
         )
       )
     )
