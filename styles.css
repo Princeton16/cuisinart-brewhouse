@@ -225,7 +225,8 @@
   grid-template-columns: 1.4fr 1fr 1fr;
   gap: 24px;
 }
-.feat-grid .tile {
+/* Tile base — works standalone, not just inside .feat-grid */
+.tile {
   position: relative;
   border-radius: 22px;
   padding: 32px;
@@ -240,13 +241,19 @@
   color: inherit;
   cursor: pointer;
 }
-.feat-grid .tile:hover { transform: translate(-3px, -3px); box-shadow: 11px 11px 0 0 var(--ink); }
-.feat-grid .tile.barista { background: linear-gradient(135deg, var(--tomato) 0%, #A32C0A 100%); color: var(--cream); grid-row: span 2; }
-.feat-grid .tile.dotd { background: var(--marigold); color: var(--ink); }
-.feat-grid .tile.atlas { background: linear-gradient(160deg, var(--canopy) 0%, var(--jungle-dark) 100%); color: var(--cream); }
-.feat-grid .tile.give { background: var(--ink); color: var(--cream); grid-column: span 2; }
+.tile:hover { transform: translate(-3px, -3px); box-shadow: 11px 11px 0 0 var(--ink); }
 
-.feat-grid .tile .tag {
+/* Tile color variants — apply anywhere (.feat-grid prefix removed) */
+.tile.barista { background: linear-gradient(135deg, var(--tomato) 0%, #A32C0A 100%); color: var(--cream); }
+.tile.dotd    { background: var(--marigold); color: var(--ink); }
+.tile.atlas   { background: linear-gradient(160deg, var(--canopy) 0%, var(--jungle-dark) 100%); color: var(--cream); }
+.tile.give    { background: var(--ink); color: var(--cream); }
+
+/* When inside .feat-grid only: barista takes 2 rows, give spans 2 cols */
+.feat-grid .tile.barista { grid-row: span 2; }
+.feat-grid .tile.give { grid-column: span 2; }
+
+.tile .tag {
   font-family: var(--font-body);
   font-weight: 800;
   font-size: 11px;
@@ -258,8 +265,8 @@
   justify-content: space-between;
   align-items: center;
 }
-.feat-grid .tile .tag .num { font-family: var(--font-mono); font-weight: 500; opacity: 0.7; }
-.feat-grid .tile h3 {
+.tile .tag .num { font-family: var(--font-mono); font-weight: 500; opacity: 0.7; }
+.tile h3 {
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 42px;
@@ -268,16 +275,16 @@
   margin-bottom: 14px;
   color: inherit;
 }
-.feat-grid .tile h3 em { font-style: italic; color: var(--marigold); }
-.feat-grid .tile.dotd h3 em { color: var(--tomato); }
-.feat-grid .tile p {
+.tile h3 em { font-style: italic; color: var(--marigold); }
+.tile.dotd h3 em { color: var(--tomato); }
+.tile p {
   font-family: var(--font-display);
   font-size: 17px;
   line-height: 1.4;
   opacity: 0.9;
   margin-bottom: 20px;
 }
-.feat-grid .tile .arrow-cta {
+.tile .arrow-cta {
   margin-top: auto;
   font-family: var(--font-body);
   font-weight: 700;
@@ -287,14 +294,14 @@
   align-items: center;
   gap: 8px;
 }
-.feat-grid .tile .arrow-cta .ar {
+.tile .arrow-cta .ar {
   font-family: var(--font-display);
   font-style: italic;
   font-weight: 700;
   font-size: 24px;
   transition: transform 0.25s;
 }
-.feat-grid .tile:hover .arrow-cta .ar { transform: translateX(6px); }
+.tile:hover .arrow-cta .ar { transform: translateX(6px); }
 
 /* Giveaway tile internals */
 .give-grid {
