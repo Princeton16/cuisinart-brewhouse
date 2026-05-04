@@ -1584,7 +1584,7 @@ function renderMagazineHome(main) {
         // 1. DRINK OF THE DAY (marigold yellow)
         el('a', {
           class: 'tile dotd',
-          style: 'min-height:480px',
+          style: 'min-height:540px',
           onclick: () => navigate(drink.recipeId ? 'recipe/' + drink.recipeId : 'recipes')
         },
           el('div', { class: 'tag' },
@@ -1609,7 +1609,7 @@ function renderMagazineHome(main) {
         // 2. ASK THE BARISTA (tomato red — equal prominence)
         el('a', {
           class: 'tile barista',
-          style: 'min-height:480px;grid-row:auto',
+          style: 'min-height:540px;grid-row:auto;overflow:hidden',
           onclick: () => openBaristaWheel()
         },
           el('div', { class: 'tag' },
@@ -1620,11 +1620,15 @@ function renderMagazineHome(main) {
             el('em', {}, 'your own.')
           ),
           el('p', { style: 'font-size:18px' }, "Tell us how you feel. We'll pour something."),
-          el('div', { style: 'flex:1;display:flex;align-items:center;justify-content:center;margin:24px 0' },
-            // Mini vibe wheel preview (decorative, click anywhere on tile to open the real one)
+          el('div', { style: 'flex:1;display:flex;align-items:center;justify-content:center;margin:8px 0;width:100%;min-height:0' },
+            // Compact preview wheel — full thing lives in the modal
             (() => {
+              const wrap = el('div', { style: 'width:min(260px, 100%);aspect-ratio:1;display:flex;align-items:center;justify-content:center' });
               const mini = buildVibeWheelSvg({ size: 220, onWedgeClick: () => openBaristaWheel(), isWedgeSelected: () => false });
-              return mini.svg;
+              mini.svg.setAttribute('style', 'width:100%;height:100%;display:block');
+              mini.svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+              wrap.appendChild(mini.svg);
+              return wrap;
             })()
           ),
           el('span', { class: 'arrow-cta' }, 'Tap to open the wheel ', el('span', { class: 'ar' }, '→'))
@@ -1670,51 +1674,100 @@ function renderMagazineHome(main) {
   requestAnimationFrame(() => {
     const mapEl = document.getElementById('home-atlas-map');
     if (!window.L || !mapEl) return;
+
+    // Flat world view: lock to one cube, no horizontal repeat
+    const worldBounds = [[-65, -180], [78, 180]];
     const map = L.map(mapEl, {
       zoomControl: true,
       attributionControl: false,
-      worldCopyJump: true,
+      worldCopyJump: false,
       minZoom: 2,
-      maxZoom: 12
-    }).setView([20, 10], 2);
+      maxZoom: 8,
+      maxBounds: worldBounds,
+      maxBoundsViscosity: 1.0
+    }).fitBounds(worldBounds, { padding: [10, 10] });
+
+    // English-only, no-wrap tile layer
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-      subdomains: 'abcd'
+      subdomains: 'abcd',
+      noWrap: true,
+      bounds: worldBounds
     }).addTo(map);
 
-    // Custom pin builder
-    const makePin = (color) => L.divIcon({
-      className: 'atlas-marker',
-      html: '<span style="display:block;width:18px;height:18px;border-radius:50%;background:' + color + ';border:2px solid #1F1A14;box-shadow:0 2px 4px rgba(31,26,20,0.3)"></span>',
-      iconSize: [18, 18],
-      iconAnchor: [9, 9],
-      popupAnchor: [0, -10]
-    });
-    const cafeIcon = makePin('#E84F1A');   // tomato
-    const farmIcon = makePin('#F5C518');   // marigold
+    // Custom shaped pin: cup for cafés, bean for farms
+    const cupPinHtml = `<svg viewBox="0 0 32 38" width="32" height="38" xmlns="http://www.w3.org/2000/svg" style="display:block;filter:drop-shadow(0 2px 3px rgba(31,26,20,0.35))">
+      <path d="M16 36 L7 23 Q3 16 6 9 Q9 2 16 2 Q23 2 26 9 Q29 16 25 23 Z" fill="#E84F1A" stroke="#1F1A14" stroke-width="1.5"/>
+      <path d="M9 10 L23 10 Q24 10 24 12 L24 16 Q24 20 20 21 L12 21 Q8 20 8 16 L8 12 Q8 10 9 10 Z" fill="#FFF5EB"/>
+      <path d="M22 12 Q26 12 26 15 Q26 18 22 18" fill="none" stroke="#FFF5EB" stroke-width="1.5" stroke-linecap="round"/>
+      <ellipse cx="16" cy="11" rx="6" ry="1.5" fill="#3D2818"/>
+    </svg>`;
 
-    // Plot cafés (only ones with real coords)
+    const beanPinHtml = `<svg viewBox="0 0 32 38" width="32" height="38" xmlns="http://www.w3.org/2000/svg" style="display:block;filter:drop-shadow(0 2px 3px rgba(31,26,20,0.35))">
+      <path d="M16 36 L7 23 Q3 16 6 9 Q9 2 16 2 Q23 2 26 9 Q29 16 25 23 Z" fill="#F5C518" stroke="#1F1A14" stroke-width="1.5"/>
+      <ellipse cx="16" cy="14" rx="7" ry="9" fill="#5C3920" stroke="#1F1A14" stroke-width="1"/>
+      <path d="M16 6 Q14 14 16 22" stroke="#FBE9D0" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+    </svg>`;
+
+    const cafeIcon = L.divIcon({
+      className: 'atlas-marker',
+      html: cupPinHtml,
+      iconSize: [32, 38],
+      iconAnchor: [16, 36],
+      popupAnchor: [0, -32]
+    });
+    const farmIcon = L.divIcon({
+      className: 'atlas-marker',
+      html: beanPinHtml,
+      iconSize: [32, 38],
+      iconAnchor: [16, 36],
+      popupAnchor: [0, -32]
+    });
+
+    // Plot cafés (only ones with real coords) — popup shows specialty drinks + awards
     (DATA.cafes || []).forEach(s => {
       if (!s.coords) return;
+      const drinks = (s.drinks || []).map(d => '<span style="display:inline-block;background:#FAEAD9;color:#A85F1F;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;margin:2px 3px 0 0">' + d + '</span>').join('');
+      const awards = (CAFE_AWARDS[s.id] || []).map(a => '<div style="font-size:11px;color:#4A4239;margin-top:3px"><span style="color:#C5962B;font-weight:700">★</span> ' + a + '</div>').join('');
+      const photo = s.photoUrl
+        ? '<div style="width:100%;aspect-ratio:5/3;background-image:url(\'' + s.photoUrl + '\');background-size:cover;background-position:center;border-radius:8px 8px 0 0"></div>'
+        : '';
       L.marker(s.coords, { icon: cafeIcon })
         .addTo(map)
         .bindPopup(
-          '<div style="font-family:var(--font-display);font-weight:700;font-size:15px;color:#1F1A14">' + s.name + '</div>' +
-          '<div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:#8A7E6E;margin-top:2px">' + s.hood + '</div>' +
-          '<div style="font-size:12px;color:#4A4239;margin-top:6px">Café · ' + (s.drinks || []).slice(0,2).join(', ') + '</div>',
-          { closeButton: false }
+          photo +
+          '<div style="padding:10px 12px 12px">' +
+          '<div style="font-family:var(--font-display, Georgia, serif);font-weight:700;font-size:15px;color:#1F1A14">' + s.name + '</div>' +
+          '<div style="font-family:var(--font-mono, monospace);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#8A7E6E;margin-top:2px">CAFÉ · ' + s.hood + '</div>' +
+          (drinks ? '<div style="margin-top:8px"><div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#8A7E6E;font-weight:700;margin-bottom:4px">Specialty drinks</div>' + drinks + '</div>' : '') +
+          (awards ? '<div style="margin-top:8px;border-top:1px solid #ECE7DF;padding-top:8px">' + awards + '</div>' : '') +
+          '</div>',
+          { closeButton: true, maxWidth: 240, minWidth: 220 }
         );
     });
 
-    // Plot bean farms (origins with coords)
+    // Plot bean farms (origins with coords) — popup shows tasting notes + unique facts
     (DATA.origins || []).forEach(o => {
       if (!o.coords) return;
+      // Find a real bean from this origin to show tasting notes
+      const bean = (DATA.beans || []).find(b => b.originRef === o.id);
+      const flavors = bean && bean.flavors ? bean.flavors.map(f => '<span style="display:inline-block;background:#F4E9C8;color:#806017;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;margin:2px 3px 0 0">' + f + '</span>').join('') : '';
+      const facts = [];
+      if (o.altitude)   facts.push(['ALTITUDE',  o.altitude]);
+      if (o.varietal)   facts.push(['VARIETAL',  o.varietal]);
+      if (o.processing) facts.push(['PROCESSING', o.processing]);
+      const factsHtml = facts.map(([k, v]) => '<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid #F4EFE6"><span style="color:#8A7E6E;letter-spacing:0.06em;font-weight:600">' + k + '</span><span style="color:#1F1A14;font-weight:500;text-align:right">' + v + '</span></div>').join('');
+
       L.marker(o.coords, { icon: farmIcon })
         .addTo(map)
         .bindPopup(
-          '<div style="font-family:var(--font-display);font-weight:700;font-size:15px;color:#1F1A14">' + (o.farmName || o.region) + '</div>' +
-          '<div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:#8A7E6E;margin-top:2px">' + o.region + ' · ' + o.country + '</div>' +
-          '<div style="font-size:12px;color:#4A4239;margin-top:6px">Farm · ' + (o.varietal || 'specialty bean') + '</div>',
-          { closeButton: false }
+          '<div style="padding:10px 12px 12px">' +
+          '<div style="font-family:var(--font-display, Georgia, serif);font-weight:700;font-size:15px;color:#1F1A14">' + (o.farmName || o.region) + '</div>' +
+          '<div style="font-family:var(--font-mono, monospace);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#8A7E6E;margin-top:2px">FARM · ' + o.region + ' · ' + o.country + '</div>' +
+          (flavors ? '<div style="margin-top:8px"><div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#8A7E6E;font-weight:700;margin-bottom:4px">Tasting notes</div>' + flavors + '</div>' : '') +
+          (factsHtml ? '<div style="margin-top:10px">' + factsHtml + '</div>' : '') +
+          (o.story ? '<div style="margin-top:8px;font-size:11px;line-height:1.45;color:#4A4239;font-style:italic">"' + o.story + '"</div>' : '') +
+          '</div>',
+          { closeButton: true, maxWidth: 260, minWidth: 240 }
         );
     });
 
@@ -1752,6 +1805,20 @@ function renderMagazineHome(main) {
   page.appendChild(secondary);
   return;
 }
+
+// Real recognitions / awards / facts per café — surfaced in atlas popups
+const CAFE_AWARDS = {
+  'dirt-cowboy':     ['Hanover institution since 1993', 'Featured in NYT Travel'],
+  'the-works':       ['Locally roasted Vermont coffee', 'Open since 1989'],
+  'umplebys':        ['James Beard semifinalist 2019', 'Wood-fired bakery'],
+  'joe-coffee':      ['Founded 2003', 'Sources direct from farms in Colombia + Ethiopia'],
+  'counter-culture': ['Annual transparency report (paid prices public)', 'Direct Trade pioneer', 'NYC Coffee Festival winner'],
+  'intelligentsia':  ['One of the original third-wave roasters', 'Black Cat Espresso since 1995'],
+  'sweet-bloom':     ['Two-time Good Food Award winner', 'Selected for World Brewers Cup'],
+  'cuvee':           ['First U.S. roaster to ship nitro cold brew nationally', 'Texas Monthly best-of'],
+  'stumptown':       ['Pioneered Direct Trade in U.S.', 'Hair Bender espresso since 1999', 'Now in 6 cities'],
+  'blue-bottle':     ['Founded 2002, Oakland CA', 'Sources from George Howell network', 'New Orleans iced coffee is the original viral cold brew']
+};
 
 // Animated milk-pour SVG: pitcher tilts, milk pours, smiley face appears on the coffee
 function milkPourSmileySvg() {
