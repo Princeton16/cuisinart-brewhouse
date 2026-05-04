@@ -407,7 +407,7 @@ function mountAppShell() {
     { route: 'home',    label: 'Home',    href: '#/home' },
     { route: 'learn',   label: 'Learn',   href: '#/learn' },
     { route: 'recipes', label: 'Recipes', href: '#/recipes' },
-    { route: 'devices', label: 'Devices', href: '#/devices' },
+    { route: 'devices', label: 'Products', href: '#/devices' },
     { route: 'profile', label: 'Profile', href: '#/profile' }
   ];
 
@@ -618,7 +618,7 @@ const VIBE_ICONS = {
   slow:   [{ tag: 'path', d: 'M10 5 H22 V9 L16 16 L22 23 V27 H10 V23 L16 16 L10 9 Z', fill: 'currentColor' }]
 };
 
-const BARISTA_CLIPART_URL = 'https://cdn-icons-png.flaticon.com/512/2674/2674515.png';
+const BARISTA_CLIPART_URL = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="%23FAEDD7"/><path d="M22 28h18a4 4 0 0 1 4 4v6a8 8 0 0 1-8 8h-10a8 8 0 0 1-8-8v-6a4 4 0 0 1 4-4z" fill="%232A1A14"/><path d="M40 30h2a4 4 0 0 1 4 4v2a4 4 0 0 1-4 4h-2" fill="none" stroke="%232A1A14" stroke-width="2" stroke-linecap="round"/><path d="M26 22c0-2 1-4 3-4s3 2 3 4-1 4-3 4-3-2-3-4z" fill="%23C5962B" opacity="0.7"/><path d="M32 20c0-2 1-4 3-4s3 2 3 4-1 4-3 4-3-2-3-4z" fill="%23C5962B" opacity="0.7"/></svg>';
 
 // MECE pairs across five dimensions: temperature, sweetness, strength,
 // milk, time. Order is clockwise from 12 o'clock so opposites sit
@@ -1398,14 +1398,20 @@ function renderBrew(main) {
 
 /* ----- Home — Today's brew, cafe story, picks, places ----- */
 const DAILY_DRINKS = [
-  { name: 'Spanish latte',           desc: 'Espresso, sweetened condensed milk, and steamed milk. Rich, sweet, dessert in a cup.' },
-  { name: 'Espresso tonic',          desc: 'A double shot poured over ice and tonic water. Bitter, bright, surprisingly refreshing.' },
-  { name: 'Japanese iced V60',       desc: 'Brewed hot directly onto ice. Locks in floral aromatics that flash-cooling preserves.' },
-  { name: 'Dirty horchata',          desc: 'Cinnamon-rice horchata with a shot pulled straight through. Cool, creamy, caffeinated.' },
-  { name: 'Cortado',                 desc: 'Equal parts espresso and warm milk. Smooth, balanced, no foam to hide behind.' },
-  { name: 'Cold brew old fashioned', desc: 'Cold brew concentrate, demerara, orange peel, a dash of bitters. Stirred, not shaken.' },
-  { name: 'Cardamom latte',          desc: 'Espresso steamed with green cardamom milk. Warm spice, lingering finish.' },
-  { name: 'Saturday morning latte',  desc: 'A no-rush double shot with steamed whole milk and a slow micro-foam. The weekend in a cup.' }
+  { name: 'Maple bourbon cold brew',     desc: 'Cold brew concentrate kissed with maple syrup and a thread of bourbon barrel-aged bitters. The grown-up summer drink.' },
+  { name: 'Honey lavender latte',        desc: 'Steamed milk infused with dried lavender, drizzled with raw honey, finished with a double shot. A garden in a glass.' },
+  { name: 'Saigon egg coffee',           desc: 'Vietnamese-style. A whipped egg yolk and condensed milk float on a bed of dark roast espresso. Velvet and caramel.' },
+  { name: 'Dirty matcha latte',          desc: 'Ceremonial matcha whisked with oat milk, a single shot of espresso poured down the side. Two worlds collide.' },
+  { name: 'Cinnamon brown sugar shaken espresso', desc: 'Iced espresso shaken with brown sugar and a dash of cinnamon. Frothy, sweet, cold-coffee perfection.' },
+  { name: 'Spanish latte',               desc: 'Espresso, sweetened condensed milk, steamed milk. Liquid caramel that tastes like every bakery in Madrid.' },
+  { name: 'Espresso tonic',              desc: 'A double shot poured over ice and tonic water with a twist of lemon. Bitter, bright, weirdly refreshing.' },
+  { name: 'Japanese iced pour over',     desc: 'Brewed hot directly onto ice on a V60. Locks in florals that flash-cooling preserves. Cleanest cold coffee you will taste.' },
+  { name: 'Tahini date oat milk latte',  desc: 'Steamed oat milk with tahini and date syrup, espresso poured slowly. Nutty, caramelly, like halva in a mug.' },
+  { name: 'Cardamom rose cortado',       desc: 'Equal parts espresso and rose-water cardamom milk. Floral, spiced, the small drink with the big finish.' },
+  { name: 'Cold brew old fashioned',     desc: 'Cold brew concentrate, demerara syrup, orange peel, a dash of bitters. Stirred, served on a single big rock.' },
+  { name: 'Coconut cardamom cortado',    desc: 'Coconut milk steamed with green cardamom pods, espresso pulled short. Tropical with a backbone.' },
+  { name: 'Brown butter mocha',          desc: 'Espresso, brown-buttered chocolate ganache, steamed milk. Toasted, deep, almost dessert.' },
+  { name: 'Affogato al cafe',            desc: 'A scoop of vanilla bean gelato. A double shot of hot espresso poured over the top. The rules of dessert and coffee, broken.' }
 ];
 
 function dayOfYear(d) {
@@ -1674,8 +1680,8 @@ function renderDevices(main) {
 
   c.appendChild(el('div', { class: 'devices-head' },
     el('p', { class: 'devices-eyebrow' }, 'Your kitchen'),
-    el('h1', { class: 'devices-title' }, 'Connected Cuisinart products'),
-    el('p', { class: 'devices-sub' }, 'Link your Cuisinart appliances to unlock guided brews, automated routines, and personalized recommendations.')
+    el('h1', { class: 'devices-title' }, 'Products'),
+    el('p', { class: 'devices-sub' }, 'Cuisinart appliances, partner beans and pods, and the specialty equipment we recommend. Mark what you own to get tailored recipes.')
   ));
 
   // Smart Appliances Coming Soon hero
@@ -1730,8 +1736,41 @@ function renderDevices(main) {
     ))
   ));
 
+  // ---------- Beans (partner roasters) ----------
+  c.appendChild(el('h2', { class: 'devices-section-h', style: 'margin-top:48px' }, 'Beans from partner roasters'));
+  c.appendChild(el('p', { style: 'color:var(--ink-soft);font-size:0.95rem;margin-bottom:16px;max-width:580px' }, 'A curated set of bags from world-class roasters. Each pairs with a specific brew method.'));
+  c.appendChild(el('div', { style: 'display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px;margin-bottom:32px' },
+    DATA.beans.slice(0, 6).map(b => productMiniCard(b, 'beans'))
+  ));
+
+  // ---------- Pods (single-serve compatible) ----------
+  c.appendChild(el('h2', { class: 'devices-section-h', style: 'margin-top:32px' }, 'Pods for single-serve brewers'));
+  c.appendChild(el('p', { style: 'color:var(--ink-soft);font-size:0.95rem;margin-bottom:16px;max-width:580px' }, 'Compatible with the SS-15P1 and SS-10P1. Specialty pods that taste like fresh brew.'));
+  c.appendChild(el('div', { style: 'display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px;margin-bottom:32px' },
+    [
+      { id: 'onyx-pods', name: 'Onyx Coffee Lab Pods', icon: '🍫', desc: 'Onyx Monarch Blend in compostable pods. Medium roast.', tag: 'K-Cup compatible' },
+      { id: 'cc-pods', name: 'Counter Culture Pods', icon: '✨', desc: 'Hologram blend in recyclable pods. Medium-light.', tag: 'K-Cup compatible' },
+      { id: 'illy-pods', name: 'illy Espresso Capsules', icon: '☕', desc: 'Italian roast capsules. Designed for Cuisinart espresso lines.', tag: 'iperEspresso' },
+      { id: 'lavazza-pods', name: 'Lavazza A Modo Mio Capsules', icon: '🇮🇹', desc: 'Single-serve espresso pods, classic Italian roast.', tag: 'A Modo Mio' }
+    ].map(p => productMiniCard(p, 'pods'))
+  ));
+
+  // ---------- Specialty equipment ----------
+  c.appendChild(el('h2', { class: 'devices-section-h', style: 'margin-top:32px' }, 'Specialty equipment'));
+  c.appendChild(el('p', { style: 'color:var(--ink-soft);font-size:0.95rem;margin-bottom:16px;max-width:580px' }, 'Third-party gear our community uses alongside their Cuisinart machines.'));
+  c.appendChild(el('div', { style: 'display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px;margin-bottom:32px' },
+    [
+      { id: 'hario-v60', name: 'Hario V60 Dripper', icon: '🌊', desc: 'The classic conical pour-over. Glass or ceramic.', tag: 'Pour over' },
+      { id: 'fellow-stagg', name: 'Fellow Stagg EKG Kettle', icon: '🫖', desc: 'Variable temperature gooseneck kettle. The barista standard.', tag: 'Kettle' },
+      { id: 'acaia-pearl', name: 'Acaia Pearl S Coffee Scale', icon: '⚖️', desc: 'Precision brewing scale with built-in timer. App-connected.', tag: 'Scale' },
+      { id: 'aeropress', name: 'AeroPress Original', icon: '🎯', desc: 'Pressure-immersion brewer. Travel-friendly. Forgiving.', tag: 'Brewer' },
+      { id: 'comandante-c40', name: 'Comandante C40 Hand Grinder', icon: '⚙️', desc: 'Precision burr grinder. The gold standard for manual grinding.', tag: 'Grinder' },
+      { id: 'fellow-pitcher', name: 'Fellow Eddy Milk Pitcher', icon: '🥛', desc: '12oz tapered spout pitcher. Sharp latte art lines.', tag: 'Latte art' }
+    ].map(p => productMiniCard(p, 'equipment'))
+  ));
+
   // How it works
-  c.appendChild(el('h2', { class: 'devices-section-h' }, 'How it works'));
+  c.appendChild(el('h2', { class: 'devices-section-h', style: 'margin-top:32px' }, 'How device pairing works'));
   c.appendChild(el('div', { class: 'devices-steps' },
     [
       { n: '1', text: 'Plug in your Cuisinart appliance.' },
@@ -1742,6 +1781,22 @@ function renderDevices(main) {
       el('p', { class: 'devices-step-text' }, s.text)
     ))
   ));
+}
+
+// Compact product card used for beans / pods / equipment sections
+function productMiniCard(p, kind) {
+  const photo = p.photo || ('https://loremflickr.com/600/400/coffee,' + (kind || 'product') + '?lock=' + (p.id?.length || 7) * 13);
+  return el('div', { class: 'card', style: 'padding:0;overflow:hidden;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:14px;transition:transform 0.15s, border-color 0.15s', onclick: () => toast(p.name + ' details (demo)') },
+    el('div', { style: 'aspect-ratio:5/3;background:linear-gradient(135deg, var(--bg-subtle) 0%, var(--caramel-soft) 100%);display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative;overflow:hidden' },
+      photo ? el('img', { src: photo, alt: p.name, style: 'width:100%;height:100%;object-fit:cover' }) : el('span', {}, p.icon || '☕'),
+      p.tag ? el('span', { style: 'position:absolute;top:10px;left:10px;background:rgba(255,255,255,0.95);color:var(--ink);padding:3px 10px;border-radius:999px;font-size:0.7rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase' }, p.tag) : null,
+      p.roast ? el('span', { style: 'position:absolute;top:10px;left:10px;background:rgba(255,255,255,0.95);color:var(--ink);padding:3px 10px;border-radius:999px;font-size:0.7rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase' }, p.roast) : null
+    ),
+    el('div', { style: 'padding:14px 16px' },
+      el('div', { style: 'font-weight:600;font-size:0.95rem;margin-bottom:4px' }, p.name),
+      el('div', { style: 'font-size:0.82rem;color:var(--ink-soft);line-height:1.4' }, p.notes || p.desc || (p.roaster ? p.roaster : ''))
+    )
+  );
 }
 
 function openAddDeviceModal() {
@@ -1936,6 +1991,60 @@ function renderLearn(main) {
   c.appendChild(grid);
 }
 
+// Renders a curved row of paw-print footprints between two skill tree nodes
+function footprintTrail(fromStagger, toStagger) {
+  // Map stagger position to horizontal offset (-1, 0, +1)
+  const offset = { left: -1, center: 0, right: 1 };
+  const start = offset[fromStagger] ?? 0;
+  const end = offset[toStagger] ?? 0;
+  const steps = 4;
+
+  const wrap = el('div', { style: 'position:relative;height:48px;margin:0 auto;width:100%;max-width:600px;pointer-events:none' });
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('viewBox', '0 0 600 48');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '48');
+  svg.setAttribute('preserveAspectRatio', 'none');
+  svg.setAttribute('style', 'display:block');
+
+  // Draw N footprint pairs along an arc from start to end
+  const startX = 300 + start * 200;
+  const endX = 300 + end * 200;
+  for (let i = 0; i < steps; i++) {
+    const t = (i + 0.5) / steps;
+    const x = startX + (endX - startX) * t;
+    // Slight vertical wave to simulate stepping motion
+    const y = 24 + (i % 2 === 0 ? -6 : 6);
+    // Alternate left/right paw, tilt slightly
+    const tilt = i % 2 === 0 ? -12 : 12;
+
+    const g = document.createElementNS(svgNS, 'g');
+    g.setAttribute('transform', 'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') rotate(' + tilt + ')');
+    g.setAttribute('opacity', '0.42');
+
+    // Pad (main shape)
+    const pad = document.createElementNS(svgNS, 'ellipse');
+    pad.setAttribute('cx', '0'); pad.setAttribute('cy', '2');
+    pad.setAttribute('rx', '5'); pad.setAttribute('ry', '4');
+    pad.setAttribute('fill', '#9C7A56');
+    g.appendChild(pad);
+
+    // Three toes
+    [[-3.5, -3.5], [0, -5], [3.5, -3.5]].forEach(([tx, ty]) => {
+      const toe = document.createElementNS(svgNS, 'circle');
+      toe.setAttribute('cx', String(tx)); toe.setAttribute('cy', String(ty));
+      toe.setAttribute('r', '1.6');
+      toe.setAttribute('fill', '#9C7A56');
+      g.appendChild(toe);
+    });
+
+    svg.appendChild(g);
+  }
+  wrap.appendChild(svg);
+  return wrap;
+}
+
 function skillTreeVisual() {
   const wrap = el('div', { style: 'margin-top:24px;position:relative;padding:8px 0 32px' });
   const completed = state.completedClasses || [];
@@ -1982,11 +2091,10 @@ function skillTreeVisual() {
       ));
     }
 
-    // Connector squiggle between nodes (skip for first node)
+    // Footprint trail between nodes (skip for first node)
     if (idx > 0) {
-      wrap.appendChild(el('div', { style: 'display:flex;justify-content:center;height:20px' },
-        el('div', { style: 'width:2px;height:100%;background:repeating-linear-gradient(180deg, var(--line) 0 4px, transparent 4px 8px)' })
-      ));
+      const prevStagger = STAGGER[(idx - 1) % STAGGER.length];
+      wrap.appendChild(footprintTrail(prevStagger, stagger));
     }
 
     // Node row with staggered placement (3-col grid)
@@ -2013,10 +2121,8 @@ function skillTreeVisual() {
     wrap.appendChild(row);
   });
 
-  // Final Sommelier node — the trophy at the end
-  wrap.appendChild(el('div', { style: 'display:flex;justify-content:center;height:24px;margin-top:8px' },
-    el('div', { style: 'width:2px;height:100%;background:repeating-linear-gradient(180deg, var(--line) 0 4px, transparent 4px 8px)' })
-  ));
+  // Footprint trail leading to the trophy
+  wrap.appendChild(footprintTrail(STAGGER[(allNodes.length - 1) % STAGGER.length], 'center'));
   const tier = computeTier();
   const isSommelier = tier.id === 'sommelier';
   wrap.appendChild(el('div', { style: 'display:flex;justify-content:center;margin-top:6px' },
@@ -2378,15 +2484,15 @@ function tasteTrackerCard() {
 
   const hubLabel = document.createElementNS(svgNS, 'text');
   hubLabel.setAttribute('x', String(cx));
-  hubLabel.setAttribute('y', String(cy + 14));
+  hubLabel.setAttribute('y', String(cy + 12));
   hubLabel.setAttribute('text-anchor', 'middle');
   hubLabel.setAttribute('dominant-baseline', 'middle');
-  hubLabel.setAttribute('font-size', '8');
-  hubLabel.setAttribute('font-weight', '600');
+  hubLabel.setAttribute('font-size', '7');
+  hubLabel.setAttribute('font-weight', '700');
   hubLabel.setAttribute('fill', '#E8C896');
   hubLabel.setAttribute('font-family', 'Inter, sans-serif');
-  hubLabel.setAttribute('letter-spacing', '0.14em');
-  hubLabel.textContent = 'BREWS LOGGED';
+  hubLabel.setAttribute('letter-spacing', '0.18em');
+  hubLabel.textContent = 'BREWS';
   svg.appendChild(hubLabel);
 
   const sorted = FAMILIES.slice().sort((a, b) => tally[b.id] - tally[a.id]);

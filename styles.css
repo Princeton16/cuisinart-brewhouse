@@ -1610,9 +1610,9 @@ input, select, textarea { font: inherit; color: inherit; }
 /* 1. Today's brew hero — warm amber/brown palette */
 .today-hero {
   display: grid;
-  grid-template-columns: 1.4fr 48px 1fr;
-  gap: 32px;
-  align-items: stretch;
+  grid-template-columns: 1.4fr 1px 1fr;
+  gap: 48px;
+  align-items: center;
   background: #FAEEDA;
   border-radius: 24px;
   padding: 48px;
@@ -1624,29 +1624,19 @@ input, select, textarea { font: inherit; color: inherit; }
   .today-hero-divider { display: none; }
 }
 
-/* OR divider sits in the center column, vertically centered */
+/* OR divider — overlay column with absolutely-centered badge */
 .today-hero-divider {
   position: relative;
-  align-self: stretch;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100%;
-}
-.today-hero-divider::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
   width: 1px;
-  background: #C5962B;
-  transform: translateX(-50%);
-  opacity: 0.6;
+  background: rgba(197, 150, 43, 0.5);
+  align-self: stretch;
+  justify-self: center;
 }
 .today-hero-or {
-  position: relative;
-  z-index: 1;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -1661,7 +1651,6 @@ input, select, textarea { font: inherit; color: inherit; }
   letter-spacing: 0.1em;
   text-transform: uppercase;
   box-shadow: 0 2px 6px rgba(133, 79, 11, 0.1);
-  margin: 0 auto;
 }
 .today-hero-text { display: flex; flex-direction: column; align-items: flex-start; }
 .today-eyebrow {
