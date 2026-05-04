@@ -822,3 +822,175 @@ input, select, textarea { font: inherit; color: inherit; }
 .mb-lg { margin-bottom: 32px; }
 .fade-in { animation: fadeIn 0.4s var(--ease); }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ============================================================
+   Discover page (Brew Lab hub)
+   Palette: #233C28 deep green, #FAF6F0 cream, #C5962B gold,
+            #D63A2F roast red accent
+   ============================================================ */
+.discover-hero {
+  background: #233C28;
+  color: #FAF6F0;
+  padding: 80px 24px;
+}
+.discover-hero .container { padding: 0 0; }
+.discover-hero-eyebrow {
+  color: #C5962B;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.discover-hero-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.5rem, 6vw, 3.75rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+  color: #FAF6F0;
+}
+.discover-hero-sub {
+  font-size: 1.075rem;
+  color: rgba(250, 246, 240, 0.75);
+  max-width: 520px;
+  margin-bottom: 32px;
+}
+.btn-discover-cta {
+  display: inline-block;
+  background: #D63A2F;
+  color: #FFFFFF;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-weight: 500;
+  transition: background 0.2s var(--ease);
+}
+.btn-discover-cta:hover { background: #B8311F; }
+
+.discover-section {
+  background: #FAF6F0;
+  color: #233C28;
+  padding: 64px 24px;
+}
+.discover-section .container { padding: 0 0; }
+.discover-section + .discover-section { padding-top: 0; }
+
+.discover-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+.discover-h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.875rem;
+  line-height: 1.15;
+  color: #233C28;
+}
+.discover-sub {
+  color: rgba(35, 60, 40, 0.7);
+  margin-top: 4px;
+}
+.discover-link {
+  color: #D63A2F;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.discover-link:hover { text-decoration: underline; }
+
+.discover-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+@media (max-width: 900px) { .discover-guide-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .discover-guide-grid { grid-template-columns: 1fr; } }
+.discover-guide-card {
+  display: block;
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid rgba(35, 60, 40, 0.1);
+  color: #233C28;
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease), transform 0.2s var(--ease);
+}
+.discover-guide-card:hover {
+  border-color: #D63A2F;
+  box-shadow: 0 8px 24px rgba(31, 20, 16, 0.08);
+  transform: translateY(-2px);
+}
+.discover-guide-num {
+  color: #C5962B;
+  font-weight: 700;
+  font-size: 0.875rem;
+  margin-bottom: 12px;
+  font-family: var(--font-mono);
+}
+.discover-guide-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin-bottom: 8px;
+}
+.discover-guide-desc {
+  color: rgba(35, 60, 40, 0.7);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.discover-map-wrap {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(35, 60, 40, 0.1);
+  box-shadow: var(--shadow-sm);
+  height: 480px;
+  background: #FFFFFF;
+}
+.discover-map { height: 100%; width: 100%; }
+
+.discover-video-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+@media (max-width: 900px) { .discover-video-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .discover-video-grid { grid-template-columns: 1fr; } }
+.discover-video-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(35, 60, 40, 0.1);
+  transition: box-shadow 0.2s var(--ease), transform 0.2s var(--ease);
+}
+.discover-video-card:hover {
+  box-shadow: 0 8px 24px rgba(31, 20, 16, 0.08);
+  transform: translateY(-2px);
+}
+.discover-video-frame {
+  aspect-ratio: 16 / 9;
+  background: rgba(35, 60, 40, 0.05);
+}
+.discover-video-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+.discover-video-meta { padding: 16px; }
+.discover-video-creator {
+  font-size: 0.625rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #C5962B;
+  font-weight: 600;
+}
+.discover-video-title {
+  font-weight: 500;
+  margin-top: 4px;
+  line-height: 1.35;
+  color: #233C28;
+}

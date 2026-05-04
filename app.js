@@ -608,26 +608,6 @@ function renderDashboard(main) {
     el('p', { style: 'margin-top:10px;color:var(--ink-soft);font-size:1rem' }, "What's in the cup today?")
   ));
 
-  // Stories row — friends' brews
-  const storiesScroll = el('div', { style: 'display:flex;gap:16px;overflow-x:auto;padding:8px 0 16px;margin-bottom:24px' });
-  // "Your brew" first
-  storiesScroll.appendChild(storyCircle({
-    label: 'Your brew', icon: '+', isMe: true, avatarBg: 'transparent',
-    onclick: () => navigate('journal')
-  }));
-  // Following first, then suggested
-  const followed = (state.following || []);
-  const ordered = [...DATA.members.filter(m => followed.includes(m.id)), ...DATA.members.filter(m => !followed.includes(m.id))];
-  ordered.slice(0, 8).forEach(m => storiesScroll.appendChild(storyCircle({
-    label: m.handle.replace('@', '@'),
-    initials: m.initials,
-    avatarBg: m.avatarBg,
-    ringed: followed.includes(m.id),
-    recentBrew: m.recentBrew,
-    onclick: () => toast(m.name + ' brewed: ' + m.recentBrew)
-  })));
-  c.appendChild(storiesScroll);
-
   // Grind Score / Tier card (the dark centerpiece, like The Grind)
   c.appendChild(grindCard(score, tier, nextT, dims, state.streak, checkedInToday));
 
@@ -1009,55 +989,129 @@ function renderBrew(main) {
   c.appendChild(flavorGrid);
 }
 
-/* ----- Discover tab (beans + origins + products) ----- */
+/* ----- Discover tab (Brew Lab hub: guide, map, creators) ----- */
 function renderDiscover(main) {
   main.innerHTML = '';
-  const c = el('div', { class: 'container' });
-  main.appendChild(c);
 
-  c.appendChild(el('div', { class: 'page-head' },
-    el('div', { class: 'eyebrow' }, 'Discover'),
-    el('h1', { class: 'h1' }, 'Find your next cup.'),
-    el('p', { style: 'max-width:580px' }, 'Beans from around the world. The farmers behind them. The gear that brings it all together.')
-  ));
-
-  // Three big section cards
-  const grid = el('div', { class: 'grid grid-3', style: 'margin-bottom:48px' });
-  grid.appendChild(el('div', { class: 'card', style: 'padding:0;overflow:hidden;cursor:pointer', onclick: () => navigate('beans') },
-    el('div', { style: 'aspect-ratio:5/3;background:linear-gradient(135deg, var(--caramel) 0%, var(--caramel-deep) 100%);display:flex;align-items:center;justify-content:center;font-size:4rem' }, '🍫'),
-    el('div', { style: 'padding:20px' },
-      el('div', { class: 'h4' }, 'Beans'),
-      el('p', { class: 'muted mt-sm', style: 'font-size:0.9rem' }, DATA.beans.length + ' curated beans from world-class roasters.'),
-      el('div', { style: 'margin-top:8px;color:var(--caramel-deep);font-weight:500;font-size:0.9rem' }, 'Browse →')
+  /* Hero */
+  main.appendChild(el('section', { class: 'discover-hero' },
+    el('div', { class: 'container' },
+      el('p', { class: 'discover-hero-eyebrow' }, 'Brew Lab'),
+      el('h1', { class: 'discover-hero-title' },
+        'Learn coffee.', el('br'), 'Brew better.'
+      ),
+      el('p', { class: 'discover-hero-sub' },
+        'Guides from working baristas, the roasters near you, and the creators who do this for a living.'
+      ),
+      el('a', { href: '#/learn', class: 'btn-discover-cta' }, 'Start the guide')
     )
   ));
-  grid.appendChild(el('div', { class: 'card', style: 'padding:0;overflow:hidden;cursor:pointer', onclick: () => navigate('origins') },
-    el('div', { style: 'aspect-ratio:5/3;background:linear-gradient(135deg, var(--green) 0%, #1d3327 100%);display:flex;align-items:center;justify-content:center;font-size:4rem' }, '🌍'),
-    el('div', { style: 'padding:20px' },
-      el('div', { class: 'h4' }, 'Origins map'),
-      el('p', { class: 'muted mt-sm', style: 'font-size:0.9rem' }, 'Meet the farmers behind your cup. Videos at every origin.'),
-      el('div', { style: 'margin-top:8px;color:var(--caramel-deep);font-weight:500;font-size:0.9rem' }, 'Explore the map →')
-    )
-  ));
-  grid.appendChild(el('div', { class: 'card', style: 'padding:0;overflow:hidden;cursor:pointer', onclick: () => navigate('products') },
-    el('div', { style: 'aspect-ratio:5/3;background:linear-gradient(135deg, var(--espresso) 0%, #3D2418 100%);display:flex;align-items:center;justify-content:center;font-size:4rem' }, '⚙️'),
-    el('div', { style: 'padding:20px' },
-      el('div', { class: 'h4' }, 'Gear'),
-      el('p', { class: 'muted mt-sm', style: 'font-size:0.9rem' }, 'Coffee makers, grinders, and brewing accessories.'),
-      el('div', { style: 'margin-top:8px;color:var(--caramel-deep);font-weight:500;font-size:0.9rem' }, 'See gear →')
-    )
-  ));
-  c.appendChild(grid);
 
-  // Top beans this week
-  c.appendChild(el('div', { class: 'section-title' },
-    el('h3', { class: 'h3' }, 'Top beans this week'),
-    el('a', { href: '#/beans' }, 'See all →')
+  /* The Coffee Guide */
+  const guideTopics = [
+    { slug: 'beans', title: 'Beans', desc: 'Origins, processing, roast levels, and what to buy.' },
+    { slug: 'grind', title: 'Grind', desc: 'Why grind size changes everything in the cup.' },
+    { slug: 'brewing', title: 'Brew Methods', desc: 'Pour-over, espresso, French press, and more.' },
+    { slug: 'tasting', title: 'Tasting', desc: 'Build your palate. Log every cup you brew.' }
+  ];
+  main.appendChild(el('section', { class: 'discover-section' },
+    el('div', { class: 'container' },
+      el('div', { class: 'discover-section-head' },
+        el('div', {},
+          el('h2', { class: 'discover-h2' }, 'The Coffee Guide'),
+          el('p', { class: 'discover-sub' }, 'Four chapters. Read at your own pace.')
+        ),
+        el('a', { href: '#/learn', class: 'discover-link' }, 'See all →')
+      ),
+      el('div', { class: 'discover-guide-grid' },
+        guideTopics.map((t, i) => el('a',
+          { href: '#/learn', class: 'discover-guide-card' },
+          el('div', { class: 'discover-guide-num' }, '0' + (i + 1)),
+          el('h3', { class: 'discover-guide-title' }, t.title),
+          el('p', { class: 'discover-guide-desc' }, t.desc)
+        ))
+      )
+    )
   ));
-  const top = DATA.beans.slice().sort((a, b) => (b.rating - a.rating) || (b.brewedBy - a.brewedBy)).slice(0, 4);
-  const beanGrid = el('div', { class: 'grid grid-4' });
-  top.forEach(b => beanGrid.appendChild(beanTile(b)));
-  c.appendChild(beanGrid);
+
+  /* Coffee Near You — Leaflet map */
+  const mapEl = el('div', { id: 'discover-map', class: 'discover-map' });
+  main.appendChild(el('section', { class: 'discover-section' },
+    el('div', { class: 'container' },
+      el('div', { class: 'discover-section-head' },
+        el('div', {},
+          el('h2', { class: 'discover-h2' }, 'Coffee Near You'),
+          el('p', { class: 'discover-sub' }, 'Cafes, roasters, and the beans they pour. Tap a pin to learn more.')
+        )
+      ),
+      el('div', { class: 'discover-map-wrap' }, mapEl)
+    )
+  ));
+
+  const shops = [
+    { name: 'Dirt Cowboy Cafe', address: '7 S Main St, Hanover, NH', coords: [43.7022, -72.2896], beans: ['Counter Culture', 'rotating local roasts'] },
+    { name: 'The Works Bakery Cafe', address: '13 S Main St, Hanover, NH', coords: [43.7018, -72.2898], beans: ['Green Mountain', 'house drip'] },
+    { name: "Umpleby's Bakery & Cafe", address: '3 Main St, Norwich, VT', coords: [43.7155, -72.3057], beans: ['Vermont Coffee Company'] }
+  ];
+  requestAnimationFrame(() => {
+    if (!window.L || !document.body.contains(mapEl)) return;
+    const map = L.map(mapEl).setView([43.708, -72.297], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    shops.forEach(s => {
+      const html =
+        '<div style="min-width:180px">' +
+          '<strong style="color:#233C28">' + s.name + '</strong>' +
+          '<div style="font-size:12px;color:#666;margin-top:2px">' + s.address + '</div>' +
+          '<div style="font-size:12px;margin-top:6px">' +
+            '<span style="color:#C5962B;font-weight:600">Beans: </span>' +
+            s.beans.join(', ') +
+          '</div>' +
+        '</div>';
+      L.marker(s.coords).addTo(map).bindPopup(html);
+    });
+    setTimeout(() => map.invalidateSize(), 0);
+  });
+
+  /* Watch & Learn — YouTube grid (placeholder IDs swappable in code) */
+  const videos = [
+    { videoId: '1Zs_zwZ8Vyk', creator: 'James Hoffmann', title: 'The Ultimate V60 Technique' },
+    { videoId: 'j6VlT_jUVPc', creator: 'Lance Hedrick', title: 'Espresso Fundamentals' },
+    { videoId: 'st571DYYTR8', creator: 'Morgan Drinks Coffee', title: 'How to Taste Coffee' },
+    { videoId: 'YOUTUBE_ID_4', creator: 'European Coffee Trip', title: 'Inside a Specialty Roastery' },
+    { videoId: 'YOUTUBE_ID_5', creator: 'Cuisinart Test Kitchen', title: 'Pairing Beans with Your Brewer' },
+    { videoId: 'YOUTUBE_ID_6', creator: 'The Bean Diaries', title: 'Single-Origin vs Blends' }
+  ];
+  main.appendChild(el('section', { class: 'discover-section' },
+    el('div', { class: 'container' },
+      el('div', { class: 'discover-section-head' },
+        el('div', {},
+          el('h2', { class: 'discover-h2' }, 'Watch & Learn'),
+          el('p', { class: 'discover-sub' }, 'Coffee and kitchen creators worth your time.')
+        ),
+        el('a', { href: '#/community', class: 'discover-link' }, 'All creators →')
+      ),
+      el('div', { class: 'discover-video-grid' },
+        videos.map(v => el('div',
+          { class: 'discover-video-card' },
+          el('div', { class: 'discover-video-frame' },
+            el('iframe', {
+              src: 'https://www.youtube.com/embed/' + v.videoId,
+              title: v.title,
+              loading: 'lazy',
+              allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
+              allowfullscreen: ''
+            })
+          ),
+          el('div', { class: 'discover-video-meta' },
+            el('p', { class: 'discover-video-creator' }, v.creator),
+            el('p', { class: 'discover-video-title' }, v.title)
+          )
+        ))
+      )
+    )
+  ));
 }
 
 /* ----- Products ----- */
@@ -1356,6 +1410,9 @@ function renderYou(main) {
     )
   ));
 
+  // AI Drink Recommender card (renders inside the page)
+  c.appendChild(aiRecommenderCard());
+
   // Virtual Barista card
   c.appendChild(el('div', { class: 'card', style: 'margin-bottom:32px;padding:24px;background:linear-gradient(135deg, var(--caramel-soft) 0%, #FAEDD7 100%);border-color:rgba(200,118,45,0.25)' },
     el('div', { style: 'display:flex;align-items:flex-start;gap:18px;margin-bottom:16px;flex-wrap:wrap' },
@@ -1504,6 +1561,155 @@ function renderYou(main) {
     )
   ));
   c.appendChild(split2);
+}
+
+/* ---------------- AI Drink Recommender ---------------- */
+// In-memory state for the form so re-renders don't lose user selections
+let aiPrefs = { temp: null, strength: null, milk: null, sweet: null, time: null };
+let aiResult = null;
+
+function aiRecommenderCard() {
+  const card = el('div', { class: 'card', style: 'margin-bottom:32px;padding:0;overflow:hidden;border:1px solid var(--line)' });
+
+  // Header
+  card.appendChild(el('div', { style: 'padding:24px 28px 20px' },
+    el('div', { class: 'eyebrow', style: 'margin-bottom:6px' }, '🤖 AI Drink Recommender'),
+    el('h3', { class: 'h3', style: 'margin-bottom:4px' }, 'What should you drink right now?'),
+    el('p', { style: 'color:var(--ink-soft);font-size:0.9rem' }, 'Tell us what you feel like. We pick the drink that matches.')
+  ));
+
+  // Form body
+  const body = el('div', { style: 'padding:0 28px 24px;border-top:1px solid var(--line);padding-top:20px' });
+  body.appendChild(aiSegmentRow('Temperature', 'temp', [
+    { value: 'hot', label: 'Hot', icon: '☀️' },
+    { value: 'cold', label: 'Cold', icon: '🧊' }
+  ]));
+  body.appendChild(aiSegmentRow('Strength', 'strength', [
+    { value: 'strong', label: 'Strong', icon: '💪' },
+    { value: 'medium', label: 'Medium', icon: '👌' },
+    { value: 'light', label: 'Light', icon: '🪶' }
+  ]));
+  body.appendChild(aiSegmentRow('Milk?', 'milk', [
+    { value: 'yes', label: 'With milk', icon: '🥛' },
+    { value: 'no', label: 'Black', icon: '⚫' }
+  ]));
+  body.appendChild(aiSegmentRow('Sweet?', 'sweet', [
+    { value: 'yes', label: 'Sweet', icon: '🍯' },
+    { value: 'no', label: 'Plain', icon: '🌿' }
+  ]));
+  body.appendChild(aiSegmentRow('Time you have', 'time', [
+    { value: 'quick', label: 'Quick (<5 min)', icon: '⚡' },
+    { value: 'slow', label: 'I have time', icon: '🕰️' }
+  ]));
+
+  // Submit button
+  body.appendChild(el('button', {
+    class: 'btn btn-accent btn-block btn-lg',
+    style: 'margin-top:8px',
+    onclick: () => {
+      aiResult = aiRecommend();
+      render();
+    }
+  }, '✨ Recommend my drink'));
+
+  // Optional reset
+  if (Object.values(aiPrefs).some(v => v !== null) || aiResult) {
+    body.appendChild(el('button', {
+      class: 'btn btn-ghost btn-sm',
+      style: 'margin-top:10px;display:block;margin-left:auto;margin-right:auto',
+      onclick: () => {
+        aiPrefs = { temp: null, strength: null, milk: null, sweet: null, time: null };
+        aiResult = null;
+        render();
+      }
+    }, 'Clear answers'));
+  }
+
+  card.appendChild(body);
+
+  // Result
+  if (aiResult) {
+    card.appendChild(aiResultPanel(aiResult));
+  }
+
+  return card;
+}
+
+function aiSegmentRow(label, key, options) {
+  const row = el('div', { style: 'margin-bottom:18px' });
+  row.appendChild(el('div', { style: 'font-size:0.78rem;font-weight:600;color:var(--ink-soft);margin-bottom:8px;letter-spacing:0.04em;text-transform:uppercase' }, label));
+  const grid = el('div', { style: 'display:flex;gap:8px;flex-wrap:wrap' });
+  options.forEach(opt => {
+    const selected = aiPrefs[key] === opt.value;
+    grid.appendChild(el('button', {
+      style: 'flex:1;min-width:100px;padding:12px 14px;border-radius:12px;border:1.5px solid ' + (selected ? 'var(--caramel)' : 'var(--line)') + ';background:' + (selected ? 'var(--caramel-soft)' : 'var(--surface)') + ';font-size:0.92rem;font-weight:' + (selected ? '600' : '500') + ';color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:8px;justify-content:center;transition:border-color 0.15s, background 0.15s',
+      onclick: () => {
+        aiPrefs[key] = opt.value;
+        render();
+      }
+    },
+      el('span', { style: 'font-size:1.1rem' }, opt.icon),
+      el('span', {}, opt.label)
+    ));
+  });
+  row.appendChild(grid);
+  return row;
+}
+
+function aiRecommend() {
+  // Score every drink against user preferences. Higher score = better match.
+  const scored = DATA.aiDrinks.map(d => {
+    let score = 0;
+    let reasons = [];
+    if (aiPrefs.temp && d.temp === aiPrefs.temp) { score += 25; reasons.push(aiPrefs.temp === 'hot' ? 'served hot' : 'served cold'); }
+    else if (aiPrefs.temp && d.temp !== aiPrefs.temp) score -= 30;
+    if (aiPrefs.strength && d.strength === aiPrefs.strength) { score += 20; reasons.push(aiPrefs.strength + ' strength'); }
+    else if (aiPrefs.strength === 'strong' && d.strength === 'light') score -= 10;
+    if (aiPrefs.milk === 'yes' && d.milk) { score += 18; reasons.push('with milk'); }
+    if (aiPrefs.milk === 'no' && !d.milk) { score += 18; reasons.push('black, no milk'); }
+    if (aiPrefs.milk === 'no' && d.milk) score -= 20;
+    if (aiPrefs.sweet === 'yes' && d.sweet) { score += 15; reasons.push('sweet'); }
+    if (aiPrefs.sweet === 'no' && !d.sweet) { score += 8; }
+    if (aiPrefs.sweet === 'no' && d.sweet) score -= 12;
+    if (aiPrefs.time && d.time === aiPrefs.time) { score += 12; }
+    if (aiPrefs.time === 'quick' && d.time === 'slow') score -= 15;
+    return { drink: d, score, reasons };
+  });
+  scored.sort((a, b) => b.score - a.score);
+  const best = scored[0];
+  const second = scored[1];
+  return {
+    drink: best.drink,
+    reasons: best.reasons,
+    runnerUp: second && second.score > 20 ? second.drink : null
+  };
+}
+
+function aiResultPanel(result) {
+  const d = result.drink;
+  return el('div', { style: 'padding:24px 28px;background:linear-gradient(135deg, #1F352A 0%, #0F1F18 100%);color:white;border-top:1px solid var(--line)' },
+    el('div', { style: 'font-size:0.7rem;letter-spacing:0.14em;color:rgba(232,200,150,0.7);text-transform:uppercase;margin-bottom:8px' }, '✨ Your match'),
+    el('div', { style: 'display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;margin-bottom:14px' },
+      el('div', { style: 'font-size:3rem;line-height:1;flex-shrink:0' }, d.icon),
+      el('div', { style: 'flex:1;min-width:200px' },
+        el('div', { style: 'font-family:var(--font-display);font-size:1.6rem;font-weight:500;letter-spacing:-0.015em;margin-bottom:6px' }, d.name),
+        el('p', { style: 'color:rgba(255,255,255,0.85);font-size:0.93rem;line-height:1.5;margin-bottom:10px' }, d.desc),
+        result.reasons.length ? el('div', { style: 'display:flex;flex-wrap:wrap;gap:6px' },
+          result.reasons.map(r => el('span', { style: 'background:rgba(255,255,255,0.12);color:rgba(232,200,150,0.95);padding:3px 10px;border-radius:999px;font-size:0.74rem;font-weight:500' }, '✓ ' + r))
+        ) : null
+      )
+    ),
+    el('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;margin-top:8px' },
+      d.recipeId ? el('button', {
+        style: 'background:var(--caramel);color:white;padding:10px 20px;border-radius:999px;font-size:0.9rem;font-weight:600;border:0;cursor:pointer',
+        onclick: () => navigate('recipe/' + d.recipeId)
+      }, 'Open recipe →') : null,
+      result.runnerUp ? el('button', {
+        style: 'background:transparent;color:rgba(232,200,150,0.85);padding:10px 16px;border-radius:999px;font-size:0.85rem;font-weight:500;border:1px solid rgba(232,200,150,0.3);cursor:pointer',
+        onclick: () => toast('Or try ' + result.runnerUp.name)
+      }, 'Or: ' + result.runnerUp.name) : null
+    )
+  );
 }
 
 function memberRow(m) {
