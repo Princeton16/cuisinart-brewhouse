@@ -6458,7 +6458,6 @@ const BEAN_TABS = [
   { route: 'passport', label: 'Passport', icon: 'globe' }
 ];
 const BEAN_STUBS = {
-  learn:    { title: 'Learn',    sub: 'Phase 2 brings the brewing guides.' },
   passport: { title: 'Passport', sub: 'Phase 2 stamps the origins you have tasted.' },
   recipes:  { title: 'Recipes',  sub: 'Phase 6 builds the recipes browser.' }
 };
@@ -6469,13 +6468,20 @@ function getBeanUser() {
 }
 function setBeanUser(u) {
   localStorage.setItem(BEAN_USER_KEY, JSON.stringify(u));
-  // First-time demo session: seed brews and an unlocked profile
-  if (u && u.isDemo) seedDemoBrewsIfNeeded();
+  // First-time demo session: seed brews + lesson state
+  if (u && u.isDemo) {
+    seedDemoBrewsIfNeeded();
+    if (typeof seedDemoLessonsIfNeeded === 'function') seedDemoLessonsIfNeeded();
+  }
 }
 function clearBeanUser() {
   localStorage.removeItem(BEAN_USER_KEY);
   localStorage.removeItem(BEAN_BREWS_KEY);
   localStorage.removeItem(BEAN_DEMO_SEEDED_KEY);
+  localStorage.removeItem('beanapp_lessons');
+  localStorage.removeItem('beanapp_lessons_in_progress');
+  localStorage.removeItem('beanapp_certs');
+  localStorage.removeItem('beanapp_lessons_demo_seeded');
 }
 
 function loadBeanBrews() {
@@ -6614,6 +6620,8 @@ function beanRender() {
     renderYou(main);
   } else if (route === 'feed' && typeof renderFeed === 'function') {
     renderFeed(main);
+  } else if (route === 'learn' && typeof renderLearn === 'function') {
+    renderLearn(main);
   } else if (BEAN_STUBS[route]) {
     renderBeanStub(main, BEAN_STUBS[route]);
   } else {

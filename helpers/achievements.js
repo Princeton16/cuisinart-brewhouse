@@ -12,7 +12,7 @@ const ACHIEVEMENTS = [
   { id: 'bean-explorer',   name: 'Bean Explorer',      desc: 'Try 5 unique bean origins.',                icon: 'globe',   test: ctx => ctx.uniqueOrigins >= 5 },
   { id: 'palate-refined',  name: 'Palate Refined',     desc: 'Cover 5 flavor dimensions in your brews.',  icon: 'spectrum',test: ctx => ctx.palateCoverage >= 5 },
   { id: 'espresso-expert', name: 'Espresso Expert',    desc: 'Pull 10 espresso shots.',                   icon: 'espresso',test: ctx => ctx.brews.filter(b => b.method === 'Espresso').length >= 10 },
-  { id: 'sommelier',       name: 'The Sommelier',      desc: 'Coming in Phase 4.',                        icon: 'crown',   test: () => false, locked: true }
+  { id: 'sommelier',       name: 'The Sommelier',      desc: 'Reach the Coffee Sommelier tier (1500 XP).',icon: 'crown',   test: ctx => ctx.xp >= 1500 }
 ];
 
 const ACHIEVEMENT_ICONS = {
@@ -30,14 +30,15 @@ const ACHIEVEMENT_ICONS = {
   crown:    '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 8 L7 14 L12 6 L17 14 L21 8 L20 18 H4 Z"/></svg>'
 };
 
-function computeAchievements(brews, currentStreakVal, palateCoverageVal, uniqueOriginsVal, userPostsVal, kudosGivenVal) {
+function computeAchievements(brews, currentStreakVal, palateCoverageVal, uniqueOriginsVal, userPostsVal, kudosGivenVal, xpVal) {
   const ctx = {
     brews: brews || [],
     currentStreak: currentStreakVal || 0,
     palateCoverage: palateCoverageVal || 0,
     uniqueOrigins: uniqueOriginsVal || 0,
     userPosts: userPostsVal || 0,
-    kudosGiven: kudosGivenVal || 0
+    kudosGiven: kudosGivenVal || 0,
+    xp: xpVal || 0
   };
   return ACHIEVEMENTS.map(a => ({
     id: a.id,

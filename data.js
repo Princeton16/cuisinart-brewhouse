@@ -1075,6 +1075,86 @@ const DATA = {
     { id: 'blue-bottle',     name: 'Blue Bottle Coffee',       short: 'Blue Bottle',     hood: 'San Francisco, California',  coords: [37.7820, -122.4079], drinks: ['New Orleans iced coffee', 'Gibraltar', 'Pour-over'],     photoUrl: 'https://images.unsplash.com/photo-1507133750040-4a8f57021571?w=400&q=80', status: 'soon'   }
   ],
 
+  /* ---------------- The Bean — Learn tab catalog (Phase 4) ---------------- */
+  beanTiers: [
+    { id: 'bean-curious',     name: 'Bean Curious',     minXp: 0    },
+    { id: 'bean-scholar',     name: 'Bean Scholar',     minXp: 100  },
+    { id: 'coffee-apprentice',name: 'Coffee Apprentice',minXp: 400  },
+    { id: 'coffee-master',    name: 'Coffee Master',    minXp: 800  },
+    { id: 'coffee-sommelier', name: 'Coffee Sommelier', minXp: 1500 }
+  ],
+
+  beanTracks: [
+    {
+      id: 'the-bean', title: 'The Bean', subtitle: 'Roast · Flavor · Freshness', iconColor: '#8B4F2A', icon: 'bean',
+      lessons: [
+        {
+          id: 'bean-1', title: 'Origins', xp: 50,
+          body: 'Coffee grows in a narrow band hugging the equator, between the Tropics of Cancer and Capricorn. This Bean Belt gives us beans from Ethiopia and Kenya in East Africa, Colombia and Brazil across Latin America, and Indonesia in Southeast Asia. Each region grows under different conditions and those conditions show up in the cup.\n\nAltitude is the single biggest factor. Coffee grown above 1,400 meters develops slowly, building denser cells and brighter acidity. Ethiopian highland coffees taste floral and citric for this reason. Lowland coffees are heavier and earthier.\n\nClimate matters too. Two distinct seasons — a wet flowering and a dry harvest — give beans a uniform development. Volcanic soil in Guatemala or Costa Rica adds minerality and sweetness.\n\nCountry of origin is shorthand for these conditions. When you read "Ethiopia Yirgacheffe" on a bag, you are reading altitude, climate, and soil, not just a flag.'
+        },
+        {
+          id: 'bean-2', title: 'Processing Methods', xp: 60,
+          body: 'After harvest, coffee cherries have to be turned into the green seeds we roast. How that happens shapes flavor as much as origin does.\n\nWashed (or wet) processing strips the cherry off before drying. The seeds ferment briefly in tanks, then dry on raised beds or patios. Washed coffees taste clean, with sharper acidity and clearer origin character. Most Ethiopian and Colombian coffees are washed.\n\nNatural (or dry) processing dries the cherry whole, fruit and all. The skin and pulp transfer sugar and ferment slowly into the seed. Natural coffees taste fruity and wine-like, with bigger body and softer acidity. Brazil and many Ethiopian Sidamo lots are natural.\n\nHoney process is the in-between. Some pulp stays on during drying, just enough to add sweetness without going full natural. Costa Rica championed this method.\n\nWashed = clarity. Natural = fruit. Honey = body and sweetness.'
+        },
+        {
+          id: 'bean-3', title: 'Roast Levels', xp: 70,
+          body: 'Roast level is what most drinkers actually taste. The bean carries the origin character; the roast either reveals it or covers it.\n\nLight roasts stop just past first crack. The bean is dry, dense, and mostly origin: the citrus of an Ethiopia, the berry of a Kenya. Acidity is bright. Body is thinner. Light roasts demand careful brewing.\n\nMedium roasts go a bit further. Sugars caramelize, acidity softens, body builds. This is the sweet spot for most filter coffees and the default house roast at most cafés.\n\nDark roasts push past second crack. Origin notes fade and the bean takes on smoky, bittersweet, chocolatey roast character. Body gets heavy. Caffeine actually drops slightly because it burns off.\n\nThink of roast as a dial between origin character and roast character. Where you land depends on what you want to taste.'
+        },
+        {
+          id: 'bean-4', title: 'Flavor Development', xp: 80,
+          body: 'Inside the roaster, three reactions shape your cup.\n\nFirst is the Maillard reaction. Around 150°C, amino acids and reducing sugars in the bean combine into hundreds of new compounds — the same browning that gives bread crust and seared steak their depth. Maillard builds savory, nutty, malty notes.\n\nNext is caramelization. As the bean climbs past 170°C, sugars darken and break down into sweeter, more complex molecules. This is where caramel, toffee, and chocolate start to appear.\n\nFinally, first crack happens around 200°C: water inside the bean explodes out, the bean expands, and audible pops fill the drum. Light roasts stop here. Push longer and you reach second crack at 225°C, where the cell structure breaks down further and oils migrate to the surface.\n\nHow long the bean spends in each phase — what roasters call development time — is what dialing in roast really means.'
+        }
+      ]
+    },
+    {
+      id: 'the-brew', title: 'The Brew', subtitle: 'Ratio · Heat · Extraction', iconColor: '#2D7A6B', icon: 'drop',
+      lessons: [
+        {
+          id: 'brew-1', title: 'Brew Ratios', xp: 50,
+          body: 'Brew ratio is the single most powerful variable you control. It is the weight of dry coffee compared to the weight of brewing water, written as 1:N.\n\nStrong, concentrated brews like espresso run around 1:2. Standard filter brewing — pour-over, drip, Aeropress — sits between 1:15 and 1:18. Cold brew concentrates push to 1:8 or even 1:6 because the coffee is later diluted.\n\nWithin filter, 1:15 brews up bold and heavy; 1:18 is bright and tea-like. Most third-wave cafés default to 1:16 or 1:17.\n\nRatio interacts tightly with grind and time. If you change ratio, you usually have to follow with a grind tweak. Pull the same dose finer when you brew weaker; coarser when you brew stronger.\n\nWeigh the coffee. Weigh the water. The single biggest upgrade most home brewers can make is owning a 0.1g scale.'
+        },
+        {
+          id: 'brew-2', title: 'Water Temperature', xp: 60,
+          body: 'Brewing temperature is the second knob. The Specialty Coffee Association recommends 195–205°F (90–96°C) for filter coffees. Hotter water dissolves more compounds. Cooler water extracts less.\n\nGo too hot and you over-extract bitter notes. Go too cold and the cup tastes thin and sour, with the acids dissolving but the sugars and roast notes left behind.\n\nDifferent roasts behave differently. A dark roast is already cracked open by heat — brewing it hot can scorch and pull harshness. Drop a dark roast to 195°F. Light roasts are dense and need more energy; push them to 205°F or even use a longer steep to compensate.\n\nIf your kettle does not have a thermometer, the rule of thumb is to take just-boiled water off heat for 30 seconds before pouring. That settles the temperature into the brewing range.'
+        },
+        {
+          id: 'brew-3', title: 'Grind Size', xp: 70,
+          body: 'Grind size determines how much surface area the water can pull flavor from. Finer grinds = more surface area = faster extraction. Coarser grinds = less surface area = slower extraction.\n\nMatch grind to your method:\n• Espresso: extra fine — like powdered sugar.\n• Aeropress / Moka: fine to medium-fine.\n• Pour-over (V60, Chemex): medium-fine.\n• Drip / batch: medium.\n• French press / cold brew: coarse — like flaky sea salt.\n\nWhy does this matter? Espresso extracts in 25 seconds, so it needs huge surface area. French press steeps for 4 minutes, so the same fine grind would over-extract into bitterness.\n\nIf your brew tastes sour and weak, grind finer. If it tastes harsh and bitter, grind coarser. Grind is the easiest variable to dial because the right answer is in the cup, not the manual.'
+        },
+        {
+          id: 'brew-4', title: 'Extraction Science', xp: 90,
+          body: 'There are two numbers that govern any cup: TDS (Total Dissolved Solids) and extraction yield.\n\nTDS is the strength — what percentage of the brew is actually coffee solids. A typical filter cup runs 1.2 to 1.5% TDS. Espresso is 8 to 12%.\n\nExtraction yield is the percentage of the dry coffee that ended up in the cup. Specialty coffee aims for 18 to 22% extraction. Below 18% the brew tastes underdeveloped — sour, vegetal, weak. Above 22% it pulls harsh — bitter, ashy, drying.\n\nThe SCA brewing control chart plots strength against extraction. Inside the central rectangle is "ideal." Outside is one of four problem zones.\n\nA refractometer reads TDS in seconds; from that and your dose-yield ratio, extraction is simple math. Most home brewers will never own one. But knowing where your cup falls explains why a brew tastes the way it does.'
+        }
+      ]
+    },
+    {
+      id: 'the-craft', title: 'The Craft', subtitle: 'Latte · Cupping · Espresso', iconColor: '#C99B1A', icon: 'leaf',
+      lessons: [
+        {
+          id: 'craft-1', title: 'Latte Art Basics', xp: 60,
+          body: 'Pouring a heart starts with milk that is properly textured. Steam cold whole milk to 140°F max. Hold the wand just under the surface to introduce air for the first second or two — that is the stretching phase. Then submerge the wand and roll the milk into a glossy whirlpool. The texture you want is paint-like, not bubbly. If you can see individual bubbles, you stretched too long.\n\nPour starts high and thin. The espresso has to crema-cap your shot evenly. As the cup fills, drop the pitcher closer to the surface and pick up the pour speed. The faster milk now displaces the crema and creates a white field.\n\nFor a heart, hold steady and pour through the white circle to draw a line, then lift the pitcher to cut.\n\nFor a rosetta, wiggle gently while moving the pitcher backward, then cut through.'
+        },
+        {
+          id: 'craft-2', title: 'Cupping Technique', xp: 70,
+          body: 'Cupping is how the industry tastes coffee. The Specialty Coffee Association protocol is a rigid procedure that lets buyers compare lots fairly.\n\nStart with 8.25g of freshly ground coffee per 5oz cup, ground medium-coarse. Pour 200°F water directly onto the grounds. The grounds form a crust on top.\n\nLet the cups sit for 4 minutes. Then break the crust: push your spoon through three times, sniffing as the trapped aroma releases. This is when you score Fragrance/Aroma.\n\nSkim the foam off the surface. Wait until the cup cools to about 160°F.\n\nSlurp loudly off the spoon. Slurping aerosolizes the coffee across your palate. Score on Flavor, Aftertaste, Acidity, Body, Balance, Sweetness, and Cleanliness.\n\nTotal possible: 100 points. Anything above 80 is "specialty." 87+ is exceptional. The discipline matters more than the score.'
+        },
+        {
+          id: 'craft-3', title: 'Espresso Dialing', xp: 80,
+          body: 'Dialing in espresso is just three knobs: dose, yield, and time. Standard double shot: 18g in, 36g out, in 25 to 30 seconds.\n\nIf the shot pulls fast — under 22 seconds — your grind is too coarse. The water is racing through the puck and pulling sour, underdeveloped flavor. Grind finer.\n\nIf the shot pulls slow — over 32 seconds — the grind is too fine. The water is over-extracting. The result tastes bitter and ashy. Grind coarser.\n\nIf the shot is in the right time but tastes wrong, your dose or yield is the issue. More yield (larger ratio) brews lighter and brighter. Less yield (smaller ratio) brews heavier and sweeter.\n\nNever change two variables at once. Pull a shot, taste it, change one knob, pull again. Espresso is a closed loop between your tongue and your grinder. Trust the cup.'
+        },
+        {
+          id: 'craft-4', title: 'Cold Brew Mastery', xp: 90,
+          body: 'Cold brew is the lowest-effort, highest-yield method, and it is also the easiest to mess up.\n\nDecide your output first. A 1:8 ratio (one part coffee to eight parts water by weight) gives you a concentrate that you cut 1:1 with water or milk. A 1:14 ratio is ready-to-drink straight.\n\nGrind coarse. Coarser than French press. Steep in cold or room-temperature water for 12 to 18 hours. Past 18 hours, the cold brew goes muddy and dull. Less than 12, it is weak.\n\nFiltration matters. After steeping, strain through a fine mesh, then a paper filter or cheesecloth. The slow second filter pulls fines that would otherwise muddy the cup.\n\nStore in the fridge in a sealed jar for up to two weeks. Concentrate gets sweeter as it cold-brews and rests; ready-to-drink should be enjoyed within four days for peak flavor.'
+        }
+      ]
+    }
+  ],
+
+  beanCerts: [
+    { id: 'home-barista',    name: 'Home Barista Certificate',    sub: 'Master the bean and the brew.',                requiredTracks: ['the-bean', 'the-brew'] },
+    { id: 'coffee-sommelier',name: 'Coffee Sommelier Certificate',sub: 'Complete the full curriculum and earn your title.', requiredTracks: ['the-bean', 'the-brew', 'the-craft'], requiresCert: 'home-barista' }
+  ],
+
   /* ---------------- Recommended brews (rotates daily on the You tab) ---------------- */
   recommendedBrews: [
     { name: 'Yirgacheffe pour-over',     method: 'Pour-over',   ratio: '1:16', waterTempF: 200, grindSize: 'Medium-fine', flavorTags: ['floral', 'citrus', 'bright'],    description: 'A bright, jasmine-tinged pour-over that wakes up your palate.',                       photoUrl: 'https://images.unsplash.com/photo-1516559828984-fb3b99548b21?w=600&q=80' },

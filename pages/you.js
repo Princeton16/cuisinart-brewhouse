@@ -91,7 +91,8 @@ function renderYou(main) {
   const origins = uniqueBeanOrigins(brews);
   const userPosts = (typeof userPostCount === 'function') ? userPostCount() : 0;
   const kudosGiven = (typeof loadBeanKudos === 'function') ? loadBeanKudos().length : 0;
-  const achievements = computeAchievements(brews, cs, palate.coverage, origins, userPosts, kudosGiven);
+  const xp = (typeof getXP === 'function') ? getXP() : 0;
+  const achievements = computeAchievements(brews, cs, palate.coverage, origins, userPosts, kudosGiven, xp);
   const unlockedCount = achievements.filter(a => a.unlocked).length;
   const score = computeGrindScore(brews, cs, unlockedCount, origins);
   const devices = isDemo ? DEMO_DEVICES : [];
@@ -117,12 +118,13 @@ function youProfileHeader(user) {
     el('button', { type: 'button', class: 'you-icon-btn', 'aria-label': 'Share', onclick: () => alert('Share — coming soon') }, _svgEl(YOU_ICONS.share)),
     el('button', { type: 'button', class: 'you-icon-btn', 'aria-label': 'Settings', onclick: () => openYouSettings() }, _svgEl(YOU_ICONS.settings))
   ));
+  const tier = (typeof getTier === 'function') ? getTier() : { name: 'Bean Curious' };
   card.appendChild(el('div', { class: 'you-profile-row' },
     el('div', { class: 'you-avatar' }, _initials(user.name)),
     el('div', { class: 'you-profile-meta' },
       el('div', { class: 'you-name' }, user.name || 'You'),
       el('div', { class: 'you-profile-line' },
-        el('span', { class: 'you-pill-trophy' }, _svgEl(YOU_ICONS.trophy), 'Community Icon'),
+        el('span', { class: 'you-pill-trophy' }, _svgEl(YOU_ICONS.trophy), tier.name),
         el('span', { class: 'you-joined' }, 'Joined ' + _formatJoined(user.createdAt))
       )
     )

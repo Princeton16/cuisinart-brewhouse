@@ -4188,3 +4188,374 @@ body.bean-app .feed-fab svg { width: 24px; height: 24px; }
 /* Hint that pasted divs from create modal don't poke through */
 body.bean-app .feed-cm-fields { display: block; }
 
+/* ============================================================
+   THE BEAN — Learn tab (Phase 4)
+   ============================================================ */
+body.bean-app .learn-page {
+  padding: 24px 16px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* 1. Header card */
+body.bean-app .learn-header-card {
+  background: var(--bg-alt);
+  color: var(--text-on-dark);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid var(--border-on-dark);
+}
+body.bean-app .learn-tier-name {
+  font-family: var(--bean-display);
+  font-size: 28px;
+  line-height: 1.1;
+  color: var(--text-on-dark);
+  margin: 4px 0 6px;
+}
+body.bean-app .learn-tier-sub {
+  font-size: 12px;
+  color: var(--text-on-dark-muted);
+  margin-bottom: 12px;
+}
+body.bean-app .learn-tier-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+body.bean-app .learn-tier-fill {
+  height: 100%;
+  background: var(--accent-yellow);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+body.bean-app .learn-tier-foot {
+  font-size: 11px;
+  color: var(--text-on-dark-muted);
+}
+
+/* 2. Tracks */
+body.bean-app .learn-tracks {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+body.bean-app .learn-track {
+  background: var(--bg-card);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+body.bean-app .learn-track-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  margin-bottom: 4px;
+}
+body.bean-app .learn-track-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  color: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+body.bean-app .learn-track-icon svg { width: 22px; height: 22px; display: block; }
+body.bean-app .learn-track-meta { flex: 1; min-width: 0; }
+body.bean-app .learn-track-title {
+  font-family: var(--bean-display);
+  font-size: 20px;
+  line-height: 1.1;
+  color: var(--text-on-light);
+}
+body.bean-app .learn-track-sub {
+  font-size: 11px;
+  color: var(--text-on-light-muted);
+  margin-top: 3px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+body.bean-app .learn-track-mini-bar {
+  width: 60px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+body.bean-app .learn-track-mini-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+body.bean-app .learn-lesson-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 8px 16px 16px;
+}
+body.bean-app .learn-lesson-card {
+  position: relative;
+  height: 110px;
+  background: #FFFFFF;
+  border: 1px solid var(--border-on-light);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--bean-body);
+  color: var(--text-on-light);
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+body.bean-app .learn-lesson-card:hover {
+  border-color: var(--accent-yellow-deep);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+body.bean-app .learn-lesson-card.learn-state-locked {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+body.bean-app .learn-lesson-card.learn-state-locked:hover {
+  border-color: var(--border-on-light);
+  transform: none;
+  box-shadow: none;
+}
+body.bean-app .learn-lesson-card.learn-state-completed {
+  background: #F1F8F2;
+  border-color: rgba(93, 170, 110, 0.3);
+}
+body.bean-app .learn-lesson-status {
+  align-self: flex-start;
+}
+body.bean-app .learn-lesson-status svg { width: 24px; height: 24px; display: block; }
+body.bean-app .learn-lesson-title {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--text-on-light);
+  margin-top: 4px;
+}
+body.bean-app .learn-lesson-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+body.bean-app .learn-lesson-state {
+  font-size: 10px;
+  color: var(--text-on-light-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 500;
+  line-height: 1.2;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+body.bean-app .learn-lesson-xp {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+body.bean-app .learn-lesson-card.learn-state-completed .learn-lesson-xp {
+  background: rgba(93, 170, 110, 0.2);
+  color: #2F6A40;
+}
+
+/* Locked-card horizontal shake */
+@keyframes learn-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+}
+body.bean-app .learn-lesson-card.shake { animation: learn-shake 0.32s ease; }
+
+/* 3. Certifications */
+body.bean-app .learn-certs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+body.bean-app .learn-certs-h {
+  font-family: var(--bean-display);
+  font-size: 22px;
+  color: var(--text-on-dark);
+  margin-bottom: 4px;
+}
+body.bean-app .learn-cert-card {
+  position: relative;
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
+body.bean-app .learn-cert-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-on-light-muted);
+  font-weight: 500;
+}
+body.bean-app .learn-cert-title {
+  font-family: var(--bean-display);
+  font-size: 18px;
+  color: var(--text-on-light);
+  line-height: 1.15;
+}
+body.bean-app .learn-cert-sub {
+  font-size: 12px;
+  color: var(--text-on-light-muted);
+  line-height: 1.45;
+}
+body.bean-app .learn-cert-prog-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+body.bean-app .learn-cert-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 999px;
+  overflow: hidden;
+}
+body.bean-app .learn-cert-fill {
+  height: 100%;
+  background: var(--accent-yellow);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+body.bean-app .learn-cert-count {
+  font-size: 11px;
+  color: var(--text-on-light-muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
+body.bean-app .learn-cert-cta {
+  margin-top: 6px;
+  padding: 10px 16px;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  border: 0;
+  border-radius: 999px;
+  font-family: var(--bean-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background 0.15s ease;
+}
+body.bean-app .learn-cert-cta:hover { background: var(--accent-yellow-deep); }
+body.bean-app .learn-cert-earned {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-yellow-deep);
+}
+body.bean-app .learn-cert-earned svg { width: 18px; height: 18px; }
+
+/* Locked overlay */
+body.bean-app .learn-cert-card.is-locked .learn-cert-eyebrow,
+body.bean-app .learn-cert-card.is-locked .learn-cert-title,
+body.bean-app .learn-cert-card.is-locked .learn-cert-sub,
+body.bean-app .learn-cert-card.is-locked .learn-cert-prog-row {
+  opacity: 0.4;
+}
+body.bean-app .learn-cert-lock {
+  position: absolute;
+  inset: 0;
+  background: rgba(168, 159, 142, 0.18);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-on-light-muted);
+  font-weight: 500;
+  pointer-events: none;
+}
+body.bean-app .learn-cert-lock svg { width: 24px; height: 24px; color: var(--text-on-light-muted); }
+
+/* Lesson modal */
+body.bean-app .learn-modal-card {
+  max-width: 420px;
+  padding: 24px;
+}
+body.bean-app .learn-modal-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-yellow-deep);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+body.bean-app .learn-modal-title {
+  font-family: var(--bean-display);
+  font-size: 26px;
+  line-height: 1.1;
+  color: var(--text-on-light);
+  margin-bottom: 14px;
+  padding-right: 32px;
+}
+body.bean-app .learn-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+body.bean-app .learn-modal-body p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-on-light);
+}
+body.bean-app .learn-modal-cta { margin-top: 0; }
+body.bean-app .learn-modal-cta.is-done {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-on-light-muted);
+  cursor: default;
+}
+body.bean-app .learn-modal-cta.is-done:hover { background: rgba(0, 0, 0, 0.06); }
+body.bean-app .learn-modal-close-text {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  background: transparent;
+  border: 0;
+  font-family: var(--bean-body);
+  font-size: 13px;
+  color: var(--text-on-light-muted);
+  cursor: pointer;
+  text-align: center;
+}
+body.bean-app .learn-modal-close-text:hover { color: var(--text-on-light); }
+
