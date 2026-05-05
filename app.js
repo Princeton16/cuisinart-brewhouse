@@ -1915,16 +1915,15 @@ function renderMagazineHome(main) {
   const factSection = el('section', { style: 'padding:0 0 32px' },
     el('div', { class: 'container' },
       el('div', {
-        style: 'background:var(--marigold);border:2px solid var(--ink);border-radius:14px;box-shadow:6px 6px 0 0 var(--ink);padding:22px 28px;display:flex;align-items:center;gap:24px;flex-wrap:wrap'
+        style: 'background:#FFFEFB;border:1.5px solid var(--ink);border-left:6px solid var(--ink);border-radius:6px;padding:22px 28px;display:flex;align-items:center;gap:24px;flex-wrap:wrap'
       },
         el('div', {
-          style: 'font-family:var(--font-mono);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--tomato);font-weight:800;flex-shrink:0;border-right:1.5px solid var(--ink);padding-right:20px;line-height:1.1'
+          style: 'font-family:var(--font-mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--tomato);font-weight:800;flex-shrink:0;line-height:1.2;border-right:1px solid var(--ink);padding-right:20px'
         },
-          '◉ ' + fact.eyebrow.split(' ')[0].toUpperCase(),
-          el('div', { style: 'font-family:var(--font-display);font-size:9px;color:var(--ink);font-weight:700;margin-top:2px' }, (fact.eyebrow.split(' ').slice(1).join(' ') || '').toUpperCase())
+          fact.eyebrow.toUpperCase()
         ),
         el('div', {
-          style: 'flex:1;font-family:var(--font-display);font-size:18px;line-height:1.4;color:var(--ink);font-weight:500'
+          style: 'flex:1;font-family:var(--font-display);font-size:18px;line-height:1.45;color:var(--ink);font-style:italic'
         }, fact.text)
       )
     )
@@ -1987,6 +1986,113 @@ function renderMagazineHome(main) {
     );
     page.appendChild(schoolSection);
   }
+
+  /* === PHASE 2 TEASER — connected coffee maker waitlist === */
+  const phase2Section = el('section', { style: 'padding:32px 0' },
+    el('div', { class: 'container' },
+      el('div', {
+        style: 'background:linear-gradient(135deg, var(--ink) 0%, #2A1F14 100%);color:var(--cream);border-radius:18px;border:2px solid var(--ink);box-shadow:8px 8px 0 0 var(--tomato);padding:36px 40px;display:grid;grid-template-columns:1.4fr 1fr;gap:36px;align-items:center'
+      },
+        // Left: copy
+        el('div', {},
+          el('div', {
+            style: 'font-family:var(--font-mono);font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--marigold);font-weight:800;margin-bottom:14px'
+          }, '◉ Coming next · Phase II'),
+          el('h2', {
+            style: 'font-family:var(--font-display);font-weight:800;font-size:clamp(28px, 4vw, 44px);line-height:1.02;letter-spacing:-0.02em;margin:0 0 14px;color:var(--cream)'
+          },
+            'A connected coffee maker that ',
+            el('em', { style: 'font-style:italic;color:var(--marigold)' }, 'pours your favorites'),
+            ' automatically.'
+          ),
+          el('p', {
+            style: 'font-family:var(--font-display);font-size:16px;line-height:1.5;color:rgba(250, 246, 241, 0.78);margin:0 0 22px;max-width:520px'
+          }, 'Brew Lab will sync straight to the next Cuisinart smart machine. Save a recipe here, brew it there. Be the first to know when it ships.'),
+          // Email capture
+          el('form', {
+            style: 'display:flex;gap:8px;flex-wrap:wrap;max-width:480px',
+            onsubmit: (e) => {
+              e.preventDefault();
+              const input = e.target.querySelector('input');
+              if (input && input.value.trim()) {
+                state.phase2Waitlist = (state.phase2Waitlist || []).concat([input.value.trim()]);
+                save();
+                input.value = '';
+                toast("You're on the list. We'll be in touch.");
+              }
+            }
+          },
+            el('input', {
+              type: 'email',
+              placeholder: 'your@email.com',
+              required: '',
+              style: 'flex:1;min-width:200px;padding:14px 16px;border:1.5px solid var(--cream);background:transparent;color:var(--cream);border-radius:999px;font-family:var(--font-body);font-size:14px;outline:none'
+            }),
+            el('button', {
+              type: 'submit',
+              style: 'background:var(--marigold);color:var(--ink);border:1.5px solid var(--marigold);border-radius:999px;padding:14px 24px;font-family:var(--font-body);font-weight:700;font-size:14px;letter-spacing:0.04em;cursor:pointer;white-space:nowrap'
+            }, 'Join the waitlist')
+          ),
+          el('div', {
+            style: 'font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(250, 246, 241, 0.5);margin-top:14px'
+          }, '◆ ' + ((state.phase2Waitlist || []).length + 1247).toLocaleString() + ' brewers already on the list')
+        ),
+        // Right: stylized smart-machine illustration
+        el('div', { style: 'display:flex;align-items:center;justify-content:center' },
+          (() => {
+            const NS = 'http://www.w3.org/2000/svg';
+            const svg = document.createElementNS(NS, 'svg');
+            svg.setAttribute('viewBox', '0 0 200 200');
+            svg.setAttribute('style', 'width:100%;max-width:200px;height:auto');
+            svg.innerHTML = `
+              <defs>
+                <linearGradient id="machine-body" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#FFFEFB"/>
+                  <stop offset="100%" stop-color="#C9AC85"/>
+                </linearGradient>
+              </defs>
+              <!-- Base / drip tray -->
+              <rect x="40" y="160" width="120" height="14" rx="3" fill="#2A1F14" stroke="#FFFEFB" stroke-width="1.5"/>
+              <!-- Cup on tray -->
+              <path d="M82,148 Q80,162 90,164 L110,164 Q120,162 118,148 Z" fill="#FFFEFB" stroke="#1F1A14" stroke-width="1.5"/>
+              <ellipse cx="100" cy="148" rx="18" ry="2.5" fill="#3C2110"/>
+              <!-- Body of machine -->
+              <rect x="40" y="40" width="120" height="118" rx="10" fill="url(#machine-body)" stroke="#FFFEFB" stroke-width="2"/>
+              <!-- Top water tank -->
+              <rect x="48" y="20" width="40" height="24" rx="4" fill="#85B7EB" stroke="#FFFEFB" stroke-width="1.5"/>
+              <!-- Bean hopper -->
+              <rect x="112" y="20" width="40" height="30" rx="4" fill="#3C2110" stroke="#FFFEFB" stroke-width="1.5"/>
+              <circle cx="124" cy="32" r="2" fill="#9C6F44"/>
+              <circle cx="132" cy="36" r="2" fill="#9C6F44"/>
+              <circle cx="140" cy="30" r="2" fill="#9C6F44"/>
+              <!-- LCD screen -->
+              <rect x="58" y="62" width="84" height="44" rx="4" fill="#1F1A14" stroke="#FFFEFB" stroke-width="1.2"/>
+              <text x="100" y="78" text-anchor="middle" font-family="monospace" font-size="9" fill="#F5C518" font-weight="700">BREW LAB</text>
+              <text x="100" y="92" text-anchor="middle" font-family="monospace" font-size="7" fill="#85B7EB">Saturday Latte</text>
+              <text x="100" y="102" text-anchor="middle" font-family="monospace" font-size="6" fill="rgba(255,245,235,0.6)">brewing · 28s</text>
+              <!-- Steam wand -->
+              <rect x="78" y="118" width="6" height="28" rx="2" fill="#1F1A14"/>
+              <!-- Spout -->
+              <path d="M115,120 L130,120 L130,140 L120,144 L115,140 Z" fill="#1F1A14" stroke="#FFFEFB" stroke-width="1"/>
+              <!-- WiFi signal -->
+              <g transform="translate(150 32)">
+                <path d="M0,8 Q4,4 8,8" stroke="#85B7EB" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <path d="M-2,11 Q4,3 10,11" stroke="#85B7EB" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/>
+                <circle cx="4" cy="13" r="1.2" fill="#85B7EB"/>
+              </g>
+              <!-- Coffee dripping -->
+              <ellipse cx="122" cy="146" rx="1.5" ry="2.5" fill="#3C2110" opacity="0.8"/>
+              <!-- Steam from cup -->
+              <path d="M95,140 Q92,132 95,124" stroke="#FFFEFB" stroke-width="1.2" fill="none" opacity="0.4" stroke-linecap="round"/>
+              <path d="M105,140 Q108,132 105,124" stroke="#FFFEFB" stroke-width="1.2" fill="none" opacity="0.4" stroke-linecap="round"/>
+            `;
+            return svg;
+          })()
+        )
+      )
+    )
+  );
+  page.appendChild(phase2Section);
 
   /* === LETTERS TO THE EDITOR — most recent community post === */
   const allPosts = (state.communityPosts || []);
@@ -2180,23 +2286,19 @@ function milkPourSmileySvg() {
     <!-- Crema swirl ring -->
     <circle cx="120" cy="120" r="70" fill="none" stroke="#C9A06A" stroke-width="0.8" opacity="0.3"/>
 
-    <!-- Rotating rosetta latte art -->
-    <g class="rosetta">
-      <!-- Center stem -->
-      <path d="M120,68 L120,172" stroke="#FFFEFB" stroke-width="3" stroke-linecap="round"/>
-      <!-- Rosetta leaves — symmetric pairs sweeping outward -->
-      <path d="M120,90 Q104,98 96,112 Q108,108 120,104 Q132,108 144,112 Q136,98 120,90 Z"
-            fill="#FFFEFB" opacity="0.95"/>
-      <path d="M120,108 Q100,118 88,134 Q104,128 120,122 Q136,128 152,134 Q140,118 120,108 Z"
-            fill="#FFFEFB" opacity="0.95"/>
-      <path d="M120,128 Q98,140 84,158 Q104,150 120,144 Q136,150 156,158 Q142,140 120,128 Z"
-            fill="#FFFEFB" opacity="0.95"/>
-      <!-- Heart at the top -->
-      <path d="M120,72 C115,66 105,66 105,74 C105,82 115,86 120,90 C125,86 135,82 135,74 C135,66 125,66 120,72 Z"
-            fill="#FFFEFB"/>
+    <!-- Static white heart latte art — crisp, centered -->
+    <g class="latte-heart">
+      <path d="M120,98
+               C108,84 84,84 84,108
+               C84,128 102,140 120,156
+               C138,140 156,128 156,108
+               C156,84 132,84 120,98 Z"
+            fill="#FFFEFB" stroke="#E8DECB" stroke-width="0.8"/>
+      <!-- Subtle inner curl -->
+      <path d="M104,108 C100,104 96,108 96,114" stroke="#E8DECB" stroke-width="1" fill="none" opacity="0.7" stroke-linecap="round"/>
     </g>
 
-    <!-- Steam wisps rising from the cup -->
+    <!-- Animated steam wisps rising from the cup -->
     <g class="steam">
       <path class="wisp w1" d="M88,46 C84,32 92,22 94,14" stroke="#1F1A14" stroke-width="2.2" fill="none" opacity="0.32" stroke-linecap="round"/>
       <path class="wisp w2" d="M120,38 C116,22 124,8 124,0"  stroke="#1F1A14" stroke-width="2.2" fill="none" opacity="0.38" stroke-linecap="round"/>
@@ -5944,8 +6046,8 @@ function ensureGuest() {
   // see content immediately. They can take the taste quiz to personalize,
   // or sign up to save progress across devices.
   if (!state.user) {
-    state.user = { name: 'Guest', email: '', joined: new Date().toISOString(), isGuest: true };
-    state.points = 100;
+    state.user = { name: 'Bobby', email: '', joined: new Date().toISOString(), isGuest: true };
+    state.points = 1280;
   }
   if (!state.profile) {
     state.profile = {
@@ -5957,11 +6059,62 @@ function ensureGuest() {
       goals: ['better', 'art', 'discover']
     };
   }
+
+  // ===== Lived-in seed data for the demo =====
+  // Richer journal so the home page feels populated from page one
   if (!state.journal || !state.journal.length) {
-    state.journal = JSON.parse(JSON.stringify(DATA.seedJournal));
+    const richJournal = [
+      { date: '2026-04-29', time: '07:35', recipe: 'morning-classic',  bean: 'onyx-monarch',      method: 'Drip',     rating: 5, notes: 'Caramel and cocoa came forward today. Grind was finer by one click.', flavors: ['chocolate', 'sweet', 'nutty'] },
+      { date: '2026-04-28', time: '08:12', recipe: 'sat-morning-latte',bean: 'counter-hologram',  method: 'Espresso', rating: 4, notes: 'Almost dialed. Stretching the milk one more second next time.',           flavors: ['chocolate', 'creamy'] },
+      { date: '2026-04-27', time: '14:18', recipe: 'cold-brew-classic',bean: 'stumptown-hairbender',method:'Cold brew',rating:5, notes: 'Sweet, low acid, chocolatey finish. Best cold brew I have made.',           flavors: ['chocolate', 'sweet'] },
+      { date: '2026-04-26', time: '07:44', recipe: 'pour-over-light',  bean: 'heart-stereo',      method: 'Pour over',rating: 4, notes: 'Lemon and bergamot up front. Forty-five second bloom is the unlock.',     flavors: ['fruity', 'citrus'] },
+      { date: '2026-04-25', time: '08:55', recipe: 'morning-classic',  bean: 'verve-streetlevel', method: 'Drip',     rating: 4, notes: 'Honey-leaning. Pairs with toast and the Saturday paper.',                  flavors: ['sweet', 'nutty'] },
+      { date: '2026-04-24', time: '07:20', recipe: 'sat-morning-latte',bean: 'klatch-belle',      method: 'Espresso', rating: 5, notes: 'Pulled a heart for the first time. Standard 1:2 ratio, 28-second shot.',   flavors: ['chocolate', 'creamy'] },
+      { date: '2026-04-22', time: '06:48', recipe: 'morning-classic',  bean: 'kona-direct',       method: 'Drip',     rating: 4, notes: 'Buttery and smooth. Worth the price tag, just barely.',                    flavors: ['nutty', 'sweet'] },
+      { date: '2026-04-20', time: '09:02', recipe: 'pour-over-light',  bean: 'onyx-monarch',      method: 'Pour over',rating: 5, notes: 'Different bean, different brewer, same magic.',                          flavors: ['chocolate', 'fruity'] }
+    ];
+    state.journal = richJournal;
   }
   if (!state.badges || !state.badges.length) {
-    state.badges = ['beta', 'taste-profile', 'machine-master', 'first-brew'];
+    state.badges = ['beta', 'taste-profile', 'machine-master', 'first-brew', 'streak-7', 'critic', 'explorer', 'recipe-author'];
+  }
+  // Active 4-day streak so the personal hello shows it
+  if (!state.streak || state.streak < 4) {
+    state.streak = 4;
+    state.lastCheckIn = '2026-04-29';
+  }
+  // Two completed classes so Learn page feels lived-in
+  if (!state.completedClasses || !state.completedClasses.length) {
+    state.completedClasses = ['latte-art-101', 'pour-over-fundamentals'];
+  }
+  // Joined challenges
+  if (!state.joinedChallenges || !state.joinedChallenges.length) {
+    state.joinedChallenges = ['pour-over-week', 'latte-art-30day'];
+  }
+  // Seeded community letters from the FYP team so the feed and Letters block feel real
+  if (!state.communityPosts || !state.communityPosts.length) {
+    state.communityPosts = [
+      {
+        id: 'seed-letter-1',
+        text: 'The Onyx Monarch is the most consistent bean I have run through my Cuisinart in two years. Worth the four week wait list.',
+        kind: 'tip',
+        icon: '💬',
+        verb: 'dropped a tip',
+        when: '2h ago',
+        timestamp: Date.now() - 2 * 3600 * 1000,
+        author: 'Catherine'
+      },
+      {
+        id: 'seed-letter-2',
+        text: 'Anyone running a DGB-2 paired with a hand grinder? Trying to figure out the sweet spot for grind size before I spend on an electric.',
+        kind: 'ask',
+        icon: '❓',
+        verb: 'asked the community',
+        when: '5h ago',
+        timestamp: Date.now() - 5 * 3600 * 1000,
+        author: 'Andrew'
+      }
+    ];
   }
   save();
 }

@@ -381,6 +381,81 @@
 }
 
 /* ============================================================
+   Mobile responsive — home + magazine layouts
+   ============================================================ */
+@media (max-width: 800px) {
+  /* Home hero — stack the two big tiles */
+  .container > section h1 {
+    font-size: clamp(36px, 9vw, 56px) !important;
+    margin-bottom: 28px !important;
+  }
+  /* Two-tile hero -> single column */
+  section [style*="grid-template-columns:1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* Three-column secondary row -> single column */
+  section [style*="grid-template-columns:repeat(3, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* Four-column briefs -> two columns */
+  section [style*="grid-template-columns:repeat(4, 1fr)"] {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 14px !important;
+  }
+  section [style*="grid-template-columns:repeat(4, 1fr)"] > a {
+    border-right: none !important;
+    padding: 12px !important;
+    border-bottom: 1px solid var(--ink) !important;
+  }
+  /* Brew School two-up -> stack */
+  section [style*="grid-template-columns:1.2fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* Phase 2 teaser -> stack */
+  section [style*="grid-template-columns:1.4fr 1fr"] {
+    grid-template-columns: 1fr !important;
+    padding: 24px !important;
+  }
+  /* Tile body padding tighter */
+  .tile.dotd, .tile.barista, .tile.give, .tile.compete, .tile.cafeweek, .tile.atlas {
+    padding: 22px !important;
+    min-height: 320px !important;
+  }
+  .tile h3 {
+    font-size: 28px !important;
+  }
+  /* Atlas map shorter on phone */
+  #home-atlas-map {
+    aspect-ratio: 4/3 !important;
+  }
+  /* Masthead bar — let it wrap */
+  section [style*="border-top:2px solid"] {
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+    text-align: center;
+    justify-content: center !important;
+  }
+  /* Latte marquee — smaller cards */
+  .latte-card { width: 160px; }
+  /* Newsroom recipe grid -> single column with no right rules */
+  .newsroom-grid > * { border-right: none !important; }
+  /* Robot frame in tile */
+  .brewbot-frame { max-width: 200px; }
+}
+
+@media (max-width: 480px) {
+  /* Even tighter on phones */
+  section [style*="grid-template-columns:repeat(4, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+  section [style*="grid-template-columns:repeat(6, 1fr)"] {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  .container { padding: 0 16px !important; }
+  .tile h3 { font-size: 24px !important; }
+}
+
+/* ============================================================
    Latte Art auto-scrolling marquee (home page)
    ============================================================ */
 .latte-marquee {
@@ -470,18 +545,14 @@
   50%      { transform: translateY(-6px); }
 }
 
-/* Top-down rosetta latte art — slow rotation + gentle pulse */
-.milk-anim .rosetta {
+/* Static heart — no rotation, just a quiet breath */
+.milk-anim .latte-heart {
   transform-origin: 120px 120px;
-  animation: rosetta-spin 14s linear infinite, rosetta-pulse 5s ease-in-out infinite;
+  animation: heart-breathe 4s ease-in-out infinite;
 }
-@keyframes rosetta-spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-@keyframes rosetta-pulse {
-  0%, 100% { opacity: 0.92; }
-  50%      { opacity: 1; }
+@keyframes heart-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.96; }
+  50%      { transform: scale(1.02); opacity: 1; }
 }
 
 /* Steam wisps rise slowly */
