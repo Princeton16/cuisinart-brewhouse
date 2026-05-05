@@ -1757,7 +1757,7 @@ function renderMagazineHome(main) {
       ),
       el('div', {
         id: 'home-atlas-map',
-        style: 'aspect-ratio:16/8;width:100%;background:#F5E6D2;border-radius:22px;overflow:hidden;outline:none;box-shadow:8px 8px 0 0 var(--ink)'
+        style: 'aspect-ratio:16/8;width:100%;background:#F5E6D2;border-radius:20px;overflow:hidden;outline:none;border:1px solid var(--hairline);box-shadow:0 4px 8px rgba(31,26,20,0.06), 0 28px 56px -28px rgba(31,26,20,0.32)'
       })
     )
   );
@@ -1988,13 +1988,13 @@ function renderMagazineHome(main) {
         ),
         el('a', {
           onclick: () => navigate('class/' + featuredClass.id),
-          style: 'display:grid;grid-template-columns:1.2fr 1fr;gap:24px;cursor:pointer;background:var(--cream);border:2px solid var(--ink);border-radius:18px;box-shadow:8px 8px 0 0 var(--ink);overflow:hidden;transition:transform 0.2s, box-shadow 0.2s',
-          onmouseenter: function() { this.style.transform = 'translate(-2px,-2px)'; this.style.boxShadow = '10px 10px 0 0 var(--ink)'; },
-          onmouseleave: function() { this.style.transform = 'translate(0,0)'; this.style.boxShadow = '8px 8px 0 0 var(--ink)'; }
+          style: 'display:grid;grid-template-columns:1.2fr 1fr;gap:24px;cursor:pointer;background:var(--paper);border:1px solid var(--hairline);border-radius:18px;box-shadow:0 1px 2px rgba(31,26,20,0.04), 0 14px 30px -16px rgba(31,26,20,0.22);overflow:hidden;transition:transform 0.2s, box-shadow 0.2s',
+          onmouseenter: function() { this.style.transform = 'translateY(-3px)'; this.style.boxShadow = '0 2px 4px rgba(31,26,20,0.06), 0 24px 44px -20px rgba(31,26,20,0.32)'; },
+          onmouseleave: function() { this.style.transform = 'translateY(0)'; this.style.boxShadow = '0 1px 2px rgba(31,26,20,0.04), 0 14px 30px -16px rgba(31,26,20,0.22)'; }
         },
           // Thumbnail
           el('div', {
-            style: 'aspect-ratio:16/10;background:' + (thumbUrl ? 'url(\'' + thumbUrl + '\') center/cover, ' : '') + '#1F1A14;position:relative;border-right:2px solid var(--ink)'
+            style: 'aspect-ratio:16/10;background:' + (thumbUrl ? 'url(\'' + thumbUrl + '\') center/cover, ' : '') + '#1F1A14;position:relative;border-right:1px solid var(--hairline)'
           },
             // Play button overlay
             el('div', {
@@ -2031,7 +2031,7 @@ function renderMagazineHome(main) {
   const phase2Section = el('section', { style: 'padding:48px 0 96px' },
     el('div', { class: 'container' },
       el('div', {
-        style: 'background:linear-gradient(135deg, var(--ink) 0%, #2A1F14 100%);color:var(--cream);border-radius:18px;border:2px solid var(--ink);box-shadow:8px 8px 0 0 var(--marigold);padding:36px 40px;display:grid;grid-template-columns:1.4fr 1fr;gap:36px;align-items:center'
+        style: 'background:linear-gradient(135deg, var(--ink) 0%, #2A1F14 100%);color:var(--cream);border-radius:20px;box-shadow:0 4px 8px rgba(31,26,20,0.10), 0 32px 64px -28px rgba(31,26,20,0.45);padding:36px 40px;display:grid;grid-template-columns:1.4fr 1fr;gap:36px;align-items:center'
       },
         // Left: copy
         el('div', {},
@@ -2213,7 +2213,7 @@ function renderMagazineHome(main) {
         },
           // Photo top
           cafeOfWeek.photoUrl ? el('div', {
-            style: 'aspect-ratio:5/3;background-image:url(\'' + cafeOfWeek.photoUrl + '\');background-size:cover;background-position:center;border-bottom:2px solid var(--ink)'
+            style: 'aspect-ratio:5/3;background-image:url(\'' + cafeOfWeek.photoUrl + '\');background-size:cover;background-position:center;border-bottom:1px solid var(--hairline)'
           }) : null,
           el('div', { style: 'padding:20px 24px 24px;display:flex;flex-direction:column;flex:1' },
             el('div', { class: 'tag', style: 'color:var(--tomato)' }, el('span', {}, '☕ Café of the week')),
@@ -2261,7 +2261,7 @@ function milkPourSmileySvg(drinkOverride) {
   const url = DRINK_CATEGORY_PHOTOS[cat] || DRINK_CATEGORY_PHOTOS.latte;
 
   const wrap = document.createElement('div');
-  wrap.style.cssText = 'width:100%;height:100%;border-radius:14px;overflow:hidden;border:1.5px solid var(--ink);box-shadow:6px 6px 0 0 var(--ink);position:relative';
+  wrap.style.cssText = 'width:100%;height:100%;border-radius:14px;overflow:hidden;border:1px solid var(--hairline);box-shadow:0 1px 2px rgba(31,26,20,0.04), 0 14px 28px -14px rgba(31,26,20,0.22);position:relative';
   const img = document.createElement('img');
   img.src = url;
   img.alt = (drink && drink.name) ? drink.name : "This week's featured brew";
@@ -4701,7 +4701,7 @@ function communityComposer() {
 
   const card = el('div', {
     class: 'card',
-    style: 'padding:18px 20px;border:2px solid var(--ink);border-radius:14px;box-shadow:4px 4px 0 0 var(--ink);background:var(--cream)'
+    style: 'padding:18px 20px;border:1px solid var(--hairline);border-radius:14px;box-shadow:0 1px 2px rgba(31,26,20,0.04), 0 14px 28px -16px rgba(31,26,20,0.18);background:var(--paper)'
   });
 
   const header = el('div', { style: 'display:flex;align-items:center;gap:14px;margin-bottom:12px' },
@@ -4716,21 +4716,23 @@ function communityComposer() {
 
   const textarea = el('textarea', {
     placeholder: "What are you brewing? Drop a tip, share a recipe, or ask the community a question...",
-    style: 'width:100%;min-height:90px;padding:12px;border:1.5px solid var(--ink);border-radius:10px;font-family:var(--font-display);font-size:15px;line-height:1.5;background:#FFFEFB;color:var(--ink);resize:vertical;outline:none;box-sizing:border-box'
+    style: 'width:100%;min-height:90px;padding:12px;border:1px solid var(--hairline);border-radius:10px;font-family:var(--font-display);font-size:15px;line-height:1.5;background:#FFFEFB;color:var(--ink);resize:vertical;outline:none;box-sizing:border-box;transition:border-color 0.15s, box-shadow 0.15s'
   });
-  textarea.addEventListener('focus', () => textarea.style.borderColor = 'var(--tomato)');
-  textarea.addEventListener('blur', () => textarea.style.borderColor = 'var(--ink)');
+  textarea.addEventListener('focus', () => { textarea.style.borderColor = 'var(--tomato)'; textarea.style.boxShadow = '0 0 0 3px rgba(232,79,26,0.12)'; });
+  textarea.addEventListener('blur', () => { textarea.style.borderColor = 'var(--hairline)'; textarea.style.boxShadow = 'none'; });
 
   const kindRow = el('div', { style: 'display:flex;gap:8px;margin-top:12px;flex-wrap:wrap' });
   const kindButtons = {};
   KINDS.forEach(k => {
     const btn = el('button', {
       type: 'button',
-      style: 'padding:8px 14px;border-radius:999px;border:1.5px solid var(--ink);background:' + (k.id === activeKind ? 'var(--marigold)' : 'transparent') + ';color:var(--ink);font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:background 0.15s',
+      style: 'padding:8px 14px;border-radius:999px;border:1px solid ' + (k.id === activeKind ? 'transparent' : 'var(--hairline)') + ';background:' + (k.id === activeKind ? 'var(--marigold)' : 'transparent') + ';color:var(--ink);font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:background 0.15s, border-color 0.15s',
       onclick: () => {
         activeKind = k.id;
         Object.keys(kindButtons).forEach(id => {
-          kindButtons[id].style.background = id === activeKind ? 'var(--marigold)' : 'transparent';
+          const isActive = id === activeKind;
+          kindButtons[id].style.background = isActive ? 'var(--marigold)' : 'transparent';
+          kindButtons[id].style.borderColor = isActive ? 'transparent' : 'var(--hairline)';
         });
       }
     }, k.icon + ' ' + k.label);
@@ -4740,9 +4742,9 @@ function communityComposer() {
 
   const postBtn = el('button', {
     type: 'button',
-    style: 'background:var(--ink);color:var(--cream);border:2px solid var(--ink);border-radius:999px;padding:10px 22px;font-family:var(--font-body);font-weight:700;font-size:14px;letter-spacing:0.04em;cursor:pointer;box-shadow:3px 3px 0 0 var(--marigold);transition:transform 0.15s, box-shadow 0.15s',
-    onmouseenter: function() { this.style.transform = 'translate(-1px,-1px)'; this.style.boxShadow = '4px 4px 0 0 var(--marigold)'; },
-    onmouseleave: function() { this.style.transform = 'translate(0,0)'; this.style.boxShadow = '3px 3px 0 0 var(--marigold)'; },
+    style: 'background:var(--ink);color:var(--cream);border:none;border-radius:999px;padding:11px 24px;font-family:var(--font-body);font-weight:700;font-size:14px;letter-spacing:0.04em;cursor:pointer;box-shadow:0 1px 2px rgba(31,26,20,0.10), 0 8px 16px -8px rgba(31,26,20,0.32);transition:transform 0.15s, box-shadow 0.15s, background 0.15s',
+    onmouseenter: function() { this.style.transform = 'translateY(-1px)'; this.style.boxShadow = '0 2px 4px rgba(31,26,20,0.12), 0 14px 28px -10px rgba(31,26,20,0.42)'; },
+    onmouseleave: function() { this.style.transform = 'translateY(0)'; this.style.boxShadow = '0 1px 2px rgba(31,26,20,0.10), 0 8px 16px -8px rgba(31,26,20,0.32)'; },
     onclick: async (e) => {
       const text = textarea.value.trim();
       if (!text) {
