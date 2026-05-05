@@ -1722,11 +1722,11 @@ function renderMagazineHome(main) {
         ),
         el('div', { style: 'display:flex;gap:18px;font-family:var(--font-mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-soft)' },
           el('span', { style: 'display:flex;align-items:center;gap:6px' },
-            el('span', { style: 'width:10px;height:10px;border-radius:50%;background:var(--tomato);border:1.5px solid var(--ink)' }),
+            el('span', { style: 'width:12px;height:12px;border-radius:50%;background:var(--tomato);border:1.5px solid var(--ink)' }),
             ' Cafés'
           ),
           el('span', { style: 'display:flex;align-items:center;gap:6px' },
-            el('span', { style: 'width:10px;height:10px;border-radius:50%;background:var(--marigold);border:1.5px solid var(--ink)' }),
+            el('span', { style: 'width:12px;height:12px;border-radius:50%;background:var(--ink);border:1.5px solid var(--ink);position:relative;display:inline-flex;align-items:center;justify-content:center;color:var(--marigold);font-size:9px;line-height:1' }, '●'),
             ' Bean farms'
           )
         )
@@ -1764,31 +1764,44 @@ function renderMagazineHome(main) {
       bounds: worldBounds
     }).addTo(map);
 
-    // Clean shape pins — pure cup / pure bean, no teardrop
-    const cupPinHtml = `<svg viewBox="0 0 36 36" width="34" height="34" xmlns="http://www.w3.org/2000/svg" style="display:block;filter:drop-shadow(0 2px 4px rgba(31,26,20,0.4))">
-      <!-- Cup body -->
-      <path d="M7,12 L27,12 Q28,12 28,14 L28,22 Q28,28 22,30 L13,30 Q8,28 8,22 L8,14 Q7,13 7,12 Z" fill="#E84F1A" stroke="#1F1A14" stroke-width="1.6"/>
-      <!-- Handle -->
-      <path d="M28,16 Q33,16 33,21 Q33,26 28,26" fill="none" stroke="#1F1A14" stroke-width="1.6"/>
-      <!-- Coffee surface -->
-      <ellipse cx="17.5" cy="13.5" rx="9.5" ry="2" fill="#1F0E05"/>
-      <ellipse cx="17.5" cy="13" rx="8" ry="1.5" fill="#9C6F44"/>
-      <!-- Steam -->
-      <path d="M13,8 Q11,5 14,2" stroke="#1F1A14" stroke-width="1.4" fill="none" stroke-linecap="round" opacity="0.55"/>
-      <path d="M22,8 Q24,5 21,2" stroke="#1F1A14" stroke-width="1.4" fill="none" stroke-linecap="round" opacity="0.55"/>
+    // Refined map pins: unified circular badge, color-coded by category
+    // Café: tomato disc + cream cup glyph. Bean farm: ink disc + marigold bean glyph.
+    const cupPinHtml = `<svg viewBox="0 0 36 36" width="32" height="32" xmlns="http://www.w3.org/2000/svg" style="display:block;filter:drop-shadow(0 3px 6px rgba(31,26,20,0.35)) drop-shadow(0 1px 2px rgba(31,26,20,0.25))">
+      <!-- Outer disc -->
+      <circle cx="18" cy="18" r="15" fill="#E84F1A"/>
+      <circle cx="18" cy="18" r="15" fill="none" stroke="#1F1A14" stroke-width="1.3"/>
+      <!-- Inner highlight ring (subtle bevel) -->
+      <circle cx="18" cy="18" r="13" fill="none" stroke="#FFF5EB" stroke-width="0.8" opacity="0.35"/>
+      <!-- Espresso cup silhouette, viewed front-on -->
+      <g transform="translate(18 19)">
+        <!-- Saucer -->
+        <ellipse cx="0" cy="6" rx="7.5" ry="1.4" fill="#FFF5EB" opacity="0.9"/>
+        <!-- Cup body (slight taper) -->
+        <path d="M-5,-3 Q-5.4,3 -3,5.2 L3,5.2 Q5.4,3 5,-3 Z" fill="#FFF5EB"/>
+        <!-- Cup rim line -->
+        <ellipse cx="0" cy="-3" rx="5" ry="0.9" fill="#1F1A14" opacity="0.85"/>
+        <!-- Handle (curl on right) -->
+        <path d="M5,-1.5 Q8,-1 8,1.5 Q8,3.5 5,3.5" fill="none" stroke="#FFF5EB" stroke-width="1.2" stroke-linecap="round"/>
+        <!-- Steam wisp -->
+        <path d="M-1,-7 Q-2,-9 0,-11" stroke="#FFF5EB" stroke-width="1.1" fill="none" stroke-linecap="round" opacity="0.85"/>
+      </g>
     </svg>`;
 
-    const beanPinHtml = `<svg viewBox="0 0 36 36" width="32" height="32" xmlns="http://www.w3.org/2000/svg" style="display:block;filter:drop-shadow(0 2px 4px rgba(31,26,20,0.4))">
-      <!-- Marigold disc backdrop -->
-      <circle cx="18" cy="18" r="14" fill="#F5C518" stroke="#1F1A14" stroke-width="1.6"/>
-      <!-- Coffee cherry / bean inside the disc — proper kidney shape -->
-      <g transform="translate(18 18) rotate(-15)">
-        <path d="M-7,-9 Q-9,-2 -7,7 Q-3,11 5,9 Q9,5 9,-2 Q7,-9 0,-10 Q-5,-10 -7,-9 Z"
-              fill="#3C2110" stroke="#1F1A14" stroke-width="1.2"/>
-        <!-- Seam (classic coffee bean groove) -->
-        <path d="M-4,-7 Q-2,0 -3,8" stroke="#F5C518" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-        <!-- Highlight -->
-        <ellipse cx="-3" cy="-5" rx="1.5" ry="3" fill="#7A4F2A" opacity="0.7"/>
+    const beanPinHtml = `<svg viewBox="0 0 36 36" width="32" height="32" xmlns="http://www.w3.org/2000/svg" style="display:block;filter:drop-shadow(0 3px 6px rgba(31,26,20,0.35)) drop-shadow(0 1px 2px rgba(31,26,20,0.25))">
+      <!-- Outer disc -->
+      <circle cx="18" cy="18" r="15" fill="#1F1A14"/>
+      <circle cx="18" cy="18" r="15" fill="none" stroke="#1F1A14" stroke-width="1.3"/>
+      <!-- Inner highlight ring -->
+      <circle cx="18" cy="18" r="13" fill="none" stroke="#F5C518" stroke-width="0.8" opacity="0.35"/>
+      <!-- Coffee bean — refined kidney shape with crisp seam -->
+      <g transform="translate(18 18) rotate(-22)">
+        <!-- Bean silhouette -->
+        <path d="M-6,-9 Q-9,-3 -7,5 Q-4,10 3,9 Q8,6 8,0 Q7,-7 1,-9 Q-4,-10 -6,-9 Z"
+              fill="#F5C518" stroke="none"/>
+        <!-- Bean inner shadow for depth -->
+        <path d="M-5,-7 Q-7,-2 -5,4 Q-2,8 2,7" stroke="#C28F0E" stroke-width="0.8" fill="none" opacity="0.6"/>
+        <!-- Center seam (defining feature) -->
+        <path d="M-2,-8 Q0,0 -1,8" stroke="#1F1A14" stroke-width="1.4" fill="none" stroke-linecap="round"/>
       </g>
     </svg>`;
 

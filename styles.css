@@ -2683,7 +2683,7 @@ input, select, textarea { font: inherit; color: inherit; }
 
 /* Variant backgrounds */
 .tile.barista { background: linear-gradient(140deg, #5C2E2A 0%, #2A100C 100%); color: var(--cream); }
-.tile.dotd    { background: var(--marigold); color: var(--ink); }
+.tile.dotd    { background: var(--cream); color: var(--ink); }
 .tile.atlas   { background: linear-gradient(160deg, var(--canopy) 0%, var(--jungle-dark) 100%); color: var(--cream); }
 .tile.give    { background: linear-gradient(140deg, #2C2A28 0%, #1A1816 100%); color: var(--cream); }
 .tile.compete { background: linear-gradient(150deg, #4A1A20 0%, #2A0F12 100%); color: var(--cream); }
