@@ -1075,6 +1075,18 @@ const DATA = {
     { id: 'blue-bottle',     name: 'Blue Bottle Coffee',       short: 'Blue Bottle',     hood: 'San Francisco, California',  coords: [37.7820, -122.4079], drinks: ['New Orleans iced coffee', 'Gibraltar', 'Pour-over'],     photoUrl: 'https://images.unsplash.com/photo-1507133750040-4a8f57021571?w=400&q=80', status: 'soon'   }
   ],
 
+  /* ---------------- Recommended brews (rotates daily on the You tab) ---------------- */
+  recommendedBrews: [
+    { name: 'Yirgacheffe pour-over',     method: 'Pour-over',   ratio: '1:16', waterTempF: 200, grindSize: 'Medium-fine', flavorTags: ['floral', 'citrus', 'bright'],    description: 'A bright, jasmine-tinged pour-over that wakes up your palate.',                       photoUrl: 'https://images.unsplash.com/photo-1516559828984-fb3b99548b21?w=600&q=80' },
+    { name: 'Spanish latte',             method: 'Espresso',    ratio: '1:2',  waterTempF: 200, grindSize: 'Fine',        flavorTags: ['sweet', 'caramel', 'chocolatey'],description: 'Espresso, sweetened condensed milk, steamed milk. Dessert in a cup.',                  photoUrl: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=600&q=80' },
+    { name: 'Japanese iced V60',         method: 'Pour-over',   ratio: '1:16', waterTempF: 200, grindSize: 'Medium-fine', flavorTags: ['fruity', 'bright', 'sweet'],     description: 'Brewed hot directly onto ice. Locks in floral aromatics that flash-cooling preserves.',photoUrl: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=600&q=80' },
+    { name: 'Classic cortado',           method: 'Espresso',    ratio: '1:2',  waterTempF: 200, grindSize: 'Fine',        flavorTags: ['balanced', 'chocolatey'],        description: 'Equal parts espresso and warm milk. Smooth, balanced, no foam to hide behind.',       photoUrl: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80' },
+    { name: 'Slow cold brew concentrate',method: 'Cold brew',   ratio: '1:8',  waterTempF: 70,  grindSize: 'Coarse',      flavorTags: ['chocolatey', 'sweet', 'nutty'],  description: 'Steep coarse grounds in cold water for 18 hours. Smooth, low-acid, strong.',          photoUrl: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&q=80' },
+    { name: 'French press deep dive',    method: 'French press',ratio: '1:15', waterTempF: 200, grindSize: 'Coarse',      flavorTags: ['nutty', 'earthy', 'chocolatey'], description: 'Heavy body, full extraction. Strong without being bitter.',                            photoUrl: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=600&q=80' },
+    { name: 'Aeropress inverted',        method: 'Aeropress',   ratio: '1:14', waterTempF: 195, grindSize: 'Medium',      flavorTags: ['balanced', 'sweet'],             description: 'Inverted method, 90-second steep. Clean cup with a hint of body.',                     photoUrl: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=600&q=80' },
+    { name: 'Saturday morning latte',    method: 'Espresso',    ratio: '1:2',  waterTempF: 200, grindSize: 'Fine',        flavorTags: ['balanced', 'chocolatey', 'sweet'], description: 'A no-rush double shot with steamed whole milk. The weekend in a cup.',                 photoUrl: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=600&q=80' }
+  ],
+
   /* ---------------- Coffee Wall (community photo feed) ---------------- */
   /* Like a feed of coffee photos. Anyone can post. */
   wallPosts: [

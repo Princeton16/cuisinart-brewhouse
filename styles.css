@@ -3119,3 +3119,754 @@ body.bean-app .bean-page-sub {
   color: var(--text-on-dark-muted);
 }
 
+/* ============================================================
+   THE BEAN — You tab (Phase 2)
+   ============================================================ */
+body.bean-app .you-page { padding: 24px 16px 100px; display: flex; flex-direction: column; gap: 16px; }
+
+/* Generic card containers */
+body.bean-app .you-card {
+  background: var(--bg-card);
+  color: var(--text-on-light);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  position: relative;
+}
+body.bean-app .you-card-dark {
+  background: var(--bg-alt);
+  color: var(--text-on-dark);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Eyebrows */
+body.bean-app .you-eyebrow {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-on-light-muted);
+  margin-bottom: 10px;
+}
+body.bean-app .you-card-dark .you-eyebrow { color: var(--text-on-dark-muted); }
+body.bean-app .you-eyebrow-yellow { color: var(--accent-yellow); }
+body.bean-app .you-eyebrow-dark { color: rgba(64, 36, 2, 0.7); }
+body.bean-app .you-card-h {
+  font-family: var(--bean-display);
+  font-size: 22px;
+  line-height: 1.15;
+  color: var(--text-on-dark);
+  margin-bottom: 10px;
+}
+body.bean-app .you-card-h-light {
+  font-family: var(--bean-display);
+  font-size: 22px;
+  line-height: 1.15;
+  color: var(--text-on-light);
+  margin-bottom: 10px;
+}
+body.bean-app .you-empty {
+  font-size: 13px;
+  color: var(--text-on-light-muted);
+  margin-top: 8px;
+  font-style: italic;
+}
+body.bean-app .you-card-dark .you-empty { color: var(--text-on-dark-muted); }
+
+/* 1. Profile header */
+body.bean-app .you-profile { padding: 18px 20px 20px; }
+body.bean-app .you-profile-actions {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  gap: 6px;
+}
+body.bean-app .you-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: var(--text-on-light-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+body.bean-app .you-icon-btn:hover { background: rgba(0, 0, 0, 0.05); color: var(--text-on-light); }
+body.bean-app .you-icon-btn svg { width: 18px; height: 18px; }
+body.bean-app .you-profile-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-right: 60px;
+}
+body.bean-app .you-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  font-family: var(--bean-display);
+  font-size: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+body.bean-app .you-profile-meta { flex: 1; min-width: 0; }
+body.bean-app .you-name {
+  font-family: var(--bean-display);
+  font-size: 20px;
+  line-height: 1.1;
+  color: var(--text-on-light);
+}
+body.bean-app .you-profile-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+body.bean-app .you-pill-trophy {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  border-radius: 999px;
+  padding: 3px 9px 3px 7px;
+  font-size: 11px;
+  font-weight: 500;
+}
+body.bean-app .you-pill-trophy svg { width: 12px; height: 12px; }
+body.bean-app .you-joined {
+  font-size: 10px;
+  color: var(--text-on-light-muted);
+}
+body.bean-app .you-bio {
+  margin-top: 14px;
+  font-size: 14px;
+  color: var(--text-on-light-muted);
+  line-height: 1.5;
+}
+
+/* 2. Streak */
+body.bean-app .you-streak { padding: 18px 20px; }
+body.bean-app .you-streak-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+body.bean-app .you-streak-num {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--accent-yellow);
+}
+body.bean-app .you-streak-num svg { width: 24px; height: 24px; align-self: center; }
+body.bean-app .you-streak-value {
+  font-family: var(--bean-display);
+  font-size: 36px;
+  line-height: 1;
+  color: var(--text-on-dark);
+}
+body.bean-app .you-streak-label {
+  font-size: 13px;
+  color: var(--text-on-dark-muted);
+}
+body.bean-app .you-streak-best {
+  font-size: 12px;
+  color: var(--text-on-dark-muted);
+}
+body.bean-app .you-streak-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+body.bean-app .you-streak-cell {
+  height: 42px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+body.bean-app .you-streak-cell.is-today { background: rgba(245, 200, 66, 0.08); border: 1px solid rgba(245, 200, 66, 0.3); }
+body.bean-app .you-streak-letter {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-on-dark-muted);
+}
+body.bean-app .you-streak-tick {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+body.bean-app .you-streak-empty {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+}
+
+/* 3. Log CTA */
+body.bean-app .you-log-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  font-family: var(--bean-body);
+  font-weight: 500;
+  font-size: 16px;
+  border: 0;
+  border-radius: 999px;
+  height: 56px;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 4px 16px rgba(245, 200, 66, 0.25);
+}
+body.bean-app .you-log-cta:hover { background: var(--accent-yellow-deep); }
+body.bean-app .you-log-cta:active { transform: translateY(1px); }
+body.bean-app .you-log-cta svg { width: 20px; height: 20px; }
+
+/* 4. Recommended */
+body.bean-app .you-recommended { padding: 16px; }
+body.bean-app .you-rec-photo {
+  height: 160px;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(0, 0, 0, 0.06);
+  margin-bottom: 14px;
+}
+body.bean-app .you-rec-name {
+  font-family: var(--bean-display);
+  font-size: 22px;
+  line-height: 1.15;
+  color: var(--text-on-light);
+  margin-bottom: 6px;
+}
+body.bean-app .you-rec-desc {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-on-light-muted);
+  margin-bottom: 14px;
+}
+body.bean-app .you-rec-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+body.bean-app .you-stat {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 10px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+body.bean-app .you-stat-label {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-on-light-muted);
+  font-weight: 500;
+}
+body.bean-app .you-stat-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-on-light);
+}
+body.bean-app .you-rec-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+body.bean-app .you-tag {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--accent-yellow-soft);
+  color: var(--accent-yellow-deep);
+}
+body.bean-app .you-rec-cta {
+  display: block;
+  width: 100%;
+  height: 48px;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  border: 0;
+  border-radius: 999px;
+  font-family: var(--bean-body);
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+body.bean-app .you-rec-cta:hover { background: var(--accent-yellow-deep); }
+
+/* 5. Palate */
+body.bean-app .you-palate-bars { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+body.bean-app .you-palate-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 36px;
+  align-items: center;
+  gap: 10px;
+}
+body.bean-app .you-palate-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-on-dark);
+  text-transform: capitalize;
+}
+body.bean-app .you-palate-track {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+body.bean-app .you-palate-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-yellow-deep), var(--accent-yellow));
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+body.bean-app .you-palate-pct {
+  font-size: 11px;
+  color: var(--text-on-dark-muted);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+body.bean-app .you-palate-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-on-dark);
+}
+body.bean-app .you-palate-bottom .stat-tile .label { color: var(--text-on-dark-muted); }
+body.bean-app .you-palate-bottom .stat-tile .value { font-size: 14px; line-height: 1.2; }
+
+/* 6. Past brews */
+body.bean-app .you-past { padding: 18px 20px; }
+body.bean-app .you-past-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+body.bean-app .you-past-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-on-light);
+}
+body.bean-app .you-past-row:last-child { border-bottom: 0; }
+body.bean-app .you-past-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+body.bean-app .you-past-meta { flex: 1; min-width: 0; }
+body.bean-app .you-past-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-on-light);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+body.bean-app .you-past-sub {
+  font-size: 12px;
+  color: var(--text-on-light-muted);
+  margin-top: 1px;
+}
+body.bean-app .you-past-stars {
+  display: inline-flex;
+  gap: 1px;
+  flex-shrink: 0;
+}
+body.bean-app .you-past-stars svg { width: 13px; height: 13px; }
+body.bean-app .you-view-all {
+  display: inline-block;
+  margin-top: 12px;
+  color: var(--accent-yellow-deep);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+body.bean-app .you-view-all:hover { text-decoration: underline; }
+
+/* 7. Grind score */
+body.bean-app .you-grindscore {
+  background: linear-gradient(135deg, var(--accent-yellow-soft) 0%, var(--accent-yellow) 100%);
+  color: #412402;
+  text-align: left;
+  padding: 22px 20px;
+}
+body.bean-app .you-grindscore-num {
+  font-family: var(--bean-display);
+  font-size: 48px;
+  line-height: 1;
+  color: #412402;
+  margin: 4px 0 6px;
+}
+body.bean-app .you-grindscore-sub {
+  font-size: 13px;
+  color: rgba(64, 36, 2, 0.78);
+  margin-bottom: 10px;
+}
+body.bean-app .you-grindscore-explain {
+  font-size: 12px;
+  color: rgba(64, 36, 2, 0.7);
+  text-decoration: underline;
+}
+
+/* 8. Recipes link */
+body.bean-app .you-recipes-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+body.bean-app .you-recipes-link:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08); }
+body.bean-app .you-recipes-text { flex: 1; min-width: 0; }
+body.bean-app .you-recipes-h {
+  font-family: var(--bean-display);
+  font-size: 18px;
+  color: var(--text-on-light);
+}
+body.bean-app .you-recipes-sub {
+  font-size: 12px;
+  color: var(--text-on-light-muted);
+  margin-top: 3px;
+}
+body.bean-app .you-recipes-arrow {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-on-light);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+body.bean-app .you-recipes-arrow svg { width: 18px; height: 18px; }
+
+/* 9. Devices */
+body.bean-app .you-device-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 14px; }
+body.bean-app .you-device-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-on-light);
+}
+body.bean-app .you-device-row:last-child { border-bottom: 0; padding-bottom: 0; }
+body.bean-app .you-device-photo {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}
+body.bean-app .you-device-meta { flex: 1; min-width: 0; }
+body.bean-app .you-device-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-on-light);
+}
+body.bean-app .you-device-status {
+  font-size: 12px;
+  color: var(--text-on-light-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0 8px;
+}
+body.bean-app .you-device-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4F7B5C;
+  display: inline-block;
+}
+body.bean-app .you-device-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+body.bean-app .you-ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid var(--border-on-light);
+  border-radius: 999px;
+  color: var(--text-on-light);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--bean-body);
+}
+body.bean-app .you-ghost-btn:hover { background: rgba(0, 0, 0, 0.04); border-color: rgba(0, 0, 0, 0.18); }
+body.bean-app .you-ghost-btn svg { width: 14px; height: 14px; }
+body.bean-app .you-pair-cta {
+  width: 100%;
+  height: 44px;
+  background: transparent;
+  border: 1px dashed var(--border-on-light);
+  border-radius: 999px;
+  color: var(--text-on-light-muted);
+  font-family: var(--bean-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+body.bean-app .you-pair-cta:hover {
+  border-color: var(--accent-yellow-deep);
+  color: var(--text-on-light);
+  border-style: solid;
+}
+
+/* 10. Achievements */
+body.bean-app .you-achievements-sub {
+  font-size: 12px;
+  color: var(--text-on-dark-muted);
+  margin-bottom: 14px;
+}
+body.bean-app .you-badge-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+body.bean-app .you-badge {
+  background: transparent;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: var(--bean-body);
+}
+body.bean-app .you-badge-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+body.bean-app .you-badge.unlocked .you-badge-icon {
+  background: linear-gradient(135deg, var(--accent-yellow) 0%, var(--accent-yellow-deep) 100%);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(245, 200, 66, 0.35);
+}
+body.bean-app .you-badge.locked .you-badge-icon {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-on-dark-muted);
+  border: 1px solid var(--border-on-dark);
+}
+body.bean-app .you-badge-icon svg { width: 28px; height: 28px; display: block; }
+body.bean-app .you-badge-label {
+  font-size: 11px;
+  text-align: center;
+  line-height: 1.25;
+}
+body.bean-app .you-badge.unlocked .you-badge-label { color: var(--text-on-dark); }
+body.bean-app .you-badge.locked .you-badge-label { color: var(--text-on-dark-muted); }
+
+/* ============================================================
+   Brew log modal (You tab)
+   ============================================================ */
+body.bean-app .brewlog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 31, 20, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  padding: 16px;
+}
+body.bean-app .brewlog-backdrop.open { opacity: 1; }
+body.bean-app .brewlog-card {
+  position: relative;
+  background: var(--bg-card);
+  color: var(--text-on-light);
+  border-radius: 20px;
+  padding: 20px;
+  width: 360px;
+  max-width: 100%;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+  transform: translateY(8px);
+  transition: transform 0.22s ease;
+}
+body.bean-app .brewlog-backdrop.open .brewlog-card { transform: translateY(0); }
+body.bean-app .brewlog-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+body.bean-app .brewlog-title {
+  font-family: var(--bean-display);
+  font-size: 24px;
+  color: var(--text-on-light);
+  line-height: 1.1;
+}
+body.bean-app .brewlog-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: transparent;
+  border: 0;
+  color: var(--text-on-light-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+body.bean-app .brewlog-close:hover { background: rgba(0, 0, 0, 0.05); color: var(--text-on-light); }
+body.bean-app .brewlog-close svg { width: 16px; height: 16px; }
+body.bean-app .brewlog-label {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--text-on-light-muted);
+  margin: 14px 0 6px;
+}
+body.bean-app .brewlog-input {
+  width: 100%;
+  height: 40px;
+  padding: 10px 12px;
+  background: transparent;
+  border: 1px solid var(--border-on-light);
+  border-radius: 8px;
+  font-family: var(--bean-body);
+  font-size: 14px;
+  color: var(--text-on-light);
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+body.bean-app .brewlog-input:focus { border-color: var(--accent-yellow-deep); }
+body.bean-app .brewlog-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: 1px solid var(--border-on-light);
+  border-radius: 8px;
+  font-family: var(--bean-body);
+  font-size: 14px;
+  color: var(--text-on-light);
+  resize: vertical;
+  min-height: 70px;
+  box-sizing: border-box;
+  outline: none;
+}
+body.bean-app .brewlog-textarea:focus { border-color: var(--accent-yellow-deep); }
+body.bean-app .brewlog-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+body.bean-app .brewlog-pill {
+  font-family: var(--bean-body);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--text-on-light);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+body.bean-app .brewlog-pill:hover { background: rgba(0, 0, 0, 0.06); }
+body.bean-app .brewlog-pill.active {
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  border-color: var(--accent-yellow-deep);
+}
+body.bean-app .brewlog-rating {
+  display: flex;
+  gap: 4px;
+}
+body.bean-app .brewlog-star {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.18);
+  padding: 2px;
+}
+body.bean-app .brewlog-star svg { width: 28px; height: 28px; }
+body.bean-app .brewlog-star.on { color: var(--accent-yellow); }
+body.bean-app .brewlog-save {
+  display: block;
+  width: 100%;
+  height: 48px;
+  margin-top: 18px;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  border: 0;
+  border-radius: 999px;
+  font-family: var(--bean-body);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+body.bean-app .brewlog-save:hover { background: var(--accent-yellow-deep); }
+
+/* Pair-device modal */
+body.bean-app .pair-card { text-align: center; padding: 28px 24px; }
+body.bean-app .pair-icon { font-size: 2.4rem; margin-bottom: 12px; }
+body.bean-app .pair-body {
+  font-size: 13px;
+  color: var(--text-on-light-muted);
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+

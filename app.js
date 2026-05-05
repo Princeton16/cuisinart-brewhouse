@@ -6449,6 +6449,8 @@ document.addEventListener('DOMContentLoaded', boot);
    ============================================================ */
 
 const BEAN_USER_KEY = 'beanapp_user';
+const BEAN_BREWS_KEY = 'beanapp_brews';
+const BEAN_DEMO_SEEDED_KEY = 'beanapp_demo_seeded';
 const BEAN_TABS = [
   { route: 'you',      label: 'You',      icon: 'user' },
   { route: 'feed',     label: 'Feed',     icon: 'feed' },
@@ -6456,18 +6458,74 @@ const BEAN_TABS = [
   { route: 'passport', label: 'Passport', icon: 'globe' }
 ];
 const BEAN_STUBS = {
-  you:      { title: 'You',      sub: 'Phase 2 builds your dashboard.' },
   feed:     { title: 'Feed',     sub: 'Phase 2 wires up the community feed.' },
   learn:    { title: 'Learn',    sub: 'Phase 2 brings the brewing guides.' },
-  passport: { title: 'Passport', sub: 'Phase 2 stamps the origins you have tasted.' }
+  passport: { title: 'Passport', sub: 'Phase 2 stamps the origins you have tasted.' },
+  recipes:  { title: 'Recipes',  sub: 'Phase 6 builds the recipes browser.' }
 };
 
 function getBeanUser() {
   try { return JSON.parse(localStorage.getItem(BEAN_USER_KEY) || 'null'); }
   catch (_) { return null; }
 }
-function setBeanUser(u) { localStorage.setItem(BEAN_USER_KEY, JSON.stringify(u)); }
-function clearBeanUser() { localStorage.removeItem(BEAN_USER_KEY); }
+function setBeanUser(u) {
+  localStorage.setItem(BEAN_USER_KEY, JSON.stringify(u));
+  // First-time demo session: seed brews and an unlocked profile
+  if (u && u.isDemo) seedDemoBrewsIfNeeded();
+}
+function clearBeanUser() {
+  localStorage.removeItem(BEAN_USER_KEY);
+  localStorage.removeItem(BEAN_BREWS_KEY);
+  localStorage.removeItem(BEAN_DEMO_SEEDED_KEY);
+}
+
+function loadBeanBrews() {
+  try { return JSON.parse(localStorage.getItem(BEAN_BREWS_KEY) || '[]') || []; }
+  catch (_) { return []; }
+}
+function saveBeanBrews(arr) {
+  localStorage.setItem(BEAN_BREWS_KEY, JSON.stringify(arr || []));
+}
+
+/* Seed 21 brews for the demo user (9-day current streak through today,
+   6 unique origins, mixed methods, ratings 3-5, all with flavor tags).
+   Idempotent — runs once per demo session. */
+function seedDemoBrewsIfNeeded() {
+  if (localStorage.getItem(BEAN_DEMO_SEEDED_KEY)) return;
+  const today = new Date();
+  function daysAgo(n, hour) {
+    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hour || 8, 30, 0, 0);
+    d.setDate(d.getDate() - n);
+    return d.toISOString();
+  }
+  const seed = [
+    // Last 9 days — active streak
+    { id: 'b001', date: daysAgo(0, 7),  method: 'Pour-over',    beanOrigin: 'Ethiopia Yirgacheffe', ratio: '1:16', grindSize: 'Medium-fine', waterTempF: 200, flavorTags: ['floral','citrus','bright'],     rating: 5, notes: 'Best cup of the week. The lemon is so vibrant.' },
+    { id: 'b002', date: daysAgo(1, 8),  method: 'Espresso',     beanOrigin: 'Colombia Huila',       ratio: '1:2',  grindSize: 'Fine',        waterTempF: 200, flavorTags: ['chocolatey','caramel','sweet'], rating: 4, notes: '' },
+    { id: 'b003', date: daysAgo(2, 7),  method: 'Pour-over',    beanOrigin: 'Kenya AA',             ratio: '1:16', grindSize: 'Medium-fine', waterTempF: 202, flavorTags: ['berry','fruity','bright'],      rating: 5, notes: 'Tomato-bright and clean.' },
+    { id: 'b004', date: daysAgo(3, 14), method: 'Cold brew',    beanOrigin: 'Brazil Cerrado',       ratio: '1:8',  grindSize: 'Coarse',      waterTempF: 70,  flavorTags: ['chocolatey','nutty','sweet'],   rating: 4, notes: 'Smooth.' },
+    { id: 'b005', date: daysAgo(4, 8),  method: 'Pour-over',    beanOrigin: 'Guatemala Antigua',    ratio: '1:15', grindSize: 'Medium',      waterTempF: 200, flavorTags: ['caramel','chocolatey','balanced'], rating: 4, notes: '' },
+    { id: 'b006', date: daysAgo(5, 7),  method: 'Drip',         beanOrigin: 'Colombia Huila',       ratio: '1:17', grindSize: 'Medium',      waterTempF: 200, flavorTags: ['nutty','chocolatey','balanced'],rating: 3, notes: 'Quick weekday brew.' },
+    { id: 'b007', date: daysAgo(6, 8),  method: 'Pour-over',    beanOrigin: 'Costa Rica Tarrazu',   ratio: '1:16', grindSize: 'Medium-fine', waterTempF: 202, flavorTags: ['citrus','sweet','balanced'],    rating: 4, notes: '' },
+    { id: 'b008', date: daysAgo(7, 9),  method: 'Espresso',     beanOrigin: 'Ethiopia Yirgacheffe', ratio: '1:2',  grindSize: 'Fine',        waterTempF: 200, flavorTags: ['floral','fruity','bright'],     rating: 4, notes: 'Floral espresso surprise.' },
+    { id: 'b009', date: daysAgo(8, 7),  method: 'Pour-over',    beanOrigin: 'Kenya AA',             ratio: '1:16', grindSize: 'Medium-fine', waterTempF: 202, flavorTags: ['berry','bright'],               rating: 4, notes: '' },
+    // Older brews (no streak)
+    { id: 'b010', date: daysAgo(11, 8), method: 'Pour-over',    beanOrigin: 'Ethiopia Yirgacheffe', ratio: '1:17', grindSize: 'Medium-fine', waterTempF: 200, flavorTags: ['floral','citrus'],              rating: 5, notes: '' },
+    { id: 'b011', date: daysAgo(13, 14),method: 'Cold brew',    beanOrigin: 'Colombia Huila',       ratio: '1:8',  grindSize: 'Coarse',      waterTempF: 70,  flavorTags: ['chocolatey','sweet'],           rating: 4, notes: '' },
+    { id: 'b012', date: daysAgo(14, 7), method: 'Espresso',     beanOrigin: 'Guatemala Antigua',    ratio: '1:2',  grindSize: 'Fine',        waterTempF: 200, flavorTags: ['caramel','chocolatey'],         rating: 3, notes: '' },
+    { id: 'b013', date: daysAgo(16, 8), method: 'French press', beanOrigin: 'Brazil Cerrado',       ratio: '1:15', grindSize: 'Coarse',      waterTempF: 200, flavorTags: ['nutty','chocolatey','earthy'],  rating: 3, notes: '' },
+    { id: 'b014', date: daysAgo(17, 9), method: 'Pour-over',    beanOrigin: 'Kenya AA',             ratio: '1:16', grindSize: 'Medium-fine', waterTempF: 202, flavorTags: ['berry','fruity'],               rating: 4, notes: '' },
+    { id: 'b015', date: daysAgo(19, 7), method: 'Aeropress',    beanOrigin: 'Colombia Huila',       ratio: '1:14', grindSize: 'Medium',      waterTempF: 200, flavorTags: ['chocolatey','caramel'],         rating: 4, notes: '' },
+    { id: 'b016', date: daysAgo(21, 8), method: 'Pour-over',    beanOrigin: 'Ethiopia Yirgacheffe', ratio: '1:16', grindSize: 'Medium-fine', waterTempF: 200, flavorTags: ['floral','bright'],              rating: 4, notes: '' },
+    { id: 'b017', date: daysAgo(22, 14),method: 'Cold brew',    beanOrigin: 'Costa Rica Tarrazu',   ratio: '1:8',  grindSize: 'Coarse',      waterTempF: 70,  flavorTags: ['sweet','balanced'],             rating: 3, notes: '' },
+    { id: 'b018', date: daysAgo(24, 8), method: 'Espresso',     beanOrigin: 'Brazil Cerrado',       ratio: '1:2',  grindSize: 'Fine',        waterTempF: 200, flavorTags: ['nutty','chocolatey'],           rating: 3, notes: '' },
+    { id: 'b019', date: daysAgo(25, 7), method: 'Pour-over',    beanOrigin: 'Costa Rica Tarrazu',   ratio: '1:16', grindSize: 'Medium-fine', waterTempF: 200, flavorTags: ['citrus','sweet'],               rating: 4, notes: '' },
+    { id: 'b020', date: daysAgo(26, 9), method: 'Drip',         beanOrigin: 'Guatemala Antigua',    ratio: '1:17', grindSize: 'Medium',      waterTempF: 200, flavorTags: ['caramel','balanced'],           rating: 4, notes: '' },
+    { id: 'b021', date: daysAgo(27, 8), method: 'Espresso',     beanOrigin: 'Colombia Huila',       ratio: '1:2',  grindSize: 'Fine',        waterTempF: 200, flavorTags: ['chocolatey','sweet'],           rating: 5, notes: '' }
+  ];
+  saveBeanBrews(seed);
+  localStorage.setItem(BEAN_DEMO_SEEDED_KEY, '1');
+}
 
 function beanRoute() {
   const hash = (window.location.hash || '').replace(/^#\/?/, '');
@@ -6553,6 +6611,8 @@ function beanRender() {
 
   if (route === 'auth') {
     renderBeanAuth(main);
+  } else if (route === 'you' && typeof renderYou === 'function') {
+    renderYou(main);
   } else if (BEAN_STUBS[route]) {
     renderBeanStub(main, BEAN_STUBS[route]);
   } else {
@@ -6561,7 +6621,7 @@ function beanRender() {
     return;
   }
 
-  // Hide nav on auth, show + highlight elsewhere
+  // Hide nav on auth + recipes detour, show + highlight on tab routes
   const nav = document.getElementById('bean-nav');
   if (nav) {
     nav.style.display = route === 'auth' ? 'none' : 'flex';
