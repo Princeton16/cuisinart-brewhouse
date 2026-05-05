@@ -23,6 +23,15 @@ const PP_ICONS = {
 let _ppState = { view: 'map', filter: 'all', query: '' };
 let _ppMap = null;
 let _ppMarkerById = {};
+let _ppClusterMarker = null;
+let _ppPolyline = null;
+
+/* The 3 cafes within ~30 miles of each other that cluster at low zoom.
+   They're the Hanover/Norwich (NH/VT) trio. */
+const PP_CLUSTER_IDS = ['dirt-cowboy', 'the-works', 'umplebys'];
+const PP_CLUSTER_ZOOM_THRESHOLD = 8; // < threshold = clustered, >= = individual
+
+const PP_STAR_ICON = '<svg viewBox="0 0 24 24" fill="#1A1F14" aria-hidden="true"><path d="M12 3 L14.2 9 L20 9.4 L15.4 13.2 L17 19 L12 16 L7 19 L8.6 13.2 L4 9.4 L9.8 9 Z"/></svg>';
 
 function _ppSvg(html) {
   const wrap = document.createElement('span');
@@ -52,6 +61,8 @@ function renderPassport(main) {
   // Rebuild a fresh map each visit (Leaflet keeps internal state otherwise).
   _ppMap = null;
   _ppMarkerById = {};
+  _ppClusterMarker = null;
+  _ppPolyline = null;
 
   const page = el('div', { class: 'bean-page passport-page' });
 
@@ -208,23 +219,29 @@ function buildMapView() {
   const mapEl = el('div', { id: 'pp-map', class: 'pp-map' });
   wrap.appendChild(mapEl);
 
-  // Legend
-  wrap.appendChild(el('div', { class: 'pp-legend' },
-    _legendRow('pp-marker-visited', 'Visited'),
-    _legendRow('pp-marker-not-visited', 'Not visited'),
-    _legendRow('pp-marker-top', 'Top match')
+  // Legend (4 rows for the photo-marker design)
+  const legend = el('div', { class: 'pp-legend' });
+  legend.appendChild(el('div', { class: 'pp-legend-row' },
+    el('span', { class: 'pp-legend-swatch pp-legend-visited' }),
+    el('span', {}, 'Visited')
   ));
+  legend.appendChild(el('div', { class: 'pp-legend-row' },
+    el('span', { class: 'pp-legend-swatch pp-legend-not-visited' }),
+    el('span', {}, 'Not visited')
+  ));
+  legend.appendChild(el('div', { class: 'pp-legend-row' },
+    el('span', { class: 'pp-legend-swatch pp-legend-star' }),
+    el('span', {}, 'Top match')
+  ));
+  legend.appendChild(el('div', { class: 'pp-legend-row' },
+    el('span', { class: 'pp-legend-swatch pp-legend-line' }),
+    el('span', {}, 'Your journey')
+  ));
+  wrap.appendChild(legend);
 
   // Defer map init until after the element is in the DOM
   requestAnimationFrame(() => initMap());
   return wrap;
-}
-
-function _legendRow(dotClass, label) {
-  return el('div', { class: 'pp-legend-row' },
-    el('span', { class: 'pp-legend-dot ' + dotClass }),
-    el('span', {}, label)
-  );
 }
 
 function initMap() {
@@ -241,10 +258,14 @@ function initMap() {
     maxZoom: 16
   }).setView([39.8283, -98.5795], 4);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap &copy; Carto',
     subdomains: 'abcd'
   }).addTo(_ppMap);
+
+  // Re-paint markers + cluster on zoom change so the Hanover/Norwich
+  // trio collapses to a single marker below zoom 8.
+  _ppMap.on('zoomend', () => paintMarkers());
 
   paintMarkers();
   setTimeout(() => { if (_ppMap) _ppMap.invalidateSize(); }, 0);
@@ -252,29 +273,94 @@ function initMap() {
 
 function paintMarkers() {
   if (!_ppMap || !window.L) return;
-  // Remove existing markers
+  // Tear down everything we manage (markers, cluster, polyline)
   Object.values(_ppMarkerById).forEach(m => { try { _ppMap.removeLayer(m); } catch (_) {} });
   _ppMarkerById = {};
+  if (_ppClusterMarker) { try { _ppMap.removeLayer(_ppClusterMarker); } catch (_) {} _ppClusterMarker = null; }
+  if (_ppPolyline) { try { _ppMap.removeLayer(_ppPolyline); } catch (_) {} _ppPolyline = null; }
 
   const cafes = getFilteredCafes(_ppState.filter, _ppState.query);
-  cafes.forEach(cafe => {
-    const visited = isVisited(cafe.id);
-    const top = isTopMatch(cafe);
-    let cls;
-    if (visited) cls = 'pp-marker-visited';
-    else if (top) cls = 'pp-marker-top';
-    else cls = 'pp-marker-not-visited';
+  const zoom = _ppMap.getZoom();
+  const inCluster = cafes.filter(c => PP_CLUSTER_IDS.indexOf(c.id) !== -1);
+  const shouldCluster = (zoom < PP_CLUSTER_ZOOM_THRESHOLD) && (inCluster.length === PP_CLUSTER_IDS.length);
 
-    const icon = L.divIcon({
-      className: 'pp-marker',
-      html: '<span class="' + cls + '"></span>',
-      iconSize: [28, 28],
-      iconAnchor: [14, 14]
-    });
-    const marker = L.marker(cafe.coords, { icon: icon }).addTo(_ppMap);
-    marker.on('click', () => openCafeDetail(cafe));
-    _ppMarkerById[cafe.id] = marker;
+  // Polyline first so markers paint on top
+  drawJourneyPolyline(cafes);
+
+  cafes.forEach(cafe => {
+    if (shouldCluster && PP_CLUSTER_IDS.indexOf(cafe.id) !== -1) return;
+    addPhotoMarker(cafe);
   });
+
+  if (shouldCluster) drawCluster(inCluster);
+}
+
+function addPhotoMarker(cafe) {
+  const visited = isVisited(cafe.id);
+  const top = isTopMatch(cafe);
+  const photo = cafe.photoUrl || '';
+  const classes = ['cafe-marker'];
+  if (visited) classes.push('visited');
+  if (top) classes.push('top-match');
+  const star = top ? '<div class="cafe-marker-star">' + PP_STAR_ICON + '</div>' : '';
+  const html =
+    '<div class="' + classes.join(' ') + '">' +
+      '<div class="cafe-marker-photo" style="background-image:url(\'' + photo + '\')"></div>' +
+      star +
+    '</div>';
+  const icon = L.divIcon({
+    className: 'cafe-marker-wrap',
+    html: html,
+    iconSize: [50, 50],
+    iconAnchor: [25, 25]
+  });
+  const marker = L.marker(cafe.coords, { icon: icon }).addTo(_ppMap);
+  marker.on('click', () => openCafeDetail(cafe));
+  _ppMarkerById[cafe.id] = marker;
+}
+
+function drawCluster(inCluster) {
+  if (!_ppMap || !window.L) return;
+  const lats = inCluster.map(c => c.coords[0]);
+  const lngs = inCluster.map(c => c.coords[1]);
+  const center = [
+    lats.reduce((a, b) => a + b, 0) / lats.length,
+    lngs.reduce((a, b) => a + b, 0) / lngs.length
+  ];
+  const html = '<div class="cafe-cluster">' + inCluster.length + '</div>';
+  const icon = L.divIcon({
+    className: 'cafe-cluster-wrap',
+    html: html,
+    iconSize: [50, 50],
+    iconAnchor: [25, 25]
+  });
+  _ppClusterMarker = L.marker(center, { icon: icon }).addTo(_ppMap);
+  _ppClusterMarker.on('click', () => {
+    const bounds = L.latLngBounds(inCluster.map(c => c.coords));
+    _ppMap.fitBounds(bounds, { padding: [40, 40] });
+  });
+}
+
+/* Polyline connecting visited cafes oldest -> newest. */
+function drawJourneyPolyline(filteredCafes) {
+  if (!_ppMap || !window.L) return;
+  const visits = loadBeanVisits().slice().sort((a, b) => new Date(a.dateISO) - new Date(b.dateISO));
+  // Only draw for cafes that pass the current filter so the line matches what's on screen
+  const filteredIds = new Set(filteredCafes.map(c => c.id));
+  const points = [];
+  visits.forEach(v => {
+    if (!filteredIds.has(v.cafeId)) return;
+    const cafe = getCafeById(v.cafeId);
+    if (cafe && cafe.coords) points.push(cafe.coords);
+  });
+  if (points.length < 2) return;
+  _ppPolyline = L.polyline(points, {
+    color: '#F5C842',
+    weight: 2,
+    opacity: 0.7,
+    dashArray: '6, 8'
+  }).addTo(_ppMap);
+  _ppPolyline.bringToBack();
 }
 
 /* ----- List view ----- */

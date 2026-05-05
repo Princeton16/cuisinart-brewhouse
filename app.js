@@ -6458,7 +6458,8 @@ const BEAN_TABS = [
   { route: 'passport', label: 'Passport', icon: 'globe' }
 ];
 const BEAN_STUBS = {
-  recipes:  { title: 'Recipes',  sub: 'Phase 6 builds the recipes browser.' }
+  recipes:  { title: 'Recipes',  sub: 'Phase 6 builds the recipes browser.' },
+  palate:   { title: 'Palate',   sub: 'Full palate analysis coming soon.' }
 };
 
 function getBeanUser() {
@@ -6626,6 +6627,8 @@ function beanRender() {
     renderLearn(main);
   } else if (route === 'passport' && typeof renderPassport === 'function') {
     renderPassport(main);
+  } else if (route === 'badges' && typeof renderBadges === 'function') {
+    renderBadges(main);
   } else if (BEAN_STUBS[route]) {
     renderBeanStub(main, BEAN_STUBS[route]);
   } else {
@@ -6634,12 +6637,16 @@ function beanRender() {
     return;
   }
 
-  // Hide nav on auth + recipes detour, show + highlight on tab routes
+  // Hide nav on auth, show + highlight elsewhere. Sub-routes that
+  // belong to a parent tab (badges and palate sit under You) keep that
+  // parent tab highlighted in the bottom nav.
+  const SUBROUTE_PARENT = { badges: 'you', palate: 'you' };
+  const activeRoute = SUBROUTE_PARENT[route] || route;
   const nav = document.getElementById('bean-nav');
   if (nav) {
     nav.style.display = route === 'auth' ? 'none' : 'flex';
     nav.querySelectorAll('.bean-nav-tab').forEach(tab => {
-      tab.classList.toggle('active', tab.getAttribute('data-route') === route);
+      tab.classList.toggle('active', tab.getAttribute('data-route') === activeRoute);
     });
   }
   window.scrollTo({ top: 0, behavior: 'instant' });

@@ -94,7 +94,6 @@ function renderYou(main) {
   const xp = (typeof getXP === 'function') ? getXP() : 0;
   const achievements = computeAchievements(brews, cs, palate.coverage, origins, userPosts, kudosGiven, xp);
   const unlockedCount = achievements.filter(a => a.unlocked).length;
-  const score = computeGrindScore(brews, cs, unlockedCount, origins);
   const devices = isDemo ? DEMO_DEVICES : [];
 
   const page = el('div', { class: 'bean-page you-page' });
@@ -102,12 +101,10 @@ function renderYou(main) {
   page.appendChild(youStreakCard(cs, bs, brews));
   page.appendChild(youLogCta());
   page.appendChild(youRecommendedCard(recommended));
-  page.appendChild(youPalateCard(palate));
+  page.appendChild(youPalateCardCompact(palate, brews));
   page.appendChild(youPastBrewsCard(brews));
-  page.appendChild(youGrindScoreCard(score));
-  page.appendChild(youRecipesLinkCard());
   page.appendChild(youDevicesCard(devices));
-  page.appendChild(youAchievementsCard(achievements, unlockedCount));
+  page.appendChild(youBadgesLinkCard(achievements, unlockedCount));
   main.appendChild(page);
 }
 
@@ -212,34 +209,43 @@ function statTile(label, value) {
   );
 }
 
-/* ---------- 5. Palate snapshot ---------- */
-function youPalateCard(palate) {
-  const card = el('div', { class: 'you-card you-card-dark you-palate' });
-  card.appendChild(el('div', { class: 'you-eyebrow you-eyebrow-yellow' }, 'PALATE SNAPSHOT'));
-  card.appendChild(el('h3', { class: 'you-card-h' }, 'What you reach for'));
-  if (palate.coverage === 0) {
-    card.appendChild(el('p', { class: 'you-empty' }, 'Log a few brews to build your palate.'));
+/* ---------- 5. Palate snapshot (compact) ---------- */
+function youPalateCardCompact(palate, brews) {
+  const card = el('div', { class: 'you-card you-card-dark you-palate-compact' });
+  card.appendChild(el('div', { class: 'you-palate-compact-head' },
+    el('div', { class: 'you-eyebrow you-eyebrow-yellow' }, 'PALATE SNAPSHOT'),
+    el('a', {
+      href: '#/palate',
+      class: 'you-palate-link'
+    }, 'View full palate →')
+  ));
+  if (!brews || !brews.length || palate.coverage === 0) {
+    card.appendChild(el('p', { class: 'you-empty you-palate-empty' }, 'Log a few brews to build your palate.'));
     return card;
   }
-  const list = el('div', { class: 'you-palate-bars' });
-  palate.dimensions.forEach(d => {
-    list.appendChild(el('div', { class: 'you-palate-row' },
-      el('div', { class: 'you-palate-name' }, d.label),
-      el('div', { class: 'you-palate-track' },
-        el('div', { class: 'you-palate-fill', style: 'width:' + d.pct + '%' })
-      ),
-      el('div', { class: 'you-palate-pct' }, d.pct + '%')
-    ));
-  });
-  card.appendChild(list);
-  card.appendChild(el('div', { class: 'you-palate-bottom' },
-    el('div', { class: 'stat-tile' },
-      el('div', { class: 'label' }, 'TOP METHOD'),
-      el('div', { class: 'value' }, palate.topMethod || '—')
+  // Top flavor: the dimension with the highest count
+  const topFlavor = palate.dimensions.slice().sort((a, b) => b.count - a.count)[0];
+  const flavorSub = topFlavor && topFlavor.count
+    ? 'logged ' + topFlavor.count + ' time' + (topFlavor.count === 1 ? '' : 's')
+    : '';
+
+  // Top method percentage
+  const methodCount = palate.topMethod
+    ? brews.filter(b => b.method === palate.topMethod).length
+    : 0;
+  const methodPct = brews.length ? Math.round((methodCount / brews.length) * 100) : 0;
+  const methodSub = palate.topMethod ? methodPct + '% of your brews' : '';
+
+  card.appendChild(el('div', { class: 'you-palate-compact-row' },
+    el('div', { class: 'you-palate-compact-tile' },
+      el('div', { class: 'you-palate-compact-label' }, 'TOP FLAVOR'),
+      el('div', { class: 'you-palate-compact-value' }, topFlavor && topFlavor.count ? topFlavor.label : '—'),
+      el('div', { class: 'you-palate-compact-sub' }, flavorSub)
     ),
-    el('div', { class: 'stat-tile' },
-      el('div', { class: 'label' }, 'FAVORITE BEAN'),
-      el('div', { class: 'value' }, palate.favoriteBean || '—')
+    el('div', { class: 'you-palate-compact-tile' },
+      el('div', { class: 'you-palate-compact-label' }, 'TOP METHOD'),
+      el('div', { class: 'you-palate-compact-value' }, palate.topMethod || '—'),
+      el('div', { class: 'you-palate-compact-sub' }, methodSub)
     )
   ));
   return card;
@@ -284,46 +290,7 @@ function pastBrewRow(b) {
   );
 }
 
-/* ---------- 7. Grind score ---------- */
-function computeGrindScore(brews, cs, unlocked, origins) {
-  const raw = (brews.length * 10) + (cs * 20) + (unlocked * 50) + (origins * 30);
-  return Math.round(raw / 10) * 10;
-}
-
-function youGrindScoreCard(score) {
-  const card = el('div', { class: 'you-card you-grindscore' });
-  card.appendChild(el('div', { class: 'you-eyebrow you-eyebrow-dark' }, 'GRIND SCORE'));
-  card.appendChild(el('div', { class: 'you-grindscore-num' }, String(score)));
-  card.appendChild(el('div', { class: 'you-grindscore-sub' }, '#4 overall · top 5% in your city'));
-  card.appendChild(el('a', {
-    href: '#',
-    class: 'you-grindscore-explain',
-    onclick: (e) => {
-      e.preventDefault();
-      alert('Grind Score = brews×10 + streak×20 + achievements×50 + unique origins×30, rounded to nearest 10.');
-    }
-  }, 'How is this calculated?'));
-  return card;
-}
-
-/* ---------- 8. Recipes link ---------- */
-function youRecipesLinkCard() {
-  const card = el('div', {
-    class: 'you-card you-recipes-link',
-    role: 'button',
-    tabindex: '0',
-    onclick: () => { window.location.hash = '#/recipes'; },
-    onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.location.hash = '#/recipes'; } }
-  });
-  card.appendChild(el('div', { class: 'you-recipes-text' },
-    el('h3', { class: 'you-recipes-h' }, 'Browse recipes by method'),
-    el('p', { class: 'you-recipes-sub' }, 'Pour-over, espresso, cold brew, and more.')
-  ));
-  card.appendChild(el('div', { class: 'you-recipes-arrow' }, _svgEl(YOU_ICONS.arrow)));
-  return card;
-}
-
-/* ---------- 9. My Cuisinart Devices ---------- */
+/* ---------- 7. My Cuisinart Devices ---------- */
 function youDevicesCard(devices) {
   const card = el('div', { class: 'you-card you-devices' });
   card.appendChild(el('div', { class: 'you-eyebrow' }, 'MY CUISINART DEVICES'));
@@ -369,16 +336,43 @@ function deviceRow(d) {
   );
 }
 
-/* ---------- 10. Achievements ---------- */
-function youAchievementsCard(achievements, unlockedCount) {
-  const card = el('div', { class: 'you-card you-card-dark you-achievements' });
-  card.appendChild(el('div', { class: 'you-eyebrow you-eyebrow-yellow' }, 'ACHIEVEMENTS'));
-  card.appendChild(el('h3', { class: 'you-card-h' }, 'Your badges'));
-  card.appendChild(el('p', { class: 'you-achievements-sub' }, unlockedCount + ' of ' + achievements.length + ' unlocked'));
-  const grid = el('div', { class: 'you-badge-grid' });
-  achievements.forEach(a => grid.appendChild(badgeTile(a)));
-  card.appendChild(grid);
+/* ---------- 8. Badges link card (compact) ---------- */
+function youBadgesLinkCard(achievements, unlockedCount) {
+  const card = el('div', {
+    class: 'you-card you-card-dark you-badges-link',
+    role: 'button',
+    tabindex: '0',
+    onclick: () => { window.location.hash = '#/badges'; },
+    onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.location.hash = '#/badges'; } }
+  });
+  card.appendChild(el('div', { class: 'you-badges-link-row' },
+    el('div', { class: 'you-badges-link-icon' }, _svgEl(YOU_ICONS.trophy)),
+    el('div', { class: 'you-badges-link-meta' },
+      el('h3', { class: 'you-card-h' }, 'Your badges'),
+      el('p', { class: 'you-achievements-sub' }, unlockedCount + ' of ' + achievements.length + ' earned')
+    ),
+    el('div', { class: 'you-badges-link-arrow' }, _svgEl(YOU_ICONS.arrow))
+  ));
+
+  // Below: 4-slot strip of recently-unlocked badges; if fewer than 4
+  // unlocked, fill the remaining slots with next locked badges teasing.
+  const strip = el('div', { class: 'you-badges-strip' });
+  const unlocked = achievements.filter(a => a.unlocked);
+  const locked = achievements.filter(a => !a.unlocked);
+  const fillers = [].concat(unlocked.slice(0, 4));
+  while (fillers.length < 4 && locked.length) fillers.push(locked.shift());
+  fillers.slice(0, 4).forEach(a => strip.appendChild(badgeStripTile(a)));
+  card.appendChild(strip);
+
   return card;
+}
+
+function badgeStripTile(a) {
+  const iconHtml = a.unlocked ? (ACHIEVEMENT_ICONS[a.icon] || ACHIEVEMENT_ICONS.cup) : YOU_ICONS.lock;
+  return el('div', {
+    class: 'you-badge-strip-tile' + (a.unlocked ? ' unlocked' : ' locked'),
+    title: a.name
+  }, _svgEl(iconHtml));
 }
 
 function badgeTile(a) {
@@ -391,6 +385,33 @@ function badgeTile(a) {
     el('div', { class: 'you-badge-icon' }, _svgEl(iconHtml)),
     el('div', { class: 'you-badge-label' }, a.name)
   );
+}
+
+/* ---------- Sub-route: #/badges ---------- */
+function renderBadges(main) {
+  const brews = loadBeanBrews();
+  const cs = currentStreak(brews);
+  const palate = computePalate(brews);
+  const origins = uniqueBeanOrigins(brews);
+  const userPosts = (typeof userPostCount === 'function') ? userPostCount() : 0;
+  const kudosGiven = (typeof loadBeanKudos === 'function') ? loadBeanKudos().length : 0;
+  const xp = (typeof getXP === 'function') ? getXP() : 0;
+  const achievements = computeAchievements(brews, cs, palate.coverage, origins, userPosts, kudosGiven, xp);
+  const unlockedCount = achievements.filter(a => a.unlocked).length;
+
+  const page = el('div', { class: 'bean-page badges-page' });
+  page.appendChild(el('a', {
+    href: '#/you',
+    class: 'badges-back',
+    'aria-label': 'Back to You'
+  }, '← Back'));
+  page.appendChild(el('h1', { class: 'badges-title' }, 'Badges'));
+  page.appendChild(el('p', { class: 'badges-sub' }, unlockedCount + ' of ' + achievements.length + ' earned'));
+
+  const grid = el('div', { class: 'you-badge-grid badges-page-grid' });
+  achievements.forEach(a => grid.appendChild(badgeTile(a)));
+  page.appendChild(grid);
+  main.appendChild(page);
 }
 
 /* ---------- Brew log modal ---------- */
