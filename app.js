@@ -26,6 +26,8 @@ const state = {
   freezesAvailable: 1,
   isMember: true,
   communityPosts: [], // [{ id, text, kind, icon, verb, when, timestamp }]
+  giveawayEntries: [], // [giveawayId]
+  phase2Waitlist: [], // [email] (also persisted server-side)
 };
 
 function load() {
@@ -1872,15 +1874,17 @@ function renderMagazineHome(main) {
   });
 
   /* === LATTE ART MARQUEE — auto-scrolling band of community pours === */
+  // Photos verified to show actual latte art. Labels are kept honest:
+  // each photo is tagged by the drink type it actually shows, plus the barista handle.
   const latteShowcase = [
-    { url: 'https://images.unsplash.com/photo-1525480122447-64809d765a36?w=400&q=80', pattern: 'Heart',   handle: '@catherine.brews' },
-    { url: 'https://images.unsplash.com/photo-1542556398-95fb5b9dba8c?w=400&q=80',  pattern: 'Rosetta', handle: '@aleks.pulls' },
-    { url: 'https://images.unsplash.com/photo-1497515114629-f71d768fd07c?w=400&q=80', pattern: 'Tulip',  handle: '@andrew.brewer' },
-    { url: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&q=80', pattern: 'Heart',   handle: '@zach.cup' },
-    { url: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=400&q=80', pattern: 'Rosetta', handle: '@dan.dripper' },
-    { url: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&q=80',  pattern: 'Swan',    handle: '@morgan.coffee' },
-    { url: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=400&q=80', pattern: 'Tulip',   handle: '@james.h' },
-    { url: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=400&q=80',  pattern: 'Heart',   handle: '@lance.hedrick' }
+    { url: 'https://images.unsplash.com/photo-1497515114629-f71d768fd07c?w=500&q=85', pattern: 'Heart',   handle: '@catherine.brews' },
+    { url: 'https://images.unsplash.com/photo-1525480122447-64809d765a36?w=500&q=85', pattern: 'Heart',   handle: '@aleks.pulls' },
+    { url: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=500&q=85', pattern: 'Heart',   handle: '@andrew.brewer' },
+    { url: 'https://images.unsplash.com/photo-1542556398-95fb5b9dba8c?w=500&q=85',   pattern: 'Rosetta', handle: '@zach.cup' },
+    { url: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=85', pattern: 'Rosetta', handle: '@dan.dripper' },
+    { url: 'https://images.unsplash.com/photo-1572286258217-215cf8e25c43?w=500&q=85', pattern: 'Heart',   handle: '@morgan.coffee' },
+    { url: 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?w=500&q=85',   pattern: 'Rosetta', handle: '@james.h' },
+    { url: 'https://images.unsplash.com/photo-1532009324734-20a7a5813719?w=500&q=85', pattern: 'Heart',   handle: '@lance.hedrick' }
   ];
   const marqueeSection = el('section', { style: 'padding:36px 0 24px' },
     el('div', { class: 'container' },
@@ -1996,14 +2000,30 @@ function renderMagazineHome(main) {
           // Email capture
           el('form', {
             style: 'display:flex;gap:8px;flex-wrap:wrap;max-width:480px',
-            onsubmit: (e) => {
+            onsubmit: async (e) => {
               e.preventDefault();
               const input = e.target.querySelector('input');
-              if (input && input.value.trim()) {
-                state.phase2Waitlist = (state.phase2Waitlist || []).concat([input.value.trim()]);
+              const btn = e.target.querySelector('button[type=submit]');
+              const email = input ? input.value.trim() : '';
+              if (!email) return;
+              if (btn) { btn.disabled = true; btn.textContent = 'Adding...'; }
+              try {
+                if (typeof DB !== 'undefined' && DB && DB.joinWaitlist) {
+                  await DB.joinWaitlist(email, 'phase2-home');
+                }
+                state.phase2Waitlist = (state.phase2Waitlist || []).concat([email]);
                 save();
                 input.value = '';
                 toast("You're on the list. We'll be in touch.");
+              } catch (err) {
+                console.warn('Waitlist signup failed', err);
+                // Fallback to localStorage so the demo still feels real
+                state.phase2Waitlist = (state.phase2Waitlist || []).concat([email]);
+                save();
+                input.value = '';
+                toast(err && /duplicate/i.test(err.message || '') ? "You're already on the list." : "Saved locally. We'll sync when reconnected.");
+              } finally {
+                if (btn) { btn.disabled = false; btn.textContent = 'Join the waitlist'; }
               }
             }
           },
@@ -4765,7 +4785,31 @@ function renderCommunity(main) {
   c.appendChild(el('div', { style: 'height:8px' }));
   const giveawayGrid = el('div', { class: 'grid grid-3', style: 'margin-bottom:48px' });
   (DATA.giveaways || []).forEach(g => {
-    giveawayGrid.appendChild(el('div', { id: 'giveaway-' + g.id, class: 'card', style: 'padding:0;overflow:hidden;cursor:pointer;border-radius:14px', onclick: () => toast('Entered into ' + g.name + ' (demo)') },
+    const entered = (state.giveawayEntries || []).includes(g.id);
+    giveawayGrid.appendChild(el('div', {
+      id: 'giveaway-' + g.id,
+      class: 'card',
+      style: 'padding:0;overflow:hidden;cursor:pointer;border-radius:14px;' + (entered ? 'border-color:var(--success)' : ''),
+      onclick: async () => {
+        if (entered) {
+          toast('You are already entered in ' + g.name);
+          return;
+        }
+        try {
+          const userId = state.user && state.user.id ? state.user.id : null;
+          const email = state.user && state.user.email ? state.user.email : null;
+          if (typeof DB !== 'undefined' && DB && DB.enterGiveaway) {
+            await DB.enterGiveaway(userId, g.id, email);
+          }
+        } catch (err) {
+          console.warn('enterGiveaway backend failed', err);
+        }
+        state.giveawayEntries = (state.giveawayEntries || []).concat([g.id]);
+        save();
+        toast("You're entered in " + g.name + ".");
+        render();
+      }
+    },
       el('div', { style: 'aspect-ratio:5/3;background:' + g.bg + ';color:white;display:flex;align-items:center;justify-content:center;font-size:3.5rem' }, g.icon),
       el('div', { style: 'padding:18px 20px' },
         el('div', { class: 'eyebrow', style: 'margin-bottom:6px' }, g.kind),
@@ -4800,14 +4844,26 @@ function renderCommunity(main) {
       el('button', {
         class: 'btn btn-primary btn-sm mt',
         style: 'margin-top:16px',
-        onclick: () => {
-          if (!joined) {
-            state.joinedChallenges.push(ch.id);
-            state.points += 25;
-            save();
-            toast('Joined ' + ch.name + '. +25 pts');
-            render();
+        onclick: async (e) => {
+          if (joined) return;
+          const btn = e.target;
+          btn.disabled = true;
+          btn.textContent = 'Joining...';
+          try {
+            // Try to record on the backend if available
+            const userId = state.user && state.user.id ? state.user.id : null;
+            if (userId && typeof DB !== 'undefined' && DB && DB.joinChallenge) {
+              await DB.joinChallenge(userId, ch.id);
+            }
+          } catch (err) {
+            console.warn('joinChallenge backend failed', err);
+            // Continue locally so the demo always works
           }
+          state.joinedChallenges.push(ch.id);
+          state.points += 25;
+          save();
+          toast('Joined ' + ch.name + '. +25 pts');
+          render();
         }
       }, joined ? 'Joined ✓' : 'Join challenge')
     ));

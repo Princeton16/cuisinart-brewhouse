@@ -165,6 +165,73 @@ const DB = {
   }
 };
 
+/* ---------------- Phase 2 waitlist ---------------- */
+DB.joinWaitlist = async function(email, source) {
+  const { data, error } = await sb.from('waitlist').insert({
+    email: (email || '').toLowerCase().trim(),
+    source: source || 'phase2-home'
+  }).select().single();
+  if (error) throw error;
+  return data;
+};
+
+DB.waitlistCount = async function() {
+  const { count, error } = await sb.from('waitlist').select('*', { count: 'exact', head: true });
+  if (error) throw error;
+  return count || 0;
+};
+
+/* ---------------- Challenge signups ---------------- */
+DB.joinChallenge = async function(userId, challengeId) {
+  const { data, error } = await sb.from('challenge_signups').insert({
+    user_id: userId,
+    challenge_id: challengeId
+  }).select().single();
+  if (error) throw error;
+  return data;
+};
+
+DB.leaveChallenge = async function(userId, challengeId) {
+  const { error } = await sb.from('challenge_signups').delete().eq('user_id', userId).eq('challenge_id', challengeId);
+  if (error) throw error;
+};
+
+DB.listChallengeSignups = async function(userId) {
+  const { data, error } = await sb.from('challenge_signups').select('challenge_id').eq('user_id', userId);
+  if (error) throw error;
+  return (data || []).map(r => r.challenge_id);
+};
+
+DB.challengeParticipantCount = async function(challengeId) {
+  const { count, error } = await sb.from('challenge_signups').select('*', { count: 'exact', head: true }).eq('challenge_id', challengeId);
+  if (error) throw error;
+  return count || 0;
+};
+
+/* ---------------- Giveaway entries ---------------- */
+DB.enterGiveaway = async function(userId, giveawayId, email) {
+  const { data, error } = await sb.from('giveaway_entries').insert({
+    user_id: userId || null,
+    giveaway_id: giveawayId,
+    email: email ? email.toLowerCase().trim() : null
+  }).select().single();
+  if (error) throw error;
+  return data;
+};
+
+DB.giveawayEntryCount = async function(giveawayId) {
+  const { count, error } = await sb.from('giveaway_entries').select('*', { count: 'exact', head: true }).eq('giveaway_id', giveawayId);
+  if (error) throw error;
+  return count || 0;
+};
+
+DB.userHasEnteredGiveaway = async function(userId, giveawayId) {
+  if (!userId) return false;
+  const { data, error } = await sb.from('giveaway_entries').select('id').eq('user_id', userId).eq('giveaway_id', giveawayId).maybeSingle();
+  if (error) throw error;
+  return !!data;
+};
+
 /* ---------------- Virtual Barista (Claude-powered) ---------------- */
 DB.askBarista = async function(vibes, profile) {
   const { data, error } = await sb.functions.invoke('barista-recommend', {
