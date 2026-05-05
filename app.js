@@ -442,9 +442,16 @@ function mountAppShell() {
           el('span', { class: 'bl-log-brew-plus' }, '+'),
           el('span', {}, 'Log brew')
         ),
-        el('a', { href: '#/profile', class: 'bl-avatar', title: state.user?.name || 'You' },
-          initials(state.user?.name)
-        )
+        // Show Sign in button for guests, avatar (with sign-out menu) for signed-in users
+        state.user?.isGuest || !state.user
+          ? el('button', {
+              class: 'btn btn-accent btn-sm',
+              style: 'border-radius:999px;padding:8px 16px;font-size:0.85rem',
+              onclick: () => openSignupModal({ mode: 'signin' })
+            }, 'Sign in')
+          : el('a', { href: '#/profile', class: 'bl-avatar', title: state.user?.name || 'You' },
+              initials(state.user?.name)
+            )
       )
     )
   );
@@ -3107,7 +3114,7 @@ function renderYou(main) {
             personality ? el('span', { class: 'pill' }, personality.icon + ' ' + personality.name) : null
           )
         ),
-        state.user?.isGuest ? el('button', { class: 'btn btn-accent btn-sm', onclick: () => openSignupModal() }, 'Sign up free') : null
+        state.user?.isGuest ? el('button', { class: 'btn btn-accent btn-sm', onclick: () => openSignupModal({ mode: 'signup' }) }, 'Sign up free') : null
       )
     )
   ));
@@ -5559,62 +5566,154 @@ function voteRow(p) {
   );
 }
 
-function openSignupModal() {
+function openSignupModal(opts) {
+  // opts.mode = 'signin' | 'signup' (defaults to signin)
+  const initialMode = (opts && opts.mode) || 'signin';
   const existing = document.getElementById('signupModal');
   if (existing) existing.remove();
 
+  let mode = initialMode;
   const backdrop = el('div', { class: 'modal-backdrop show', id: 'signupModal' });
-  const modal = el('div', { class: 'modal' },
-    el('div', { style: 'display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px' },
-      el('h3', { class: 'h3' }, 'Sign in to Brew Lab'),
-      el('button', { class: 'btn btn-ghost btn-sm', onclick: () => backdrop.remove() }, '✕')
-    ),
-    el('p', { class: 'muted mt-sm', style: 'margin-bottom:24px' }, 'No password needed. We email you a one-click sign-in link. Your brews, badges, and friends sync across devices.'),
-    el('div', { class: 'field' },
-      el('label', { class: 'label' }, 'Your name'),
-      el('input', { class: 'input', id: 'suName', placeholder: 'Alex Brewer', value: state.user?.isGuest ? '' : (state.user?.name || '') })
-    ),
-    el('div', { class: 'field', style: 'margin-top:14px' },
-      el('label', { class: 'label' }, 'Email'),
-      el('input', { class: 'input', id: 'suEmail', type: 'email', placeholder: 'alex@example.com' })
-    ),
-    el('div', { id: 'suStatus', style: 'margin-top:14px;font-size:0.88rem;color:var(--ink-muted)' }),
-    el('div', { style: 'display:flex;gap:8px;margin-top:20px;justify-content:flex-end' },
-      el('button', { class: 'btn btn-ghost', onclick: () => backdrop.remove() }, 'Cancel'),
-      el('button', {
-        class: 'btn btn-accent',
-        id: 'suSubmit',
-        onclick: async () => {
-          const name = document.getElementById('suName').value.trim();
-          const email = document.getElementById('suEmail').value.trim();
-          const status = document.getElementById('suStatus');
-          const btn = document.getElementById('suSubmit');
-          if (!name || !email) {
-            status.textContent = 'Please add your name and email.';
-            status.style.color = 'var(--danger)';
-            return;
+
+  function rebuild() {
+    backdrop.innerHTML = '';
+    const isSignUp = mode === 'signup';
+    const modal = el('div', { class: 'modal' },
+      el('div', { style: 'display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px' },
+        el('h3', { class: 'h3' }, isSignUp ? 'Create your Brew Lab account' : 'Sign in to Brew Lab'),
+        el('button', { class: 'btn btn-ghost btn-sm', onclick: () => backdrop.remove() }, '✕')
+      ),
+      el('p', { class: 'muted mt-sm', style: 'margin-bottom:20px' },
+        isSignUp
+          ? 'Set a password and your brews, badges, and friends will sync across devices.'
+          : 'Welcome back. Sign in with the email and password you registered with.'
+      ),
+      // Tab switcher
+      el('div', { style: 'display:flex;gap:6px;margin-bottom:20px;border-bottom:1px solid var(--line)' },
+        el('button', {
+          class: 'btn btn-ghost',
+          style: 'flex:1;border-radius:0;border-bottom:2px solid ' + (!isSignUp ? 'var(--tomato)' : 'transparent') + ';font-weight:' + (!isSignUp ? '700' : '500'),
+          onclick: () => { mode = 'signin'; rebuild(); }
+        }, 'Sign in'),
+        el('button', {
+          class: 'btn btn-ghost',
+          style: 'flex:1;border-radius:0;border-bottom:2px solid ' + (isSignUp ? 'var(--tomato)' : 'transparent') + ';font-weight:' + (isSignUp ? '700' : '500'),
+          onclick: () => { mode = 'signup'; rebuild(); }
+        }, 'Create account')
+      ),
+      isSignUp ? el('div', { class: 'field' },
+        el('label', { class: 'label' }, 'Your name'),
+        el('input', { class: 'input', id: 'suName', placeholder: 'Alex Brewer', value: state.user?.isGuest ? '' : (state.user?.name || '') })
+      ) : null,
+      el('div', { class: 'field', style: isSignUp ? 'margin-top:14px' : '' },
+        el('label', { class: 'label' }, 'Email'),
+        el('input', { class: 'input', id: 'suEmail', type: 'email', placeholder: 'alex@example.com', autocomplete: 'email' })
+      ),
+      el('div', { class: 'field', style: 'margin-top:14px' },
+        el('label', { class: 'label' }, 'Password'),
+        el('input', {
+          class: 'input',
+          id: 'suPassword',
+          type: 'password',
+          placeholder: isSignUp ? 'At least 8 characters' : 'Your password',
+          autocomplete: isSignUp ? 'new-password' : 'current-password',
+          minlength: '8'
+        })
+      ),
+      !isSignUp ? el('div', { style: 'margin-top:8px;text-align:right' },
+        el('a', {
+          style: 'font-size:0.82rem;color:var(--tomato);cursor:pointer;text-decoration:underline',
+          onclick: async () => {
+            const email = document.getElementById('suEmail').value.trim();
+            const status = document.getElementById('suStatus');
+            if (!email) {
+              status.style.color = 'var(--danger)';
+              status.textContent = 'Enter your email above first.';
+              return;
+            }
+            try {
+              await DB.sendPasswordReset(email);
+              status.style.color = 'var(--success)';
+              status.textContent = '✓ Reset link sent. Check your email.';
+            } catch (err) {
+              status.style.color = 'var(--danger)';
+              status.textContent = err.message || 'Could not send reset link.';
+            }
           }
-          btn.disabled = true;
-          btn.textContent = 'Sending...';
-          status.style.color = 'var(--ink-muted)';
-          status.textContent = '';
-          try {
-            await DB.signInWithEmail(email, name);
-            status.style.color = 'var(--success)';
-            status.textContent = '✓ Check your email. Click the link to sign in.';
-            btn.textContent = 'Sent';
-          } catch (e) {
-            status.style.color = 'var(--danger)';
-            status.textContent = e.message || 'Could not send link. Try again.';
-            btn.disabled = false;
-            btn.textContent = 'Send link';
+        }, 'Forgot password?')
+      ) : null,
+      el('div', { id: 'suStatus', style: 'margin-top:14px;font-size:0.88rem;color:var(--ink-muted);min-height:1em' }),
+      el('div', { style: 'display:flex;gap:8px;margin-top:20px;justify-content:flex-end' },
+        el('button', { class: 'btn btn-ghost', onclick: () => backdrop.remove() }, 'Cancel'),
+        el('button', {
+          class: 'btn btn-accent',
+          id: 'suSubmit',
+          onclick: async () => {
+            const name = isSignUp ? document.getElementById('suName').value.trim() : '';
+            const email = document.getElementById('suEmail').value.trim();
+            const password = document.getElementById('suPassword').value;
+            const status = document.getElementById('suStatus');
+            const btn = document.getElementById('suSubmit');
+
+            // Client-side validation
+            if (isSignUp && !name) {
+              status.style.color = 'var(--danger)';
+              status.textContent = 'Please add your name.';
+              return;
+            }
+            if (!email) {
+              status.style.color = 'var(--danger)';
+              status.textContent = 'Please enter your email.';
+              return;
+            }
+            if (!password || password.length < (isSignUp ? 8 : 1)) {
+              status.style.color = 'var(--danger)';
+              status.textContent = isSignUp ? 'Password must be at least 8 characters.' : 'Please enter your password.';
+              return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = isSignUp ? 'Creating...' : 'Signing in...';
+            status.style.color = 'var(--ink-muted)';
+            status.textContent = '';
+            try {
+              if (isSignUp) {
+                const result = await DB.signUp(email, password, name);
+                // If Supabase project requires email confirmation, session will be null
+                if (result && result.session) {
+                  status.style.color = 'var(--success)';
+                  status.textContent = '✓ Account created. Welcome.';
+                  setTimeout(() => backdrop.remove(), 800);
+                } else {
+                  status.style.color = 'var(--success)';
+                  status.textContent = '✓ Account created. Check your email to confirm, then sign in.';
+                  btn.textContent = 'Done';
+                }
+              } else {
+                await DB.signInWithPassword(email, password);
+                status.style.color = 'var(--success)';
+                status.textContent = '✓ Signed in. Welcome back.';
+                setTimeout(() => backdrop.remove(), 600);
+              }
+            } catch (e) {
+              status.style.color = 'var(--danger)';
+              status.textContent = e.message || (isSignUp ? 'Could not create account. Try again.' : 'Wrong email or password.');
+              btn.disabled = false;
+              btn.textContent = isSignUp ? 'Create account' : 'Sign in';
+            }
           }
-        }
-      }, 'Send link')
-    ),
-    el('p', { style: 'margin-top:16px;text-align:center;font-size:0.78rem;color:var(--ink-muted)' }, 'No spam. Just the magic-link email.')
-  );
-  backdrop.appendChild(modal);
+        }, isSignUp ? 'Create account' : 'Sign in')
+      ),
+      el('p', { style: 'margin-top:16px;text-align:center;font-size:0.78rem;color:var(--ink-muted)' },
+        isSignUp
+          ? 'Already a member? Click Sign in above.'
+          : "New here? Click Create account above."
+      )
+    );
+    backdrop.appendChild(modal);
+  }
+
+  rebuild();
   backdrop.addEventListener('click', (e) => { if (e.target === backdrop) backdrop.remove(); });
   document.body.appendChild(backdrop);
 }
@@ -5948,7 +6047,7 @@ function renderProfile(main) {
         el('div', { style: 'width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg, var(--caramel) 0%, var(--caramel-deep) 100%);display:flex;align-items:center;justify-content:center;font-size:2.4rem;font-weight:600;color:white;border:5px solid var(--bg);box-shadow:var(--shadow)' }, initials(state.user?.name))
       ),
       el('div', { style: 'position:absolute;top:16px;right:16px;display:flex;gap:8px' },
-        state.user?.isGuest ? el('button', { class: 'btn btn-accent btn-sm', onclick: () => openSignupModal() }, 'Sign up free') : null,
+        state.user?.isGuest ? el('button', { class: 'btn btn-accent btn-sm', onclick: () => openSignupModal({ mode: 'signup' }) }, 'Sign up free') : null,
         !state.user?.isGuest ? el('button', { class: 'btn btn-secondary btn-sm', style: 'background:rgba(255,255,255,0.95)', onclick: () => { if (confirm('Sign out and clear demo data?')) signOut(); } }, 'Sign out') : null
       )
     ),

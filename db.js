@@ -29,8 +29,7 @@ const DB = {
     return sb.auth.onAuthStateChange((event, session) => callback(event, session));
   },
 
-  // Magic-link sign-in: sends an email with a one-click login link.
-  // No password required. Easiest auth UX for non-technical users.
+  // Magic-link sign-in (kept as a fallback / "forgot password" option).
   async signInWithEmail(email, name) {
     const { error } = await sb.auth.signInWithOtp({
       email,
@@ -38,6 +37,40 @@ const DB = {
         emailRedirectTo: window.location.origin + window.location.pathname,
         data: { name }
       }
+    });
+    if (error) throw error;
+    return { success: true };
+  },
+
+  // Password-based sign-up. Creates a new user.
+  // Supabase enforces a minimum password length (default 6 chars).
+  async signUp(email, password, name) {
+    const { data, error } = await sb.auth.signUp({
+      email: email,
+      password: password,
+      options: {
+        emailRedirectTo: window.location.origin + window.location.pathname,
+        data: { name: name || '' }
+      }
+    });
+    if (error) throw error;
+    return data;
+  },
+
+  // Password-based sign-in. Returns session if successful.
+  async signInWithPassword(email, password) {
+    const { data, error } = await sb.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+    if (error) throw error;
+    return data;
+  },
+
+  // Send a password-reset email
+  async sendPasswordReset(email) {
+    const { error } = await sb.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + window.location.pathname
     });
     if (error) throw error;
     return { success: true };
