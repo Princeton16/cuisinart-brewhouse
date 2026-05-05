@@ -2682,11 +2682,11 @@ input, select, textarea { font: inherit; color: inherit; }
 }
 
 /* Variant backgrounds */
-.tile.barista { background: linear-gradient(135deg, var(--tomato) 0%, #A32C0A 100%); color: var(--cream); }
+.tile.barista { background: linear-gradient(140deg, #3D2418 0%, #1F1410 100%); color: var(--cream); }
 .tile.dotd    { background: var(--marigold); color: var(--ink); }
 .tile.atlas   { background: linear-gradient(160deg, var(--canopy) 0%, var(--jungle-dark) 100%); color: var(--cream); }
 .tile.give    { background: var(--ink); color: var(--cream); }
-.tile.compete { background: linear-gradient(150deg, var(--tomato) 0%, #B33B0F 100%); color: var(--cream); }
+.tile.compete { background: linear-gradient(150deg, #5C3920 0%, #2A1610 100%); color: var(--cream); }
 .tile.cafeweek { background: var(--cream); color: var(--ink); padding: 0; }
 
 /* Inner elements scoped to the variants so they don't leak to recipe tiles */

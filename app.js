@@ -1688,18 +1688,19 @@ function renderMagazineHome(main) {
             'Or pick ',
             el('em', {}, 'your own.')
           ),
-          el('p', { style: 'font-size:15px;margin-bottom:14px' }, "Brew Bot reads your vibe and pours something."),
-          // Brew Bot illustration sits in the middle of the tile
-          el('div', { style: 'flex:1;display:flex;align-items:center;justify-content:center;width:100%;min-height:0;margin:8px 0' },
+          el('p', { style: 'font-size:15px;margin-bottom:14px' }, "Tell us how you feel. We'll pour something."),
+          // Vibe wheel preview — full version lives in the modal
+          el('div', { style: 'flex:1;display:flex;align-items:center;justify-content:center;width:100%;min-height:0;margin:4px 0' },
             (() => {
-              const wrap = el('div', { class: 'brewbot-frame' });
-              const bot = robotBaristaSvg();
-              bot.setAttribute('style', 'width:100%;max-width:240px;height:auto');
-              wrap.appendChild(bot);
+              const wrap = el('div', { style: 'width:min(280px, 100%);aspect-ratio:1;display:flex;align-items:center;justify-content:center' });
+              const mini = buildVibeWheelSvg({ size: 280, onWedgeClick: () => openBaristaWheel(), isWedgeSelected: () => false });
+              mini.svg.setAttribute('style', 'width:100%;height:100%;display:block');
+              mini.svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+              wrap.appendChild(mini.svg);
               return wrap;
             })()
           ),
-          el('span', { class: 'arrow-cta' }, 'Talk to Brew Bot ', el('span', { class: 'ar' }, '→'))
+          el('span', { class: 'arrow-cta' }, 'Open the wheel ', el('span', { class: 'ar' }, '→'))
         )
       )
     )
@@ -1991,7 +1992,7 @@ function renderMagazineHome(main) {
   const phase2Section = el('section', { style: 'padding:32px 0' },
     el('div', { class: 'container' },
       el('div', {
-        style: 'background:linear-gradient(135deg, var(--ink) 0%, #2A1F14 100%);color:var(--cream);border-radius:18px;border:2px solid var(--ink);box-shadow:8px 8px 0 0 var(--tomato);padding:36px 40px;display:grid;grid-template-columns:1.4fr 1fr;gap:36px;align-items:center'
+        style: 'background:linear-gradient(135deg, var(--ink) 0%, #2A1F14 100%);color:var(--cream);border-radius:18px;border:2px solid var(--ink);box-shadow:8px 8px 0 0 var(--marigold);padding:36px 40px;display:grid;grid-template-columns:1.4fr 1fr;gap:36px;align-items:center'
       },
         // Left: copy
         el('div', {},
