@@ -2799,3 +2799,323 @@ input, select, textarea { font: inherit; color: inherit; }
   .newsroom-grid > *:last-child { border-bottom: none; }
 }
 
+/* ============================================================
+   THE BEAN — redesign (Phase 1: design system + auth + nav stubs)
+   ============================================================
+   Scoped to body.bean-app so we don't clobber legacy styles.
+   ============================================================ */
+
+:root {
+  --bg-base: #0F1F14;
+  --bg-alt: #1A2D1F;
+  --bg-card: #FAF6F0;
+  --bg-card-warm: #F4EBDD;
+  --accent-yellow: #F5C842;
+  --accent-yellow-soft: #FCE5A4;
+  --accent-yellow-deep: #C99B1A;
+  --text-on-dark: #F8F4ED;
+  --text-on-dark-muted: #A89F8E;
+  --text-on-light: #1A1F14;
+  --text-on-light-muted: #6B6256;
+  --border-on-dark: rgba(255, 255, 255, 0.08);
+  --border-on-light: rgba(0, 0, 0, 0.08);
+  --bean-display: 'DM Serif Display', Georgia, serif;
+  --bean-body: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* When the Bean shell is active, html paints the outside-frame color
+   so on desktop the "phone" is centered and the screen fills with bg-base. */
+html:has(body.bean-app) { background: var(--bg-base); }
+/* Fallback for browsers without :has — set on body. */
+body.bean-app {
+  background: var(--bg-base);
+  color: var(--text-on-dark);
+  font-family: var(--bean-body);
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 auto;
+  max-width: 480px;
+  min-height: 100vh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+  overflow-x: hidden;
+  /* Subtle inner shadow on the "phone" frame edges when room exists */
+  box-shadow: 0 0 0 1px var(--border-on-dark);
+}
+body.bean-app .display,
+body.bean-app h1,
+body.bean-app h2 {
+  font-family: var(--bean-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+body.bean-app .accent-yellow-italic {
+  font-family: var(--bean-display);
+  font-style: italic;
+  color: var(--accent-yellow);
+}
+
+/* Component: card (cream content surface) */
+body.bean-app .card {
+  background: var(--bg-card);
+  color: var(--text-on-light);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  padding: 20px;
+  border: 0;
+}
+
+/* Component: pill (small tag) */
+body.bean-app .pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  background: var(--bg-alt);
+  color: var(--text-on-dark);
+  border: 0;
+}
+
+/* Component: btn-primary (yellow, dark text, full-rounded) */
+body.bean-app .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  border: 0;
+  border-radius: 999px;
+  padding: 14px 24px;
+  font-family: var(--bean-body);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+  width: auto;
+  min-height: 0;
+}
+body.bean-app .btn-primary:hover { background: var(--accent-yellow-deep); }
+body.bean-app .btn-primary:active { transform: translateY(1px); }
+body.bean-app .btn-primary.full { width: 100%; height: 48px; padding: 0; }
+
+/* Component: btn-ghost (transparent, light text on dark) */
+body.bean-app .btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--text-on-dark);
+  border: 1px solid var(--border-on-dark);
+  border-radius: 999px;
+  padding: 14px 24px;
+  font-family: var(--bean-body);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+body.bean-app .btn-ghost:hover { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.16); }
+body.bean-app .btn-ghost.full { width: 100%; height: 48px; padding: 0; }
+
+/* Component: stat-tile (uppercase label on top, big value below) */
+body.bean-app .stat-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+body.bean-app .stat-tile .label {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-on-dark-muted);
+}
+body.bean-app .stat-tile .value {
+  font-family: var(--bean-display);
+  font-size: 28px;
+  line-height: 1;
+  color: var(--text-on-dark);
+}
+
+/* === Auth / landing page === */
+body.bean-app .auth-screen {
+  min-height: 100vh;
+  padding: 48px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 28px;
+}
+body.bean-app .auth-logo { display: block; }
+body.bean-app .auth-headline {
+  font-family: var(--bean-display);
+  font-size: 36px;
+  line-height: 1.1;
+  text-align: center;
+  color: var(--text-on-dark);
+  letter-spacing: -0.01em;
+  max-width: 380px;
+  margin: 0;
+}
+body.bean-app .auth-headline em {
+  font-style: italic;
+  color: var(--accent-yellow);
+}
+body.bean-app .auth-subhead {
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--text-on-dark-muted);
+  max-width: 320px;
+  margin: 0;
+}
+body.bean-app .auth-card {
+  background: var(--bg-card);
+  color: var(--text-on-light);
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 24px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+body.bean-app .auth-toggle {
+  display: flex;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 18px;
+}
+body.bean-app .auth-toggle-pill {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-family: var(--bean-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-on-light);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+body.bean-app .auth-toggle-pill.active {
+  background: var(--text-on-light);
+  color: var(--bg-card);
+}
+body.bean-app .auth-input {
+  width: 100%;
+  height: 44px;
+  padding: 12px;
+  background: transparent;
+  border: 1px solid var(--border-on-light);
+  border-radius: 8px;
+  font-family: var(--bean-body);
+  font-size: 14px;
+  color: var(--text-on-light);
+  margin-bottom: 12px;
+  outline: none;
+  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+}
+body.bean-app .auth-input::placeholder { color: var(--text-on-light-muted); }
+body.bean-app .auth-input:focus { border-color: var(--accent-yellow-deep); }
+body.bean-app .auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  color: var(--text-on-light-muted);
+  font-size: 12px;
+}
+body.bean-app .auth-divider::before,
+body.bean-app .auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-on-light);
+}
+body.bean-app .auth-card .btn-ghost {
+  color: var(--text-on-light);
+  border-color: var(--border-on-light);
+}
+body.bean-app .auth-card .btn-ghost:hover { background: rgba(0, 0, 0, 0.04); border-color: rgba(0, 0, 0, 0.18); }
+body.bean-app .auth-disclaimer {
+  margin-top: 14px;
+  font-size: 11px;
+  color: var(--text-on-light-muted);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* === Bottom navigation === */
+body.bean-app .bean-nav {
+  position: fixed;
+  bottom: calc(8px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 16px);
+  max-width: 464px;
+  height: 60px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border-on-dark);
+  border-radius: 999px;
+  display: flex;
+  align-items: stretch;
+  padding: 6px;
+  gap: 4px;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--border-on-dark);
+  z-index: 50;
+}
+body.bean-app .bean-nav-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  color: var(--text-on-dark-muted);
+  font-family: var(--bean-body);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+  text-decoration: none;
+}
+body.bean-app .bean-nav-tab svg { width: 22px; height: 22px; display: block; }
+body.bean-app .bean-nav-tab.active {
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+}
+
+/* === Tab views === */
+body.bean-app .bean-page {
+  padding: 28px 24px 100px;
+  min-height: 100vh;
+}
+body.bean-app .bean-page-h {
+  font-family: var(--bean-display);
+  font-size: 32px;
+  line-height: 1.1;
+  margin-bottom: 8px;
+  color: var(--text-on-dark);
+}
+body.bean-app .bean-page-sub {
+  font-size: 14px;
+  color: var(--text-on-dark-muted);
+}
+
