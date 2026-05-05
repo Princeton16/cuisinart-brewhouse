@@ -1902,39 +1902,10 @@ function renderMagazineHome(main) {
   );
   page.appendChild(marqueeSection);
 
-  /* === TODAY'S COFFEE FACT — small ink-bordered sticker === */
-  const COFFEE_FACTS = [
-    { eyebrow: "Did you know", text: "Blue Bottle's New Orleans iced coffee was the original viral cold brew, debuting in 2005." },
-    { eyebrow: "Brew tip", text: "Espresso extraction stalls without grind freshness. Beans more than three weeks off roast lose 40 percent of their crema." },
-    { eyebrow: "From the desk", text: "Pour-over yield rises by ten percent if you bloom for forty-five seconds before the first pour." },
-    { eyebrow: "Did you know", text: "Yemen is widely accepted as the birthplace of coffee as a brewed drink, predating Ethiopia's commercial trade by centuries." },
-    { eyebrow: "Brew tip", text: "Storing beans in the freezer in single-shot doses preserves 95 percent of aromatics for up to three months." },
-    { eyebrow: "Did you know", text: "Counter Culture publishes an annual transparency report listing what they paid every farmer, the only U.S. roaster to do so." },
-    { eyebrow: "From the desk", text: "Cold brew steeped at room temperature for fourteen hours produces a sweeter cup than refrigerated steeps." }
-  ];
-  const fact = COFFEE_FACTS[dayOfYear(today) % COFFEE_FACTS.length];
-  const factSection = el('section', { style: 'padding:0 0 32px' },
-    el('div', { class: 'container' },
-      el('div', {
-        style: 'background:#FFFEFB;border:1.5px solid var(--ink);border-left:6px solid var(--ink);border-radius:6px;padding:22px 28px;display:flex;align-items:center;gap:24px;flex-wrap:wrap'
-      },
-        el('div', {
-          style: 'font-family:var(--font-mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--tomato);font-weight:800;flex-shrink:0;line-height:1.2;border-right:1px solid var(--ink);padding-right:20px'
-        },
-          fact.eyebrow.toUpperCase()
-        ),
-        el('div', {
-          style: 'flex:1;font-family:var(--font-display);font-size:18px;line-height:1.45;color:var(--ink);font-style:italic'
-        }, fact.text)
-      )
-    )
-  );
-  page.appendChild(factSection);
-
-  /* === FROM THE BREW SCHOOL — featured class card === */
-  const featuredClass = (DATA.classes || [])[0];
-  if (featuredClass) {
-    const ytId = featuredClass.videoUrl ? (featuredClass.videoUrl.match(/(?:v=|youtu\.be\/)([\w-]{11})/) || [])[1] : null;
+  /* === FROM THE BREW SCHOOL — REMOVED per request === */
+  if (false) {
+    const featuredClass = (DATA.classes || [])[0];
+    const ytId = featuredClass && featuredClass.videoUrl ? (featuredClass.videoUrl.match(/(?:v=|youtu\.be\/)([\w-]{11})/) || [])[1] : null;
     const thumbUrl = ytId ? 'https://img.youtube.com/vi/' + ytId + '/maxresdefault.jpg' : null;
     const schoolSection = el('section', { style: 'padding:32px 0' },
       el('div', { class: 'container' },
@@ -2095,59 +2066,7 @@ function renderMagazineHome(main) {
   );
   page.appendChild(phase2Section);
 
-  /* === LETTERS TO THE EDITOR — most recent community post === */
-  const allPosts = (state.communityPosts || []);
-  const recentPost = allPosts[0];
-  // Fallback: a seeded letter if no real posts yet
-  const letter = recentPost ? {
-    who: (state.user && state.user.name) || 'You',
-    handle: '@' + ((state.user && state.user.name) ? state.user.name.toLowerCase().split(' ')[0] : 'you'),
-    text: recentPost.text,
-    when: recentPost.when,
-    icon: recentPost.icon
-  } : {
-    who: 'Catherine',
-    handle: '@catherine.brews',
-    text: 'Forty-five-second bloom is the unlock for that Yirgacheffe. The lemon notes only show up if you wait.',
-    when: '6m ago',
-    icon: '☕'
-  };
-  const lettersSection = el('section', { style: 'padding:32px 0' },
-    el('div', { class: 'container' },
-      el('div', {
-        style: 'display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--ink);padding-bottom:8px;margin-bottom:20px;font-family:var(--font-mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink)'
-      },
-        el('span', { style: 'font-weight:700' }, '✉ Letters to the Editor'),
-        el('a', {
-          onclick: () => navigate('community'),
-          style: 'cursor:pointer;color:var(--tomato);font-weight:700'
-        }, 'See all letters →')
-      ),
-      el('div', {
-        style: 'background:var(--cream);border:1.5px solid var(--ink);border-left:6px solid var(--tomato);border-radius:6px;padding:24px 28px;display:flex;gap:18px;align-items:flex-start;cursor:pointer',
-        onclick: () => navigate('community')
-      },
-        el('div', {
-          style: 'font-family:var(--font-display);font-size:48px;line-height:1;color:var(--tomato);font-weight:800;flex-shrink:0;margin-top:-4px'
-        }, '"'),
-        el('div', { style: 'flex:1' },
-          el('p', {
-            style: 'font-family:var(--font-display);font-size:20px;line-height:1.45;color:var(--ink);font-style:italic;margin:0 0 14px'
-          }, letter.text),
-          el('div', {
-            style: 'font-family:var(--font-mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-soft);font-weight:600'
-          },
-            el('span', { style: 'color:var(--ink);font-weight:700' }, '— ' + letter.who),
-            ' · ',
-            el('span', { style: 'opacity:0.7' }, letter.handle),
-            ' · ',
-            el('span', { style: 'opacity:0.7' }, letter.when)
-          )
-        )
-      )
-    )
-  );
-  page.appendChild(lettersSection);
+  /* === LETTERS TO THE EDITOR — REMOVED per request === */
 
   /* === SECONDARY ROW: Giveaway + Competition + Café of the Week === */
   const secondary = el('section', { style: 'padding:32px 0 96px' },
