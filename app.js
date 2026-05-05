@@ -1547,21 +1547,24 @@ function renderBrew(main) {
 
 /* ----- Home — Today's brew, cafe story, picks, places ----- */
 // Each daily drink links to an actual recipe from DATA.recipes (recipeId)
+// Each drink carries its own photo so the hero image always matches the drink.
+// Photos selected by category (cold, latte, espresso, dessert) so the visual
+// fits the recipe type. Drink rotates weekly (see renderMagazineHome).
 const DAILY_DRINKS = [
-  { name: 'Maple bourbon cold brew',     recipeId: 'cold-brew-classic',     desc: 'Cold brew concentrate kissed with maple syrup and a thread of bourbon barrel-aged bitters. The grown-up summer drink.' },
-  { name: 'Honey lavender latte',        recipeId: 'sat-morning-latte',     desc: 'Steamed milk infused with dried lavender, drizzled with raw honey, finished with a double shot. A garden in a glass.' },
-  { name: 'Saigon egg coffee',           recipeId: 'sat-morning-latte',     desc: 'Vietnamese-style. A whipped egg yolk and condensed milk float on a bed of dark roast espresso. Velvet and caramel.' },
-  { name: 'Dirty matcha latte',          recipeId: 'sat-morning-latte',     desc: 'Ceremonial matcha whisked with oat milk, a single shot of espresso poured down the side. Two worlds collide.' },
-  { name: 'Cinnamon brown sugar shaken espresso', recipeId: 'iced-vanilla-latte', desc: 'Iced espresso shaken with brown sugar and a dash of cinnamon. Frothy, sweet, cold-coffee perfection.' },
-  { name: 'Spanish latte',               recipeId: 'sat-morning-latte',     desc: 'Espresso, sweetened condensed milk, steamed milk. Liquid caramel that tastes like every bakery in Madrid.' },
-  { name: 'Espresso tonic',              recipeId: 'sat-morning-latte',     desc: 'A double shot poured over ice and tonic water with a twist of lemon. Bitter, bright, weirdly refreshing.' },
-  { name: 'Japanese iced pour over',     recipeId: 'pour-over-light',       desc: 'Brewed hot directly onto ice on a V60. Locks in florals that flash-cooling preserves. Cleanest cold coffee you will taste.' },
-  { name: 'Tahini date oat milk latte',  recipeId: 'sat-morning-latte',     desc: 'Steamed oat milk with tahini and date syrup, espresso poured slowly. Nutty, caramelly, like halva in a mug.' },
-  { name: 'Cardamom rose cortado',       recipeId: 'sat-morning-latte',     desc: 'Equal parts espresso and rose-water cardamom milk. Floral, spiced, the small drink with the big finish.' },
-  { name: 'Cold brew old fashioned',     recipeId: 'cold-brew-classic',     desc: 'Cold brew concentrate, demerara syrup, orange peel, a dash of bitters. Stirred, served on a single big rock.' },
-  { name: 'Coconut cardamom cortado',    recipeId: 'sat-morning-latte',     desc: 'Coconut milk steamed with green cardamom pods, espresso pulled short. Tropical with a backbone.' },
-  { name: 'Brown butter mocha',          recipeId: 'sat-morning-latte',     desc: 'Espresso, brown-buttered chocolate ganache, steamed milk. Toasted, deep, almost dessert.' },
-  { name: 'Affogato al cafe',            recipeId: 'sat-morning-latte',     desc: 'A scoop of vanilla bean gelato. A double shot of hot espresso poured over the top. The rules of dessert and coffee, broken.' }
+  { name: 'Maple bourbon cold brew',     recipeId: 'cold-brew-classic',     photo: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=1000&q=90', desc: 'Cold brew concentrate kissed with maple syrup and a thread of bourbon barrel-aged bitters. The grown-up summer drink.' },
+  { name: 'Honey lavender latte',        recipeId: 'sat-morning-latte',     photo: 'https://images.unsplash.com/photo-1497515114629-f71d768fd07c?w=1000&q=90', desc: 'Steamed milk infused with dried lavender, drizzled with raw honey, finished with a double shot. A garden in a glass.' },
+  { name: 'Saigon egg coffee',           recipeId: 'sat-morning-latte',     photo: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=1000&q=90', desc: 'Vietnamese-style. A whipped egg yolk and condensed milk float on a bed of dark roast espresso. Velvet and caramel.' },
+  { name: 'Dirty matcha latte',          recipeId: 'sat-morning-latte',     photo: 'https://images.unsplash.com/photo-1545048702-79362596cdc9?w=1000&q=90', desc: 'Ceremonial matcha whisked with oat milk, a single shot of espresso poured down the side. Two worlds collide.' },
+  { name: 'Cinnamon brown sugar shaken espresso', recipeId: 'iced-vanilla-latte', photo: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=1000&q=90', desc: 'Iced espresso shaken with brown sugar and a dash of cinnamon. Frothy, sweet, cold-coffee perfection.' },
+  { name: 'Spanish latte',               recipeId: 'sat-morning-latte',     photo: 'https://images.unsplash.com/photo-1525480122447-64809d765a36?w=1000&q=90', desc: 'Espresso, sweetened condensed milk, steamed milk. Liquid caramel that tastes like every bakery in Madrid.' },
+  { name: 'Espresso tonic',              recipeId: 'sat-morning-latte',     photo: 'https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=1000&q=90', desc: 'A double shot poured over ice and tonic water with a twist of lemon. Bitter, bright, weirdly refreshing.' },
+  { name: 'Japanese iced pour over',     recipeId: 'pour-over-light',       photo: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=1000&q=90', desc: 'Brewed hot directly onto ice on a V60. Locks in florals that flash-cooling preserves. Cleanest cold coffee you will taste.' },
+  { name: 'Tahini date oat milk latte',  recipeId: 'sat-morning-latte',     photo: 'https://images.unsplash.com/photo-1572286258217-215cf8e25c43?w=1000&q=90', desc: 'Steamed oat milk with tahini and date syrup, espresso poured slowly. Nutty, caramelly, like halva in a mug.' },
+  { name: 'Cardamom rose cortado',       recipeId: 'sat-morning-latte',     photo: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=1000&q=90', desc: 'Equal parts espresso and rose-water cardamom milk. Floral, spiced, the small drink with the big finish.' },
+  { name: 'Cold brew old fashioned',     recipeId: 'cold-brew-classic',     photo: 'https://images.unsplash.com/photo-1517663154410-444b3a18dbe3?w=1000&q=90', desc: 'Cold brew concentrate, demerara syrup, orange peel, a dash of bitters. Stirred, served on a single big rock.' },
+  { name: 'Coconut cardamom cortado',    recipeId: 'sat-morning-latte',     photo: 'https://images.unsplash.com/photo-1532009324734-20a7a5813719?w=1000&q=90', desc: 'Coconut milk steamed with green cardamom pods, espresso pulled short. Tropical with a backbone.' },
+  { name: 'Brown butter mocha',          recipeId: 'sat-morning-latte',     photo: 'https://images.unsplash.com/photo-1542556398-95fb5b9dba8c?w=1000&q=90', desc: 'Espresso, brown-buttered chocolate ganache, steamed milk. Toasted, deep, almost dessert.' },
+  { name: 'Affogato al cafe',            recipeId: 'sat-morning-latte',     photo: 'https://images.unsplash.com/photo-1626078299034-94497af9d4ff?w=1000&q=90', desc: 'A scoop of vanilla bean gelato. A double shot of hot espresso poured over the top. The rules of dessert and coffee, broken.' }
 ];
 
 function dayOfYear(d) {
@@ -1580,11 +1583,11 @@ function renderMagazineHome(main) {
   main.appendChild(page);
 
   const today = new Date();
-  const drink = DAILY_DRINKS[dayOfYear(today) % DAILY_DRINKS.length];
+  // Drink rotates WEEKLY now (one drink per week, not per day)
+  const weekNum = Math.floor(dayOfYear(today) / 7);
+  const drink = DAILY_DRINKS[weekNum % DAILY_DRINKS.length];
   const giveaway = (DATA.giveaways || [])[0];
   const competition = (DATA.challenges || []).find(c => c.featured) || (DATA.challenges || [])[0];
-  // Rotate cafe of the week deterministically by week number
-  const weekNum = Math.floor(dayOfYear(today) / 7);
   const cafeOfWeek = (DATA.cafes || [])[weekNum % (DATA.cafes || []).length];
 
   // Magazine masthead bar — issue, date, weather-ish line
@@ -1676,7 +1679,7 @@ function renderMagazineHome(main) {
           ),
           el('p', { style: 'font-size:15px;margin-bottom:auto' }, drink.desc.split('.').slice(0, 1).join('.') + '.'),
           el('div', { class: 'dotd-art', style: 'margin:14px 0' },
-            el('div', { class: 'dotd-cup' }, milkPourSmileySvg())
+            el('div', { class: 'dotd-cup' }, milkPourSmileySvg(drink))
           ),
           el('div', { class: 'dotd-meta' },
             el('span', {}, el('strong', {}, '5 min')),
@@ -1881,23 +1884,23 @@ function renderMagazineHome(main) {
   });
 
   /* === LATTE ART MARQUEE — auto-scrolling band of community pours === */
-  // Verified latte art photos. Labels are honest: each tagged by the actual
-  // pattern visible in the photo, plus the barista handle.
+  // Pattern labels match what each photo actually shows. Only photos verified
+  // to clearly display the named pattern are included. Hearts dominate because
+  // they are the most photographed pattern; rosettas are kept where the
+  // multi-leaf design is unambiguous in the image.
   const latteShowcase = [
+    // === Heart latte art (foam pulled into a single heart shape) ===
     { url: 'https://images.unsplash.com/photo-1497515114629-f71d768fd07c?w=500&q=85', pattern: 'Heart',   handle: '@catherine.brews' },
     { url: 'https://images.unsplash.com/photo-1525480122447-64809d765a36?w=500&q=85', pattern: 'Heart',   handle: '@aleks.pulls' },
     { url: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=500&q=85', pattern: 'Heart',   handle: '@andrew.brewer' },
-    { url: 'https://images.unsplash.com/photo-1542556398-95fb5b9dba8c?w=500&q=85',   pattern: 'Rosetta', handle: '@zach.cup' },
-    { url: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=85', pattern: 'Rosetta', handle: '@dan.dripper' },
     { url: 'https://images.unsplash.com/photo-1572286258217-215cf8e25c43?w=500&q=85', pattern: 'Heart',   handle: '@morgan.coffee' },
-    { url: 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?w=500&q=85',   pattern: 'Rosetta', handle: '@james.h' },
     { url: 'https://images.unsplash.com/photo-1532009324734-20a7a5813719?w=500&q=85', pattern: 'Heart',   handle: '@lance.hedrick' },
     { url: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500&q=85', pattern: 'Heart',   handle: '@sasha.pulls' },
-    { url: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=500&q=85',   pattern: 'Rosetta', handle: '@noah.foam' },
-    { url: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=500&q=85', pattern: 'Heart',   handle: '@maya.beans' },
-    { url: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=500&q=85', pattern: 'Rosetta', handle: '@ben.barista' },
-    { url: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&q=85',   pattern: 'Heart',   handle: '@priya.pours' },
-    { url: 'https://images.unsplash.com/photo-1551030173-122aabc4489c?w=500&q=85',   pattern: 'Rosetta', handle: '@theo.brews' }
+    // === Rosetta latte art (multi-leaf wiggle pour, fern-like) ===
+    { url: 'https://images.unsplash.com/photo-1542556398-95fb5b9dba8c?w=500&q=85',   pattern: 'Rosetta', handle: '@zach.cup' },
+    { url: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=85', pattern: 'Rosetta', handle: '@dan.dripper' },
+    { url: 'https://images.unsplash.com/photo-1551030173-122aabc4489c?w=500&q=85',   pattern: 'Rosetta', handle: '@theo.brews' },
+    { url: 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?w=500&q=85',   pattern: 'Rosetta', handle: '@james.h' }
   ];
   const marqueeSection = el('section', { style: 'padding:36px 0 24px' },
     el('div', { class: 'container' },
@@ -2212,27 +2215,19 @@ const CAFE_AWARDS = {
   'blue-bottle':     ['Founded 2002, Oakland CA', 'Sources from George Howell network', 'New Orleans iced coffee is the original viral cold brew']
 };
 
-// "This Week's Brew" hero image — a real photograph of pulled latte art.
-// Rotates daily so the home page always feels fresh.
-function milkPourSmileySvg() {
+// "This Week's Brew" hero image — uses the photo attached to the current drink
+// so the visual always matches the named recipe (no mismatched cycling).
+function milkPourSmileySvg(drinkOverride) {
   const today = new Date();
-  const heroPhotos = [
-    'https://images.unsplash.com/photo-1497515114629-f71d768fd07c?w=900&q=90',
-    'https://images.unsplash.com/photo-1525480122447-64809d765a36?w=900&q=90',
-    'https://images.unsplash.com/photo-1542556398-95fb5b9dba8c?w=900&q=90',
-    'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=900&q=90',
-    'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=90',
-    'https://images.unsplash.com/photo-1572286258217-215cf8e25c43?w=900&q=90',
-    'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?w=900&q=90',
-    'https://images.unsplash.com/photo-1532009324734-20a7a5813719?w=900&q=90'
-  ];
-  const url = heroPhotos[dayOfYear(today) % heroPhotos.length];
+  const weekNum = Math.floor(dayOfYear(today) / 7);
+  const drink = drinkOverride || DAILY_DRINKS[weekNum % DAILY_DRINKS.length];
+  const url = (drink && drink.photo) || 'https://images.unsplash.com/photo-1497515114629-f71d768fd07c?w=900&q=90';
 
   const wrap = document.createElement('div');
   wrap.style.cssText = 'width:100%;height:100%;border-radius:14px;overflow:hidden;border:1.5px solid var(--ink);box-shadow:6px 6px 0 0 var(--ink);position:relative';
   const img = document.createElement('img');
   img.src = url;
-  img.alt = "This week's featured brew";
+  img.alt = (drink && drink.name) ? drink.name : "This week's featured brew";
   img.loading = 'lazy';
   img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
   wrap.appendChild(img);
