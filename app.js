@@ -1608,7 +1608,7 @@ function renderMagazineHome(main) {
     helloPieces.push(' Last brewed: ', el('em', { style: 'font-style:italic' }, lastBrewName), '.');
   }
 
-  const hero = el('section', { style: 'padding:48px 0 32px' },
+  const hero = el('section', { style: 'padding:12px 0 32px' },
     el('div', { class: 'container' },
       // Personal hello line (small, italic)
       el('div', {

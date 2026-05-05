@@ -972,7 +972,7 @@ input, select, textarea { font: inherit; color: inherit; }
    App views (app.html)
    ============================================================ */
 
-.app-main { padding: 32px 0 80px; min-height: calc(100vh - 60px); }
+.app-main { padding: 0 0 80px; min-height: calc(100vh - 60px); }
 .page-head { margin-bottom: 32px; }
 .page-head .eyebrow { display: block; margin-bottom: 8px; }
 .page-head .h1 { font-size: 2.5rem; margin-bottom: 8px; }
