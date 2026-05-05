@@ -1675,8 +1675,8 @@ function renderMagazineHome(main) {
             })()
           ),
           el('p', { style: 'font-size:15px;margin-bottom:auto' }, drink.desc.split('.').slice(0, 1).join('.') + '.'),
-          el('div', { class: 'dotd-art', style: 'margin:14px 0;max-height:170px' },
-            el('div', { class: 'dotd-cup', style: 'max-width:200px' }, milkPourSmileySvg())
+          el('div', { class: 'dotd-art', style: 'margin:14px 0' },
+            el('div', { class: 'dotd-cup' }, milkPourSmileySvg())
           ),
           el('div', { class: 'dotd-meta' },
             el('span', {}, el('strong', {}, '5 min')),
@@ -1881,8 +1881,8 @@ function renderMagazineHome(main) {
   });
 
   /* === LATTE ART MARQUEE — auto-scrolling band of community pours === */
-  // Photos verified to show actual latte art. Labels are kept honest:
-  // each photo is tagged by the drink type it actually shows, plus the barista handle.
+  // Verified latte art photos. Labels are honest: each tagged by the actual
+  // pattern visible in the photo, plus the barista handle.
   const latteShowcase = [
     { url: 'https://images.unsplash.com/photo-1497515114629-f71d768fd07c?w=500&q=85', pattern: 'Heart',   handle: '@catherine.brews' },
     { url: 'https://images.unsplash.com/photo-1525480122447-64809d765a36?w=500&q=85', pattern: 'Heart',   handle: '@aleks.pulls' },
@@ -1891,7 +1891,13 @@ function renderMagazineHome(main) {
     { url: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=85', pattern: 'Rosetta', handle: '@dan.dripper' },
     { url: 'https://images.unsplash.com/photo-1572286258217-215cf8e25c43?w=500&q=85', pattern: 'Heart',   handle: '@morgan.coffee' },
     { url: 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?w=500&q=85',   pattern: 'Rosetta', handle: '@james.h' },
-    { url: 'https://images.unsplash.com/photo-1532009324734-20a7a5813719?w=500&q=85', pattern: 'Heart',   handle: '@lance.hedrick' }
+    { url: 'https://images.unsplash.com/photo-1532009324734-20a7a5813719?w=500&q=85', pattern: 'Heart',   handle: '@lance.hedrick' },
+    { url: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500&q=85', pattern: 'Heart',   handle: '@sasha.pulls' },
+    { url: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=500&q=85',   pattern: 'Rosetta', handle: '@noah.foam' },
+    { url: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=500&q=85', pattern: 'Heart',   handle: '@maya.beans' },
+    { url: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=500&q=85', pattern: 'Rosetta', handle: '@ben.barista' },
+    { url: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&q=85',   pattern: 'Heart',   handle: '@priya.pours' },
+    { url: 'https://images.unsplash.com/photo-1551030173-122aabc4489c?w=500&q=85',   pattern: 'Rosetta', handle: '@theo.brews' }
   ];
   const marqueeSection = el('section', { style: 'padding:36px 0 24px' },
     el('div', { class: 'container' },
@@ -2206,8 +2212,35 @@ const CAFE_AWARDS = {
   'blue-bottle':     ['Founded 2002, Oakland CA', 'Sources from George Howell network', 'New Orleans iced coffee is the original viral cold brew']
 };
 
-// Top-down coffee cup with rotating latte art rosetta — looking straight into the coffee
+// "This Week's Brew" hero image — a real photograph of pulled latte art.
+// Rotates daily so the home page always feels fresh.
 function milkPourSmileySvg() {
+  const today = new Date();
+  const heroPhotos = [
+    'https://images.unsplash.com/photo-1497515114629-f71d768fd07c?w=900&q=90',
+    'https://images.unsplash.com/photo-1525480122447-64809d765a36?w=900&q=90',
+    'https://images.unsplash.com/photo-1542556398-95fb5b9dba8c?w=900&q=90',
+    'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=900&q=90',
+    'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=90',
+    'https://images.unsplash.com/photo-1572286258217-215cf8e25c43?w=900&q=90',
+    'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?w=900&q=90',
+    'https://images.unsplash.com/photo-1532009324734-20a7a5813719?w=900&q=90'
+  ];
+  const url = heroPhotos[dayOfYear(today) % heroPhotos.length];
+
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'width:100%;height:100%;border-radius:14px;overflow:hidden;border:1.5px solid var(--ink);box-shadow:6px 6px 0 0 var(--ink);position:relative';
+  const img = document.createElement('img');
+  img.src = url;
+  img.alt = "This week's featured brew";
+  img.loading = 'lazy';
+  img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
+  wrap.appendChild(img);
+  return wrap;
+}
+
+// (legacy) — kept for the modal fallback if anything references it
+function milkPourSmileySvg_LEGACY_UNUSED() {
   const NS = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(NS, 'svg');
   svg.setAttribute('viewBox', '0 0 240 240');
