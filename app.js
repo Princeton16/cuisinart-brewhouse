@@ -4671,16 +4671,23 @@ function communityComposer() {
     style: 'background:var(--ink);color:var(--cream);border:2px solid var(--ink);border-radius:999px;padding:10px 22px;font-family:var(--font-body);font-weight:700;font-size:14px;letter-spacing:0.04em;cursor:pointer;box-shadow:3px 3px 0 0 var(--marigold);transition:transform 0.15s, box-shadow 0.15s',
     onmouseenter: function() { this.style.transform = 'translate(-1px,-1px)'; this.style.boxShadow = '4px 4px 0 0 var(--marigold)'; },
     onmouseleave: function() { this.style.transform = 'translate(0,0)'; this.style.boxShadow = '3px 3px 0 0 var(--marigold)'; },
-    onclick: () => {
+    onclick: async (e) => {
       const text = textarea.value.trim();
       if (!text) {
         textarea.style.borderColor = 'var(--tomato)';
         textarea.placeholder = 'Add some text first.';
         return;
       }
-      state.communityPosts = state.communityPosts || [];
+      const btn = e.target.closest('button') || e.target;
+      btn.disabled = true;
+      const prevLabel = btn.textContent;
+      btn.textContent = 'Posting...';
+
       const kindMeta = KINDS.find(k => k.id === activeKind);
-      state.communityPosts.unshift({
+      const authorName = (state.user && state.user.name) ? state.user.name : 'You';
+      const authorHandle = '@' + authorName.toLowerCase().split(' ')[0];
+
+      const local = {
         id: 'post-' + Date.now(),
         text: text,
         kind: activeKind,
@@ -4688,9 +4695,30 @@ function communityComposer() {
         verb: activeKind === 'brew' ? 'shared a brew' : activeKind === 'tip' ? 'dropped a tip' : 'asked the community',
         when: 'just now',
         timestamp: Date.now()
-      });
+      };
+
+      try {
+        if (typeof DB !== 'undefined' && DB && DB.createPost) {
+          const userId = state.user && state.user.id ? state.user.id : null;
+          const saved = await DB.createPost({
+            user_id: userId,
+            author_name: authorName,
+            author_handle: authorHandle,
+            text: text,
+            kind: activeKind
+          });
+          if (saved && saved.id) local.id = saved.id;
+        }
+      } catch (err) {
+        console.warn('createPost backend failed, saving locally', err);
+      }
+
+      state.communityPosts = state.communityPosts || [];
+      state.communityPosts.unshift(local);
       save();
       textarea.value = '';
+      btn.disabled = false;
+      btn.textContent = prevLabel;
       toast('Posted to the feed.');
       render();
     }
@@ -4710,20 +4738,26 @@ function communityComposer() {
 function communityFeedList() {
   const wrap = el('div', { class: 'card', style: 'padding:8px 0;overflow:hidden' });
 
-  // User's own posts (most recent first)
-  const userPosts = (state.communityPosts || []).map(p => ({
-    who: state.user && state.user.name ? state.user.name : 'You',
-    handle: '@' + (state.user && state.user.name ? state.user.name.toLowerCase().split(' ')[0] : 'you'),
-    avatarBg: 'linear-gradient(135deg, var(--tomato) 0%, #A32C0A 100%)',
-    verb: p.verb,
-    target: p.text.length > 60 ? p.text.slice(0, 60) + '...' : p.text,
-    kind: p.kind,
-    icon: p.icon,
-    when: p.when,
-    detail: p.text.length > 60 ? p.text : null,
-    isOwn: true,
-    postId: p.id
-  }));
+  // User + community posts (most recent first). Posts pulled from Supabase
+  // are tagged with their original author; locally-composed posts get the
+  // current user's name.
+  const userPosts = (state.communityPosts || []).map(p => {
+    const who = p.author || (state.user && state.user.name ? state.user.name : 'You');
+    const handle = p.handle || ('@' + (who.toLowerCase().split(' ')[0]));
+    return {
+      who: who,
+      handle: handle,
+      avatarBg: 'linear-gradient(135deg, var(--tomato) 0%, #A32C0A 100%)',
+      verb: p.verb,
+      target: p.text.length > 60 ? p.text.slice(0, 60) + '...' : p.text,
+      kind: p.kind,
+      icon: p.icon,
+      when: p.when,
+      detail: p.text.length > 60 ? p.text : null,
+      isOwn: !p.fromServer,
+      postId: p.id
+    };
+  });
 
   const FEED = [
     { who: 'Catherine', handle: '@catherine.brews', avatarBg: 'linear-gradient(135deg, #C8762D 0%, #A85F1F 100%)', verb: 'shared a brew', target: 'Ethiopian Yirgacheffe V60', kind: 'recipe', icon: '☕', when: '6m ago', detail: 'Bloom for 45 sec. The lemon notes finally come out.', linkTo: 'recipe/pour-over-light' },
@@ -4777,7 +4811,35 @@ function renderCommunity(main) {
   // ========== Feed of liked coffees, recommendations, recipes ==========
   c.appendChild(el('h3', { class: 'h3 mb' }, 'The feed'));
   c.appendChild(el('div', { style: 'height:8px' }));
-  c.appendChild(communityFeedList());
+  const feedHolder = el('div', {});
+  feedHolder.appendChild(communityFeedList());
+  c.appendChild(feedHolder);
+
+  // Pull fresh server posts in the background and re-render the feed when they arrive
+  if (typeof DB !== 'undefined' && DB && DB.listPosts) {
+    DB.listPosts(30).then(rows => {
+      if (!Array.isArray(rows) || !rows.length) return;
+      // Map server rows to the same shape as local posts and merge by id
+      const serverPosts = rows.map(r => ({
+        id: r.id,
+        text: r.text || '',
+        kind: r.kind || 'tip',
+        icon: r.kind === 'brew' ? '☕' : r.kind === 'ask' ? '❓' : '💬',
+        verb: r.kind === 'brew' ? 'shared a brew' : r.kind === 'ask' ? 'asked the community' : 'dropped a tip',
+        when: r.created_at ? new Date(r.created_at).toLocaleString() : '',
+        timestamp: r.created_at ? new Date(r.created_at).getTime() : 0,
+        author: r.author_name || 'Member',
+        handle: r.author_handle || '@member',
+        fromServer: true
+      }));
+      const localOnly = (state.communityPosts || []).filter(p => !serverPosts.find(s => s.id === p.id));
+      state.communityPosts = serverPosts.concat(localOnly).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      save();
+      // Swap in the refreshed feed
+      feedHolder.innerHTML = '';
+      feedHolder.appendChild(communityFeedList());
+    }).catch(err => console.warn('listPosts failed', err));
+  }
   c.appendChild(el('div', { style: 'height:48px' }));
 
   // ========== Active giveaways ==========

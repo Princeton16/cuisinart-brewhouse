@@ -165,6 +165,30 @@ const DB = {
   }
 };
 
+/* ---------------- Community posts ---------------- */
+DB.listPosts = async function(limit) {
+  const { data, error } = await sb.from('posts').select('*').order('created_at', { ascending: false }).limit(limit || 30);
+  if (error) throw error;
+  return data || [];
+};
+
+DB.createPost = async function(post) {
+  const { data, error } = await sb.from('posts').insert({
+    user_id: post.user_id || null,
+    author_name: post.author_name || 'You',
+    author_handle: post.author_handle || '@you',
+    text: post.text,
+    kind: post.kind || 'tip'
+  }).select().single();
+  if (error) throw error;
+  return data;
+};
+
+DB.deletePost = async function(postId) {
+  const { error } = await sb.from('posts').delete().eq('id', postId);
+  if (error) throw error;
+};
+
 /* ---------------- Phase 2 waitlist ---------------- */
 DB.joinWaitlist = async function(email, source) {
   const { data, error } = await sb.from('waitlist').insert({
