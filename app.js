@@ -1583,16 +1583,62 @@ function renderMagazineHome(main) {
   const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
 
   /* === HERO: clear binary choice === */
+  // Personal hello line — light personalization above the masthead
+  const userName = (state.user && state.user.name) ? state.user.name.split(' ')[0] : 'friend';
+  const lastBrew = (state.journal || [])[0];
+  const lastBrewName = lastBrew ? (getRecipe(lastBrew.recipe) || {}).name : null;
+  const helloPieces = [
+    'Welcome back, ',
+    el('strong', { style: 'color:var(--ink)' }, userName),
+    '.'
+  ];
+  if (state.streak && state.streak > 0) {
+    helloPieces.push(' Brew streak: ', el('strong', { style: 'color:var(--tomato)' }, state.streak + (state.streak === 1 ? ' day' : ' days')), '.');
+  }
+  if (lastBrewName) {
+    helloPieces.push(' Last brewed: ', el('em', { style: 'font-style:italic' }, lastBrewName), '.');
+  }
+
   const hero = el('section', { style: 'padding:48px 0 32px' },
     el('div', { class: 'container' },
+      // Personal hello line (small, italic)
+      el('div', {
+        style: 'font-family:var(--font-display);font-style:italic;font-size:14px;color:var(--ink-soft);margin-bottom:14px;letter-spacing:0.01em'
+      }, helloPieces),
       // Newspaper-style masthead rule
       el('div', {
-        style: 'display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);padding:10px 0;margin-bottom:32px;font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink)'
+        style: 'display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);padding:10px 0;margin-bottom:24px;font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink)'
       },
         el('span', { style: 'font-weight:700' }, 'Vol. III · No. ' + issueNum),
         el('span', { style: 'opacity:0.7' }, dateStr),
         el('span', { style: 'font-weight:700' }, 'The Daily Brew')
       ),
+      // Newsroom briefs ticker — 4 mini headlines
+      (() => {
+        const briefs = [
+          { eyebrow: 'Drops', text: 'Onyx unveils new ', emph: 'Monarch', tail: ' lot Friday at 10 a.m. Eastern.', to: 'devices' },
+          { eyebrow: 'Community', text: 'Catherine takes the ', emph: 'Latte Art crown', tail: ', her third this season.', to: 'community' },
+          { eyebrow: 'Open', text: 'Espresso Open registrations close ', emph: 'Sunday', tail: '. Sixty seats filled.', to: 'community' },
+          { eyebrow: 'Trip', text: 'Stumptown teases a ', emph: 'Hair Bender', tail: ' refresh after fifteen years untouched.', to: 'home' }
+        ];
+        const strip = el('div', {
+          style: 'display:grid;grid-template-columns:repeat(4, 1fr);gap:0;border-bottom:1px solid var(--ink);padding-bottom:16px;margin-bottom:32px'
+        });
+        briefs.forEach((b, i) => {
+          strip.appendChild(el('a', {
+            onclick: () => navigate(b.to),
+            style: 'cursor:pointer;padding:0 16px;' + (i < 3 ? 'border-right:1px solid var(--ink);' : '') + (i === 0 ? 'padding-left:0;' : '') + (i === 3 ? 'padding-right:0;' : '') + 'transition:opacity 0.2s'
+          },
+            el('div', {
+              style: 'font-family:var(--font-mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--tomato);font-weight:800;margin-bottom:6px'
+            }, '◆ ' + b.eyebrow),
+            el('div', {
+              style: 'font-family:var(--font-display);font-size:13px;line-height:1.35;color:var(--ink)'
+            }, b.text, el('em', { style: 'font-style:italic;font-weight:700' }, b.emph), b.tail)
+          ));
+        });
+        return strip;
+      })(),
       el('h1', {
         style: 'font-family:var(--font-display);font-weight:800;font-size:clamp(48px, 7vw, 96px);line-height:0.94;letter-spacing:-0.025em;margin-bottom:48px;max-width:880px'
       },
@@ -1642,17 +1688,18 @@ function renderMagazineHome(main) {
             'Or pick ',
             el('em', {}, 'your own.')
           ),
-          el('p', { style: 'font-size:15px;margin-bottom:14px' }, "Tap a vibe. We'll pour something."),
-          // Vibe chip cluster — six tasteful chips in a 3x2 grid
-          el('div', { style: 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:auto' },
-            ['Hot', 'Iced', 'Bold', 'Sweet', 'Creamy', 'Fruity'].map((v, i) => {
-              const colors = ['#F0997B', '#85B7EB', '#97C459', '#ED93B1', '#FAC775', '#E89478'];
-              return el('span', {
-                style: 'background:' + colors[i] + ';color:var(--ink);font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:10px 6px;border-radius:8px;text-align:center;border:1.5px solid var(--ink);box-shadow:2px 2px 0 0 var(--ink)'
-              }, v);
-            })
+          el('p', { style: 'font-size:15px;margin-bottom:14px' }, "Brew Bot reads your vibe and pours something."),
+          // Brew Bot illustration sits in the middle of the tile
+          el('div', { style: 'flex:1;display:flex;align-items:center;justify-content:center;width:100%;min-height:0;margin:8px 0' },
+            (() => {
+              const wrap = el('div', { class: 'brewbot-frame' });
+              const bot = robotBaristaSvg();
+              bot.setAttribute('style', 'width:100%;max-width:240px;height:auto');
+              wrap.appendChild(bot);
+              return wrap;
+            })()
           ),
-          el('span', { class: 'arrow-cta' }, 'Open the wheel ', el('span', { class: 'ar' }, '→'))
+          el('span', { class: 'arrow-cta' }, 'Talk to Brew Bot ', el('span', { class: 'ar' }, '→'))
         )
       )
     )
@@ -1809,6 +1856,191 @@ function renderMagazineHome(main) {
 
     setTimeout(() => map.invalidateSize(), 50);
   });
+
+  /* === LATTE ART MARQUEE — auto-scrolling band of community pours === */
+  const latteShowcase = [
+    { url: 'https://images.unsplash.com/photo-1525480122447-64809d765a36?w=400&q=80', pattern: 'Heart',   handle: '@catherine.brews' },
+    { url: 'https://images.unsplash.com/photo-1542556398-95fb5b9dba8c?w=400&q=80',  pattern: 'Rosetta', handle: '@aleks.pulls' },
+    { url: 'https://images.unsplash.com/photo-1497515114629-f71d768fd07c?w=400&q=80', pattern: 'Tulip',  handle: '@andrew.brewer' },
+    { url: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&q=80', pattern: 'Heart',   handle: '@zach.cup' },
+    { url: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=400&q=80', pattern: 'Rosetta', handle: '@dan.dripper' },
+    { url: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&q=80',  pattern: 'Swan',    handle: '@morgan.coffee' },
+    { url: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=400&q=80', pattern: 'Tulip',   handle: '@james.h' },
+    { url: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=400&q=80',  pattern: 'Heart',   handle: '@lance.hedrick' }
+  ];
+  const marqueeSection = el('section', { style: 'padding:36px 0 24px' },
+    el('div', { class: 'container' },
+      el('div', {
+        style: 'display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--ink);padding-bottom:8px;margin-bottom:18px;font-family:var(--font-mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink)'
+      },
+        el('span', { style: 'font-weight:700' }, '◉ The Latte Art Wall · live'),
+        el('a', {
+          onclick: () => navigate('community'),
+          style: 'cursor:pointer;color:var(--tomato);font-weight:700'
+        }, 'Vote on this week\'s pours →')
+      )
+    ),
+    // Full-width marquee runs edge-to-edge
+    el('div', { class: 'latte-marquee' },
+      el('div', { class: 'latte-marquee-track' },
+        // Render the strip TWICE so the loop seam is invisible
+        latteShowcase.concat(latteShowcase).map(item => {
+          return el('div', { class: 'latte-card', onclick: () => navigate('community') },
+            el('div', {
+              class: 'latte-photo',
+              style: 'background-image:url(\'' + item.url + '\')'
+            }),
+            el('div', { class: 'latte-meta' },
+              el('div', { class: 'latte-pattern' }, item.pattern),
+              el('div', { class: 'latte-handle' }, item.handle)
+            )
+          );
+        })
+      )
+    )
+  );
+  page.appendChild(marqueeSection);
+
+  /* === TODAY'S COFFEE FACT — small ink-bordered sticker === */
+  const COFFEE_FACTS = [
+    { eyebrow: "Did you know", text: "Blue Bottle's New Orleans iced coffee was the original viral cold brew, debuting in 2005." },
+    { eyebrow: "Brew tip", text: "Espresso extraction stalls without grind freshness. Beans more than three weeks off roast lose 40 percent of their crema." },
+    { eyebrow: "From the desk", text: "Pour-over yield rises by ten percent if you bloom for forty-five seconds before the first pour." },
+    { eyebrow: "Did you know", text: "Yemen is widely accepted as the birthplace of coffee as a brewed drink, predating Ethiopia's commercial trade by centuries." },
+    { eyebrow: "Brew tip", text: "Storing beans in the freezer in single-shot doses preserves 95 percent of aromatics for up to three months." },
+    { eyebrow: "Did you know", text: "Counter Culture publishes an annual transparency report listing what they paid every farmer, the only U.S. roaster to do so." },
+    { eyebrow: "From the desk", text: "Cold brew steeped at room temperature for fourteen hours produces a sweeter cup than refrigerated steeps." }
+  ];
+  const fact = COFFEE_FACTS[dayOfYear(today) % COFFEE_FACTS.length];
+  const factSection = el('section', { style: 'padding:0 0 32px' },
+    el('div', { class: 'container' },
+      el('div', {
+        style: 'background:var(--marigold);border:2px solid var(--ink);border-radius:14px;box-shadow:6px 6px 0 0 var(--ink);padding:22px 28px;display:flex;align-items:center;gap:24px;flex-wrap:wrap'
+      },
+        el('div', {
+          style: 'font-family:var(--font-mono);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--tomato);font-weight:800;flex-shrink:0;border-right:1.5px solid var(--ink);padding-right:20px;line-height:1.1'
+        },
+          '◉ ' + fact.eyebrow.split(' ')[0].toUpperCase(),
+          el('div', { style: 'font-family:var(--font-display);font-size:9px;color:var(--ink);font-weight:700;margin-top:2px' }, (fact.eyebrow.split(' ').slice(1).join(' ') || '').toUpperCase())
+        ),
+        el('div', {
+          style: 'flex:1;font-family:var(--font-display);font-size:18px;line-height:1.4;color:var(--ink);font-weight:500'
+        }, fact.text)
+      )
+    )
+  );
+  page.appendChild(factSection);
+
+  /* === FROM THE BREW SCHOOL — featured class card === */
+  const featuredClass = (DATA.classes || [])[0];
+  if (featuredClass) {
+    const ytId = featuredClass.videoUrl ? (featuredClass.videoUrl.match(/(?:v=|youtu\.be\/)([\w-]{11})/) || [])[1] : null;
+    const thumbUrl = ytId ? 'https://img.youtube.com/vi/' + ytId + '/maxresdefault.jpg' : null;
+    const schoolSection = el('section', { style: 'padding:32px 0' },
+      el('div', { class: 'container' },
+        el('div', {
+          style: 'display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--ink);padding-bottom:8px;margin-bottom:20px;font-family:var(--font-mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink)'
+        },
+          el('span', { style: 'font-weight:700' }, '◆ From the Brew School'),
+          el('a', {
+            onclick: () => navigate('learn'),
+            style: 'cursor:pointer;color:var(--tomato);font-weight:700'
+          }, 'See all classes →')
+        ),
+        el('a', {
+          onclick: () => navigate('class/' + featuredClass.id),
+          style: 'display:grid;grid-template-columns:1.2fr 1fr;gap:24px;cursor:pointer;background:var(--cream);border:2px solid var(--ink);border-radius:18px;box-shadow:8px 8px 0 0 var(--ink);overflow:hidden;transition:transform 0.2s, box-shadow 0.2s',
+          onmouseenter: function() { this.style.transform = 'translate(-2px,-2px)'; this.style.boxShadow = '10px 10px 0 0 var(--ink)'; },
+          onmouseleave: function() { this.style.transform = 'translate(0,0)'; this.style.boxShadow = '8px 8px 0 0 var(--ink)'; }
+        },
+          // Thumbnail
+          el('div', {
+            style: 'aspect-ratio:16/10;background:' + (thumbUrl ? 'url(\'' + thumbUrl + '\') center/cover, ' : '') + '#1F1A14;position:relative;border-right:2px solid var(--ink)'
+          },
+            // Play button overlay
+            el('div', {
+              style: 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;background:var(--tomato);border:3px solid var(--cream);display:flex;align-items:center;justify-content:center;color:var(--cream);font-size:22px;box-shadow:0 4px 14px rgba(0,0,0,0.4)'
+            }, '▶')
+          ),
+          // Body
+          el('div', { style: 'padding:24px 28px;display:flex;flex-direction:column;justify-content:center' },
+            el('div', { style: 'font-family:var(--font-mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--tomato);font-weight:800;margin-bottom:10px' },
+              '☕ Featured class · ' + (featuredClass.duration || '15 min')
+            ),
+            el('h3', {
+              style: 'font-family:var(--font-display);font-weight:800;font-size:30px;line-height:1.04;letter-spacing:-0.02em;color:var(--ink);margin:0 0 10px'
+            },
+              (() => {
+                const parts = (featuredClass.name || '').split(' ');
+                return [parts.slice(0, -1).join(' '), ' ', el('em', { style: 'font-style:italic;color:var(--tomato)' }, parts.slice(-1)[0])];
+              })()
+            ),
+            el('p', {
+              style: 'font-family:var(--font-display);font-size:15px;line-height:1.5;color:var(--ink-soft);margin:0 0 14px'
+            }, featuredClass.desc || ''),
+            featuredClass.instructor ? el('div', {
+              style: 'font-family:var(--font-display);font-size:13px;color:var(--ink);font-style:italic'
+            }, 'Taught by ', el('strong', { style: 'font-style:normal;font-weight:700' }, featuredClass.instructor)) : null
+          )
+        )
+      )
+    );
+    page.appendChild(schoolSection);
+  }
+
+  /* === LETTERS TO THE EDITOR — most recent community post === */
+  const allPosts = (state.communityPosts || []);
+  const recentPost = allPosts[0];
+  // Fallback: a seeded letter if no real posts yet
+  const letter = recentPost ? {
+    who: (state.user && state.user.name) || 'You',
+    handle: '@' + ((state.user && state.user.name) ? state.user.name.toLowerCase().split(' ')[0] : 'you'),
+    text: recentPost.text,
+    when: recentPost.when,
+    icon: recentPost.icon
+  } : {
+    who: 'Catherine',
+    handle: '@catherine.brews',
+    text: 'Forty-five-second bloom is the unlock for that Yirgacheffe. The lemon notes only show up if you wait.',
+    when: '6m ago',
+    icon: '☕'
+  };
+  const lettersSection = el('section', { style: 'padding:32px 0' },
+    el('div', { class: 'container' },
+      el('div', {
+        style: 'display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--ink);padding-bottom:8px;margin-bottom:20px;font-family:var(--font-mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink)'
+      },
+        el('span', { style: 'font-weight:700' }, '✉ Letters to the Editor'),
+        el('a', {
+          onclick: () => navigate('community'),
+          style: 'cursor:pointer;color:var(--tomato);font-weight:700'
+        }, 'See all letters →')
+      ),
+      el('div', {
+        style: 'background:var(--cream);border:1.5px solid var(--ink);border-left:6px solid var(--tomato);border-radius:6px;padding:24px 28px;display:flex;gap:18px;align-items:flex-start;cursor:pointer',
+        onclick: () => navigate('community')
+      },
+        el('div', {
+          style: 'font-family:var(--font-display);font-size:48px;line-height:1;color:var(--tomato);font-weight:800;flex-shrink:0;margin-top:-4px'
+        }, '"'),
+        el('div', { style: 'flex:1' },
+          el('p', {
+            style: 'font-family:var(--font-display);font-size:20px;line-height:1.45;color:var(--ink);font-style:italic;margin:0 0 14px'
+          }, letter.text),
+          el('div', {
+            style: 'font-family:var(--font-mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-soft);font-weight:600'
+          },
+            el('span', { style: 'color:var(--ink);font-weight:700' }, '— ' + letter.who),
+            ' · ',
+            el('span', { style: 'opacity:0.7' }, letter.handle),
+            ' · ',
+            el('span', { style: 'opacity:0.7' }, letter.when)
+          )
+        )
+      )
+    )
+  );
+  page.appendChild(lettersSection);
 
   /* === SECONDARY ROW: Giveaway + Competition + Café of the Week === */
   const secondary = el('section', { style: 'padding:32px 0 96px' },
@@ -3407,43 +3639,19 @@ function passportStampCount() {
 
 function passportPreview() {
   const stamps = collectedStamps();
-  // 4x4 grid: 12 regions on the perimeter, robot barista in the center 2x2
-  const grid = el('div', {
-    style: 'display:grid;grid-template-columns:repeat(4, 1fr);grid-template-rows:repeat(4, 1fr);gap:10px;aspect-ratio:1;max-width:520px;margin:0 auto'
-  });
-
-  // Cell positions on a 4x4 grid (row, col) — perimeter, clockwise from top-left
-  const perimeter = [
-    [1,1],[1,2],[1,3],[1,4],
-    [2,4],[3,4],
-    [4,4],[4,3],[4,2],[4,1],
-    [3,1],[2,1]
-  ];
-
-  DATA.passportRegions.forEach((r, i) => {
-    if (i >= perimeter.length) return;
-    const [row, col] = perimeter[i];
+  const grid = el('div', { style: 'display:grid;grid-template-columns:repeat(6, 1fr);gap:10px' });
+  DATA.passportRegions.forEach(r => {
     const collected = stamps.includes(r.id);
     grid.appendChild(el('div', {
-      style: 'grid-row:' + row + ';grid-column:' + col + ';background:' + (collected ? 'var(--green-soft)' : 'var(--surface-2)') + ';border:2px ' + (collected ? 'solid var(--success)' : 'dashed var(--line)') + ';border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px;text-align:center;opacity:' + (collected ? '1' : '0.55'),
+      style: 'aspect-ratio:1;background:' + (collected ? 'var(--green-soft)' : 'var(--surface-2)') + ';border:2px ' + (collected ? 'solid var(--success)' : 'dashed var(--line)') + ';border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px;text-align:center;opacity:' + (collected ? '1' : '0.55'),
       title: r.name
     },
       el('div', {
-        style: 'font-family:var(--font-display);font-weight:700;font-size:13px;line-height:1.1;color:var(--ink);letter-spacing:-0.01em'
+        style: 'font-family:var(--font-display);font-weight:700;font-size:12px;line-height:1.1;color:var(--ink);letter-spacing:-0.01em'
       }, r.name),
-      collected ? el('div', { style: 'font-size:10px;color:var(--success);font-weight:700;margin-top:4px;font-family:var(--font-mono);letter-spacing:0.06em' }, '✓ STAMPED') : null
+      collected ? el('div', { style: 'font-size:9px;color:var(--success);font-weight:700;margin-top:3px;font-family:var(--font-mono);letter-spacing:0.06em' }, '✓') : null
     ));
   });
-
-  // Robot barista in the center 2x2 (rows 2-3, cols 2-3)
-  grid.appendChild(el('div', {
-    style: 'grid-row:2/4;grid-column:2/4;background:linear-gradient(135deg, var(--ink) 0%, #2A1F14 100%);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;color:var(--cream);position:relative;overflow:hidden'
-  },
-    robotBaristaSvg(),
-    el('div', { style: 'font-family:var(--font-mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--marigold);font-weight:700;margin-top:6px' }, '◉ Brew Bot'),
-    el('div', { style: 'font-family:var(--font-display);font-size:13px;font-weight:600;text-align:center;margin-top:2px;line-height:1.2' }, stamps.length + ' / ' + DATA.passportRegions.length + ' collected')
-  ));
-
   return grid;
 }
 
