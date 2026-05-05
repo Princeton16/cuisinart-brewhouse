@@ -89,7 +89,9 @@ function renderYou(main) {
   const bs = bestStreak(brews);
   const palate = computePalate(brews);
   const origins = uniqueBeanOrigins(brews);
-  const achievements = computeAchievements(brews, cs, palate.coverage, origins);
+  const userPosts = (typeof userPostCount === 'function') ? userPostCount() : 0;
+  const kudosGiven = (typeof loadBeanKudos === 'function') ? loadBeanKudos().length : 0;
+  const achievements = computeAchievements(brews, cs, palate.coverage, origins, userPosts, kudosGiven);
   const unlockedCount = achievements.filter(a => a.unlocked).length;
   const score = computeGrindScore(brews, cs, unlockedCount, origins);
   const devices = isDemo ? DEMO_DEVICES : [];

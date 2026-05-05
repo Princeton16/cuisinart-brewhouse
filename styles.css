@@ -3870,3 +3870,321 @@ body.bean-app .pair-body {
   margin-bottom: 4px;
 }
 
+/* ============================================================
+   THE BEAN — Feed tab (Phase 3)
+   ============================================================ */
+body.bean-app .feed-page {
+  padding: 0 0 100px;
+  position: relative;
+}
+
+/* Sticky header — title + search + filter pills */
+body.bean-app .feed-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg-base);
+  padding: 24px 16px 12px;
+  border-bottom: 1px solid var(--border-on-dark);
+}
+body.bean-app .feed-title {
+  font-family: var(--bean-display);
+  font-size: 28px;
+  line-height: 1;
+  color: var(--text-on-dark);
+  margin-bottom: 14px;
+}
+body.bean-app .feed-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--bg-alt);
+  border-radius: 999px;
+  height: 44px;
+  padding: 0 16px;
+  gap: 10px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border-on-dark);
+}
+body.bean-app .feed-search svg {
+  width: 18px;
+  height: 18px;
+  color: var(--text-on-dark-muted);
+  flex-shrink: 0;
+}
+body.bean-app .feed-search-input {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  outline: none;
+  font-family: var(--bean-body);
+  font-size: 14px;
+  color: var(--text-on-dark);
+  padding: 0;
+}
+body.bean-app .feed-search-input::placeholder { color: var(--text-on-dark-muted); }
+body.bean-app .feed-search-input::-webkit-search-cancel-button { -webkit-appearance: none; }
+
+body.bean-app .feed-filter-pills {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+body.bean-app .feed-filter-pills::-webkit-scrollbar { display: none; }
+body.bean-app .feed-filter-pill {
+  flex-shrink: 0;
+  background: transparent;
+  color: var(--text-on-dark);
+  border: 1px solid var(--border-on-dark);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-family: var(--bean-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+body.bean-app .feed-filter-pill:hover { background: rgba(255, 255, 255, 0.04); }
+body.bean-app .feed-filter-pill.active {
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  border-color: var(--accent-yellow-deep);
+}
+
+/* Posts list */
+body.bean-app .feed-list {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+body.bean-app .feed-empty {
+  font-size: 14px;
+  color: var(--text-on-dark-muted);
+  text-align: center;
+  padding: 48px 16px;
+}
+
+/* Post card */
+body.bean-app .feed-post {
+  background: var(--bg-card);
+  color: var(--text-on-light);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+body.bean-app .feed-post-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+body.bean-app .feed-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  font-family: var(--bean-display);
+  font-size: 14px;
+  flex-shrink: 0;
+}
+body.bean-app .feed-meta { flex: 1; min-width: 0; }
+body.bean-app .feed-handle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-on-light);
+  line-height: 1.1;
+}
+body.bean-app .feed-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+body.bean-app .feed-tier-pill {
+  display: inline-flex;
+  align-items: center;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+body.bean-app .feed-dot {
+  color: var(--text-on-light-muted);
+  font-size: 11px;
+}
+body.bean-app .feed-time {
+  font-size: 11px;
+  color: var(--text-on-light-muted);
+}
+body.bean-app .feed-bookmark-btn {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-on-light-muted);
+  flex-shrink: 0;
+}
+body.bean-app .feed-bookmark-btn svg { width: 18px; height: 18px; }
+body.bean-app .feed-bookmark-btn.on { color: var(--accent-yellow-deep); }
+body.bean-app .feed-bookmark-btn:hover { color: var(--text-on-light); }
+body.bean-app .feed-bookmark-btn.on:hover { color: var(--accent-yellow); }
+
+body.bean-app .feed-post-title {
+  font-family: var(--bean-display);
+  font-size: 18px;
+  line-height: 1.2;
+  color: var(--text-on-light);
+}
+
+body.bean-app .feed-content {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-on-light);
+}
+
+body.bean-app .feed-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+body.bean-app .feed-stat {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+body.bean-app .feed-stat-label {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-on-light-muted);
+  font-weight: 500;
+}
+body.bean-app .feed-stat-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-on-light);
+}
+body.bean-app .feed-recipe-instr {
+  font-size: 13px;
+  color: var(--text-on-light-muted);
+  line-height: 1.5;
+}
+
+body.bean-app .feed-shop-visited {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-on-light);
+}
+body.bean-app .feed-shop-visited svg { width: 14px; height: 14px; color: var(--accent-yellow-deep); flex-shrink: 0; }
+body.bean-app .feed-shop-feat-row { display: flex; }
+body.bean-app .feed-shop-feat-pill {
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+
+body.bean-app .feed-photo {
+  height: 200px;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+body.bean-app .feed-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+body.bean-app .feed-tag-pill {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-on-light-muted);
+}
+
+/* Engagement row */
+body.bean-app .feed-eng {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-on-light);
+  margin-top: 4px;
+}
+body.bean-app .feed-eng-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 6px 4px;
+  color: var(--text-on-light-muted);
+  font-family: var(--bean-body);
+}
+body.bean-app .feed-eng-btn svg { width: 18px; height: 18px; }
+body.bean-app .feed-eng-btn.on { color: var(--accent-yellow-deep); }
+body.bean-app .feed-eng-btn:hover { color: var(--text-on-light); }
+body.bean-app .feed-eng-btn.on:hover { color: var(--accent-yellow); }
+body.bean-app .feed-eng-count {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Create FAB */
+body.bean-app .feed-fab {
+  position: fixed;
+  bottom: calc(88px + env(safe-area-inset-bottom));
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  border: 0;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(245, 200, 66, 0.4), 0 2px 8px rgba(0, 0, 0, 0.25);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+body.bean-app .feed-fab:hover { background: var(--accent-yellow-deep); }
+body.bean-app .feed-fab:active { transform: scale(0.95); }
+body.bean-app .feed-fab svg { width: 24px; height: 24px; }
+@media (min-width: 480px) {
+  /* Pin the FAB to the right edge of the 480px frame, not the viewport */
+  body.bean-app .feed-fab { right: calc(50% - 240px + 24px); }
+}
+
+/* Hint that pasted divs from create modal don't poke through */
+body.bean-app .feed-cm-fields { display: block; }
+

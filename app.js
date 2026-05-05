@@ -6458,7 +6458,6 @@ const BEAN_TABS = [
   { route: 'passport', label: 'Passport', icon: 'globe' }
 ];
 const BEAN_STUBS = {
-  feed:     { title: 'Feed',     sub: 'Phase 2 wires up the community feed.' },
   learn:    { title: 'Learn',    sub: 'Phase 2 brings the brewing guides.' },
   passport: { title: 'Passport', sub: 'Phase 2 stamps the origins you have tasted.' },
   recipes:  { title: 'Recipes',  sub: 'Phase 6 builds the recipes browser.' }
@@ -6613,6 +6612,8 @@ function beanRender() {
     renderBeanAuth(main);
   } else if (route === 'you' && typeof renderYou === 'function') {
     renderYou(main);
+  } else if (route === 'feed' && typeof renderFeed === 'function') {
+    renderFeed(main);
   } else if (BEAN_STUBS[route]) {
     renderBeanStub(main, BEAN_STUBS[route]);
   } else {

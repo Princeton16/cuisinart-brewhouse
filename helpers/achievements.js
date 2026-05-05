@@ -7,8 +7,8 @@ const ACHIEVEMENTS = [
   { id: 'recipe-week',     name: 'Recipe of the Week', desc: 'Rate a brew 5 stars.',                      icon: 'star',    test: ctx => ctx.brews.some(b => b.rating === 5) },
   { id: 'cold-brew',       name: 'Cold Brew Champion', desc: 'Log 5 cold brews.',                         icon: 'snow',    test: ctx => ctx.brews.filter(b => b.method === 'Cold brew').length >= 5 },
   { id: 'taster',          name: 'Certified Taster',   desc: 'Log 20 brews with flavor notes.',           icon: 'palate',  test: ctx => ctx.brews.filter(b => (b.flavorTags || []).length > 0).length >= 20 },
-  { id: 'community',       name: 'Community Starter',  desc: 'Coming in Phase 3.',                        icon: 'people',  test: () => false, locked: true },
-  { id: 'kudos-100',       name: '100 Kudos Given',    desc: 'Coming in Phase 3.',                        icon: 'heart',   test: () => false, locked: true },
+  { id: 'community',       name: 'Community Starter',  desc: 'Share your first post with the community.', icon: 'people',  test: ctx => ctx.userPosts >= 1 },
+  { id: 'kudos-100',       name: '100 Kudos Given',    desc: 'Give kudos to 100 posts.',                  icon: 'heart',   test: ctx => ctx.kudosGiven >= 100 },
   { id: 'bean-explorer',   name: 'Bean Explorer',      desc: 'Try 5 unique bean origins.',                icon: 'globe',   test: ctx => ctx.uniqueOrigins >= 5 },
   { id: 'palate-refined',  name: 'Palate Refined',     desc: 'Cover 5 flavor dimensions in your brews.',  icon: 'spectrum',test: ctx => ctx.palateCoverage >= 5 },
   { id: 'espresso-expert', name: 'Espresso Expert',    desc: 'Pull 10 espresso shots.',                   icon: 'espresso',test: ctx => ctx.brews.filter(b => b.method === 'Espresso').length >= 10 },
@@ -30,12 +30,14 @@ const ACHIEVEMENT_ICONS = {
   crown:    '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 8 L7 14 L12 6 L17 14 L21 8 L20 18 H4 Z"/></svg>'
 };
 
-function computeAchievements(brews, currentStreakVal, palateCoverageVal, uniqueOriginsVal) {
+function computeAchievements(brews, currentStreakVal, palateCoverageVal, uniqueOriginsVal, userPostsVal, kudosGivenVal) {
   const ctx = {
     brews: brews || [],
     currentStreak: currentStreakVal || 0,
     palateCoverage: palateCoverageVal || 0,
-    uniqueOrigins: uniqueOriginsVal || 0
+    uniqueOrigins: uniqueOriginsVal || 0,
+    userPosts: userPostsVal || 0,
+    kudosGiven: kudosGivenVal || 0
   };
   return ACHIEVEMENTS.map(a => ({
     id: a.id,
