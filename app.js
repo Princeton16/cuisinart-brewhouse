@@ -1959,8 +1959,8 @@ function renderMagazineHome(main) {
     page.appendChild(schoolSection);
   }
 
-  /* === PHASE 2 TEASER — connected coffee maker waitlist === */
-  const phase2Section = el('section', { style: 'padding:32px 0' },
+  /* === PHASE 2 TEASER — connected coffee maker waitlist (rendered at bottom) === */
+  const phase2Section = el('section', { style: 'padding:48px 0 96px' },
     el('div', { class: 'container' },
       el('div', {
         style: 'background:linear-gradient(135deg, var(--ink) 0%, #2A1F14 100%);color:var(--cream);border-radius:18px;border:2px solid var(--ink);box-shadow:8px 8px 0 0 var(--marigold);padding:36px 40px;display:grid;grid-template-columns:1.4fr 1fr;gap:36px;align-items:center'
@@ -2064,12 +2064,12 @@ function renderMagazineHome(main) {
       )
     )
   );
-  page.appendChild(phase2Section);
+  // Phase 2 teaser is appended at the bottom — see end of function
 
   /* === LETTERS TO THE EDITOR — REMOVED per request === */
 
   /* === SECONDARY ROW: Giveaway + Competition + Café of the Week === */
-  const secondary = el('section', { style: 'padding:32px 0 96px' },
+  const secondary = el('section', { style: 'padding:32px 0 48px' },
     el('div', { class: 'container' },
       // Eyebrow rule across the row
       el('div', {
@@ -2146,6 +2146,9 @@ function renderMagazineHome(main) {
     )
   );
   page.appendChild(secondary);
+
+  // Phase 2 teaser at the very bottom of the home page
+  page.appendChild(phase2Section);
   return;
 }
 
