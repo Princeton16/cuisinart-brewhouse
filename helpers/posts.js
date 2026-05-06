@@ -4,7 +4,9 @@
 const BEAN_POSTS_KEY = 'beanapp_posts';
 const BEAN_KUDOS_KEY = 'beanapp_kudos';
 const BEAN_BOOKMARKS_KEY = 'beanapp_bookmarks';
-const BEAN_POSTS_SEEDED_KEY = 'beanapp_posts_seeded';
+// Bumped to v2 — forces the new cast (Maya / Theo / Carla / etc.) to seed
+// over old caches that still have JamminJeff, DataGodLeslie, etc.
+const BEAN_POSTS_SEEDED_KEY = 'beanapp_posts_seeded_v2';
 
 /* 8-color palette used to color new users' avatars when they post. */
 const POST_AVATAR_PALETTE = ['#C99B1A', '#2D7A6B', '#8B4F2A', '#5B6FA5', '#3F5B8A', '#A04848', '#6B5FA8', '#4F7B5C'];
@@ -54,7 +56,14 @@ function relativePostDate(iso) {
 
 /* ----- Seed (idempotent — only seeds when posts array is empty + flag absent) ----- */
 function seedBeanPostsIfNeeded() {
-  if (localStorage.getItem(BEAN_POSTS_SEEDED_KEY) || loadBeanPosts().length > 0) return;
+  if (localStorage.getItem(BEAN_POSTS_SEEDED_KEY)) return;
+  // First v2 run on a browser that already had the v1 cast cached:
+  // wipe the stale posts so the new fake users overwrite cleanly.
+  if (localStorage.getItem('beanapp_posts_seeded') && !localStorage.getItem(BEAN_POSTS_SEEDED_KEY)) {
+    localStorage.removeItem(BEAN_POSTS_KEY);
+    localStorage.removeItem('beanapp_posts_seeded');
+  }
+  if (loadBeanPosts().length > 0) return;
   const now = Date.now();
   const HOUR = 3600000;
   const DAY = 86400000;

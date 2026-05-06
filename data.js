@@ -131,7 +131,7 @@ const DATA = {
 
   /* ---------------- Coffee gear catalog ----------------
      Curated coffee + espresso gear category.
-     Models reflect SKUs as listed on cuisinart.com. */
+     Models reflect a curated coffee gear lineup. */
   products: [
     { id: 'dgb-2', name: 'Single-Serve Grind & Brew Coffeemaker', model: 'DGB-2', category: 'Coffee maker', icon: '☕', photo: 'https://loremflickr.com/800/600/coffeemaker?lock=41', bg: 'linear-gradient(135deg, #2A1A14 0%, #3D2418 100%)', tagline: 'Single-serve with built-in burr grinder.', desc: 'Grinds beans on demand and brews directly into your travel mug. Programmable timer.', tags: ['single-serve', 'grinder'], owners: 18420 },
     { id: 'dgb-800', name: 'Burr Grind & Brew Coffeemaker', model: 'DGB-800', category: 'Coffee maker', icon: '☕', photo: 'https://loremflickr.com/800/600/coffeemaker,kitchen?lock=49', bg: 'linear-gradient(135deg, #4A3A30 0%, #2A1A14 100%)', tagline: '12-cup. Burr grinder. Charcoal water filter.', desc: 'Automatic burr grinder grinds the right amount of beans for each brew. Stainless thermal carafe.', tags: ['drip', 'grinder', '12-cup'], owners: 22100 },

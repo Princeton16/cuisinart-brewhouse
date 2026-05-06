@@ -18,7 +18,7 @@
   <ellipse cx="135" cy="108" rx="12" ry="3" fill="#FAF6F0" opacity="0.4"></ellipse>
   <ellipse cx="170" cy="110" rx="8" ry="2" fill="#FAF6F0" opacity="0.3"></ellipse>
   <path d="M230 140 Q280 160 270 220 Q260 260 220 250" stroke="#FAF6F0" stroke-width="14" fill="none" stroke-linecap="round"></path>
-  <text x="150" y="220" text-anchor="middle" font-family="Fraunces, serif" font-size="14" fill="#C5962B" letter-spacing="2" font-style="italic">cuisinart</text>
+  <text x="150" y="220" text-anchor="middle" font-family="Fraunces, serif" font-size="14" fill="#C5962B" letter-spacing="2" font-style="italic">brew lab</text>
   <line x1="120" y1="230" x2="180" y2="230" stroke="#C5962B" stroke-width="0.5"></line>
-  <text x="150" y="244" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="7" fill="#C5962B" letter-spacing="2">EST 1971</text>
+  <text x="150" y="244" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="7" fill="#C5962B" letter-spacing="2">EST 2026</text>
 </svg>

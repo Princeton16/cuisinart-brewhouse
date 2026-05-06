@@ -1,10 +1,10 @@
-# Brew Lab by Cuisinart
+# Brew Lab
 
-A community-driven coffee platform concept built for the Cuisinart FYP engagement. Phase 1 of the Conair connected ecosystem strategy.
+A community-driven coffee platform concept. Phase 1 of a connected coffee ecosystem strategy.
 
 ## What this is
 
-A clickable, functional MVP that demonstrates how Cuisinart can build coffee credibility and a community of recurring users. Built as a demo for client review, not production.
+A clickable, functional MVP that demonstrates how a coffee brand can build credibility and a community of recurring users. Built as a demo, not production.
 
 ## Quick start
 
@@ -47,8 +47,8 @@ If you want to host it for the client: GitHub Pages is free and takes one click.
 The site demonstrates ten mechanisms for the community + credibility play:
 
 1. **Personalized brew recommendations** — taste quiz + recommendation engine. Reddit and YouTube cannot personalize.
-2. **Recipes calibrated to your machine** — Cuisinart owns this. No third party can build it.
-3. **Brew journal and tasting log** — first-party data Cuisinart captures, nobody else has.
+2. **Recipes calibrated to your machine** — first-party feature. No third party can build it.
+3. **Brew journal and tasting log** — first-party data the platform captures, nobody else has.
 4. **Community challenges and badges** — recurring engagement loop.
 5. **Exclusive merch drops and giveaways** — owner-only perks, real reason to log in.
 6. **Creator content from coffee experts** — credibility play, James Hoffmann / Lance Hedrick caliber.
@@ -60,7 +60,7 @@ The site demonstrates ten mechanisms for the community + credibility play:
 
 ## Design notes
 
-Modern coffee specialty look with a subtle Cuisinart green accent. Designed to attract a younger audience without alienating the existing 35-65 customer base. Primary palette is warm cream and deep espresso brown, with caramel as the accent color and Cuisinart green reserved for trust elements (warranty, machine health, verification badges).
+Modern coffee specialty look with a subtle deep-green accent. Designed to attract a younger audience without alienating an older customer base. Primary palette is warm cream and deep espresso brown, with caramel as the accent color and deep green reserved for trust elements (warranty, machine health, verification badges).
 
 ## Known limitations
 
@@ -98,7 +98,7 @@ That's it. Save, refresh, the new photo loads. If a photo is missing, the emoji 
 
 - **Unsplash** (unsplash.com) — free, high quality, no attribution required
 - **Pexels** (pexels.com) — same idea
-- **Cuisinart product pages** for product photography (right-click → Save Image As)
+- **Coffee brand product pages** for product photography (right-click → Save Image As)
 
 ### Recommended sizes
 
