@@ -1,6 +1,6 @@
 /* ============================================================
    Brew Lab — Mock Data
-   Drawn from the Cuisinart coffee category and competitor
+   Drawn from the broader coffee category and competitor
    landscape. Replace with real CMS data in production.
    ============================================================ */
 
@@ -129,8 +129,8 @@ const DATA = {
     }
   ],
 
-  /* ---------------- Cuisinart real product lineup ----------------
-     Sourced from Cuisinart's actual coffee/espresso category.
+  /* ---------------- Coffee gear catalog ----------------
+     Curated coffee + espresso gear category.
      Models reflect SKUs as listed on cuisinart.com. */
   products: [
     { id: 'dgb-2', name: 'Single-Serve Grind & Brew Coffeemaker', model: 'DGB-2', category: 'Coffee maker', icon: '☕', photo: 'https://loremflickr.com/800/600/coffeemaker?lock=41', bg: 'linear-gradient(135deg, #2A1A14 0%, #3D2418 100%)', tagline: 'Single-serve with built-in burr grinder.', desc: 'Grinds beans on demand and brews directly into your travel mug. Programmable timer.', tags: ['single-serve', 'grinder'], owners: 18420 },
@@ -462,7 +462,7 @@ const DATA = {
       time: '6 min',
       difficulty: 'Easy',
       tags: ['drip', 'balanced', 'every day'],
-      author: 'Cuisinart Test Kitchen',
+      author: 'Brew Lab Test Kitchen',
       desc: 'A balanced cup that lets the bean speak. The everyday drip formula every home brewer should know by heart.',
       ratio: '1:16',
       dose: '60g coffee / 950ml water',
@@ -1197,30 +1197,30 @@ const DATA = {
   /* ---------------- Coffee Wall (community photo feed) ---------------- */
   /* Like a feed of coffee photos. Anyone can post. */
   wallPosts: [
-    { id: 'w1', author: 'Maya R.', initials: 'MR', avatarBg: 'linear-gradient(135deg, #C8762D 0%, #A85F1F 100%)', drink: 'V60 pour over', timeAgo: '8m ago', caption: 'Day 18 of pour over week. Onyx Monarch is brewing better every day.', photo: 'https://loremflickr.com/600/600/pourover,coffee?lock=51', likes: 47, comments: 6 },
-    { id: 'w2', author: 'Diego P.', initials: 'DP', avatarBg: 'linear-gradient(135deg, #2D4A3A 0%, #1d3327 100%)', drink: 'Latte', timeAgo: '34m ago', caption: 'First successful tulip after weeks of practice. The stretch is finally clicking.', photo: 'https://loremflickr.com/600/600/latte,art?lock=52', likes: 124, comments: 18 },
-    { id: 'w3', author: 'Tessa L.', initials: 'TL', avatarBg: 'linear-gradient(135deg, #C8762D 0%, #2A1A14 100%)', drink: 'Cortado', timeAgo: '1h ago', caption: 'Counter Culture Hologram on the EM-15. Thick crema, sweet finish.', photo: 'https://loremflickr.com/600/600/espresso,cortado?lock=53', likes: 89, comments: 11 },
-    { id: 'w4', author: 'Priya S.', initials: 'PS', avatarBg: 'linear-gradient(135deg, #C5962B 0%, #806017 100%)', drink: 'Iced latte', timeAgo: '2h ago', caption: 'Brown sugar oat milk over Brazilian Santos. Saturday morning ritual.', photo: 'https://loremflickr.com/600/600/iced,coffee?lock=54', likes: 203, comments: 24 },
-    { id: 'w5', author: 'Alex T.', initials: 'AT', avatarBg: 'linear-gradient(135deg, #5476A6 0%, #2c4869 100%)', drink: 'Drip', timeAgo: '3h ago', caption: 'DCC-3200 doing its thing. 12 cup batch for the office.', photo: 'https://loremflickr.com/600/600/coffee,morning?lock=55', likes: 31, comments: 3 },
-    { id: 'w6', author: 'Naomi K.', initials: 'NK', avatarBg: 'linear-gradient(135deg, #1F1410 0%, #4A3A30 100%)', drink: 'Pour over', timeAgo: '4h ago', caption: 'Trade Light & Lively, V60. Tea-like and lemony. Light roast forever.', photo: 'https://loremflickr.com/600/600/coffee,light?lock=56', likes: 64, comments: 7 },
-    { id: 'w7', author: 'Marcus B.', initials: 'MB', avatarBg: 'linear-gradient(135deg, #2D4A3A 0%, #C5962B 100%)', drink: 'Espresso', timeAgo: '6h ago', caption: 'First espresso shot that actually tasted like coffee instead of bitter water. Week 2 of practice.', photo: 'https://loremflickr.com/600/600/espresso,shot?lock=57', likes: 156, comments: 22 },
-    { id: 'w8', author: 'Jordan W.', initials: 'JW', avatarBg: 'linear-gradient(135deg, #6B5D54 0%, #3D2418 100%)', drink: 'Cold brew', timeAgo: '8h ago', caption: 'Started this batch yesterday morning. 1:8 concentrate. 20 hour steep.', photo: 'https://loremflickr.com/600/600/coldbrew,coffee?lock=58', likes: 78, comments: 9 },
-    { id: 'w9', author: 'Rafael H.', initials: 'RH', avatarBg: 'linear-gradient(135deg, #C5962B 0%, #806017 100%)', drink: 'French press', timeAgo: '12h ago', caption: 'French press with Brazilian Santos. Heavy body, low acid. Sunday morning sorted.', photo: 'https://loremflickr.com/600/600/frenchpress,coffee?lock=59', likes: 42, comments: 4 },
-    { id: 'w10', author: 'Sam K.', initials: 'SK', avatarBg: 'linear-gradient(135deg, #4A3A30 0%, #2A1A14 100%)', drink: 'Cappuccino', timeAgo: '1d ago', caption: 'Cinnamon dusted cappuccino. Whole milk. The classic.', photo: 'https://loremflickr.com/600/600/cappuccino,coffee?lock=60', likes: 91, comments: 12 }
+    { id: 'w1',  author: 'Maya Okafor',     initials: 'MO', avatarBg: 'linear-gradient(135deg, #B68A1A 0%, #6B5210 100%)', drink: 'V60 pour over',  timeAgo: '8m ago',  caption: 'Bright morning Yirgacheffe. Three pours, 3:15 total. Citrus and jasmine.',                photo: 'https://loremflickr.com/600/600/pourover,coffee?lock=51', likes: 64, comments: 9 },
+    { id: 'w2',  author: 'Theo Lin',        initials: 'TL', avatarBg: 'linear-gradient(135deg, #2D7A6B 0%, #14443B 100%)', drink: 'Latte',          timeAgo: '34m ago', caption: 'First successful tulip after weeks of practice. Pre-infusion changes everything.',         photo: 'https://loremflickr.com/600/600/latte,art?lock=52',     likes: 134, comments: 22 },
+    { id: 'w3',  author: 'Hana Kim',        initials: 'HK', avatarBg: 'linear-gradient(135deg, #A04848 0%, #5C2929 100%)', drink: 'Cortado',        timeAgo: '1h ago',  caption: 'Day 14 of the 30-day pour challenge. Symmetry is finally clicking.',                       photo: 'https://loremflickr.com/600/600/espresso,cortado?lock=53', likes: 92, comments: 14 },
+    { id: 'w4',  author: 'Carla Mendoza',   initials: 'CM', avatarBg: 'linear-gradient(135deg, #3F5B8A 0%, #1F3057 100%)', drink: 'Iced latte',     timeAgo: '2h ago',  caption: 'Maple bourbon cold brew over ice. Adult summer drink for Saturday mornings.',              photo: 'https://loremflickr.com/600/600/iced,coffee?lock=54',   likes: 203, comments: 28 },
+    { id: 'w5',  author: 'Devon Park',      initials: 'DP', avatarBg: 'linear-gradient(135deg, #8B4F2A 0%, #4A2916 100%)', drink: 'Drip',           timeAgo: '3h ago',  caption: 'Big batch for the office. Costa Rica Tarrazu, 60g coffee, 950g water, 1:16.',              photo: 'https://loremflickr.com/600/600/coffee,morning?lock=55', likes: 41, comments: 5 },
+    { id: 'w6',  author: 'Quinn Moss',      initials: 'QM', avatarBg: 'linear-gradient(135deg, #2D4A3A 0%, #14241D 100%)', drink: 'Aeropress',      timeAgo: '4h ago',  caption: 'Inverted, 1:14, 195°F, 75-second steep. Cleanest cup I have made all week.',               photo: 'https://loremflickr.com/600/600/coffee,light?lock=56',  likes: 78, comments: 6 },
+    { id: 'w7',  author: 'Ari Singh',       initials: 'AS', avatarBg: 'linear-gradient(135deg, #6B5FA8 0%, #38305A 100%)', drink: 'Cardamom cortado', timeAgo: '6h ago', caption: 'Three crushed pods + a splash of rose water in the milk. Equal parts. Big finish.',     photo: 'https://loremflickr.com/600/600/espresso,shot?lock=57', likes: 156, comments: 23 },
+    { id: 'w8',  author: 'Skyler Reyes',    initials: 'SR', avatarBg: 'linear-gradient(135deg, #5B6FA5 0%, #2D3A5C 100%)', drink: 'Espresso',       timeAgo: '8h ago',  caption: 'First shot that actually tasted like coffee instead of sludge. Two weeks of practice paying off.', photo: 'https://loremflickr.com/600/600/coldbrew,coffee?lock=58', likes: 110, comments: 17 },
+    { id: 'w9',  author: 'Rae Anderson',    initials: 'RA', avatarBg: 'linear-gradient(135deg, #C99B1A 0%, #6E5311 100%)', drink: 'French press',   timeAgo: '12h ago', caption: 'Heavy body, low acid Brazilian Santos. Sunday morning sorted.',                            photo: 'https://loremflickr.com/600/600/frenchpress,coffee?lock=59', likes: 56, comments: 7 },
+    { id: 'w10', author: 'Mia Choi',        initials: 'MC', avatarBg: 'linear-gradient(135deg, #A04848 0%, #5C2929 100%)', drink: 'Cappuccino',     timeAgo: '1d ago',  caption: 'Verve Streetlevel pulled twice. Cinnamon dusted cap. The classic.',                       photo: 'https://loremflickr.com/600/600/cappuccino,coffee?lock=60', likes: 91, comments: 13 }
   ],
 
   /* ---------------- Latte Art submissions (leaderboard) ---------------- */
   latteArt: [
-    { id: 'la1', member: 'Maya R.', initials: 'MR', pattern: 'Rosetta', machine: 'Espresso machine', votes: 412, daysAgo: 1, gradient: 'linear-gradient(135deg, #C8A982 0%, #6B4A2E 100%)', accent: '🌿', notes: 'Eight-leaf rosetta. Took me 200 attempts.' },
-    { id: 'la2', member: 'Diego P.', initials: 'DP', pattern: 'Tulip', machine: 'Espresso machine', votes: 387, daysAgo: 1, gradient: 'linear-gradient(135deg, #D4B894 0%, #7D5A36 100%)', accent: '🌷', notes: 'Five-stack tulip. Whole milk, 5oz pitcher.' },
-    { id: 'la3', member: 'Priya S.', initials: 'PS', pattern: 'Swan', machine: 'Espresso machine', votes: 356, daysAgo: 2, gradient: 'linear-gradient(135deg, #C9A87A 0%, #5C3D22 100%)', accent: '🦢', notes: 'First swan attempt. Beak almost worked.' },
-    { id: 'la4', member: 'Alex T.', initials: 'AT', pattern: 'Rosetta', machine: 'Espresso machine', votes: 298, daysAgo: 2, gradient: 'linear-gradient(135deg, #CDB089 0%, #6F4E2C 100%)', accent: '🍃', notes: 'Oat milk rosetta. Surprisingly good contrast.' },
-    { id: 'la5', member: 'Sam K.', initials: 'SK', pattern: 'Heart', machine: 'Espresso machine', votes: 274, daysAgo: 3, gradient: 'linear-gradient(135deg, #D2B591 0%, #745330 100%)', accent: '❤️', notes: 'Day 14 of 30 Days of Latte Art challenge.' },
-    { id: 'la6', member: 'Jordan W.', initials: 'JW', pattern: 'Tulip', machine: 'Espresso machine', votes: 251, daysAgo: 3, gradient: 'linear-gradient(135deg, #BFA478 0%, #67482A 100%)', accent: '🌸', notes: 'Three-stack. Symmetry is finally clicking.' },
-    { id: 'la7', member: 'Tessa L.', initials: 'TL', pattern: 'Rosetta', machine: 'Espresso machine', votes: 234, daysAgo: 4, gradient: 'linear-gradient(135deg, #CAA980 0%, #6E4D2E 100%)', accent: '🌾', notes: '12-leaf rosetta with cut-through. Best pour this week.' },
-    { id: 'la8', member: 'Marcus B.', initials: 'MB', pattern: 'Heart', machine: 'Espresso machine', votes: 198, daysAgo: 4, gradient: 'linear-gradient(135deg, #D6BB94 0%, #785530 100%)', accent: '💛', notes: 'First successful heart after Latte Art 101.' },
-    { id: 'la9', member: 'Naomi K.', initials: 'NK', pattern: 'Tulip', machine: 'Espresso machine', votes: 176, daysAgo: 5, gradient: 'linear-gradient(135deg, #C2A57C 0%, #6A4929 100%)', accent: '🌼', notes: 'Inverted tulip. Flow rate finally consistent.' },
-    { id: 'la10', member: 'Rafael H.', initials: 'RH', pattern: 'Heart', machine: 'Espresso machine', votes: 142, daysAgo: 5, gradient: 'linear-gradient(135deg, #D0AE82 0%, #71502D 100%)', accent: '☕', notes: 'Bigger heart this time. Pitcher angle adjustment.' }
+    { id: 'la1',  member: 'Maya Okafor',    initials: 'MO', pattern: 'Rosetta',   machine: 'Espresso machine', votes: 412, daysAgo: 1, gradient: 'linear-gradient(135deg, #C8A982 0%, #6B4A2E 100%)', accent: '🌿', notes: 'Eight-leaf rosetta. Took me 200 attempts.' },
+    { id: 'la2',  member: 'Theo Lin',       initials: 'TL', pattern: 'Tulip',     machine: 'Espresso machine', votes: 387, daysAgo: 1, gradient: 'linear-gradient(135deg, #D4B894 0%, #7D5A36 100%)', accent: '🌷', notes: 'Five-stack tulip. Whole milk, 5oz pitcher.' },
+    { id: 'la3',  member: 'Hana Kim',       initials: 'HK', pattern: 'Swan',      machine: 'Espresso machine', votes: 356, daysAgo: 2, gradient: 'linear-gradient(135deg, #C9A87A 0%, #5C3D22 100%)', accent: '🦢', notes: 'First swan attempt. Beak almost worked.' },
+    { id: 'la4',  member: 'Carla Mendoza',  initials: 'CM', pattern: 'Rosetta',   machine: 'Espresso machine', votes: 298, daysAgo: 2, gradient: 'linear-gradient(135deg, #CDB089 0%, #6F4E2C 100%)', accent: '🍃', notes: 'Oat milk rosetta. Surprisingly good contrast.' },
+    { id: 'la5',  member: 'Devon Park',     initials: 'DP', pattern: 'Heart',     machine: 'Espresso machine', votes: 274, daysAgo: 3, gradient: 'linear-gradient(135deg, #D2B591 0%, #745330 100%)', accent: '❤️', notes: 'Day 14 of 30 Days of Latte Art challenge.' },
+    { id: 'la6',  member: 'Ari Singh',      initials: 'AS', pattern: 'Tulip',     machine: 'Espresso machine', votes: 251, daysAgo: 3, gradient: 'linear-gradient(135deg, #BFA478 0%, #67482A 100%)', accent: '🌸', notes: 'Three-stack. Symmetry is finally clicking.' },
+    { id: 'la7',  member: 'Quinn Moss',     initials: 'QM', pattern: 'Rosetta',   machine: 'Espresso machine', votes: 234, daysAgo: 4, gradient: 'linear-gradient(135deg, #CAA980 0%, #6E4D2E 100%)', accent: '🌾', notes: '12-leaf rosetta with cut-through. Best pour this week.' },
+    { id: 'la8',  member: 'Skyler Reyes',   initials: 'SR', pattern: 'Heart',     machine: 'Espresso machine', votes: 198, daysAgo: 4, gradient: 'linear-gradient(135deg, #D6BB94 0%, #785530 100%)', accent: '💛', notes: 'First successful heart after Latte Art 101.' },
+    { id: 'la9',  member: 'Rae Anderson',   initials: 'RA', pattern: 'Tulip',     machine: 'Espresso machine', votes: 176, daysAgo: 5, gradient: 'linear-gradient(135deg, #C2A57C 0%, #6A4929 100%)', accent: '🌼', notes: 'Inverted tulip. Flow rate finally consistent.' },
+    { id: 'la10', member: 'Jordan Bell',    initials: 'JB', pattern: 'Heart',     machine: 'Espresso machine', votes: 142, daysAgo: 5, gradient: 'linear-gradient(135deg, #D0AE82 0%, #71502D 100%)', accent: '☕', notes: 'Bigger heart this time. Pitcher angle adjustment.' }
   ],
 
   /* Pattern reference - shown on the leaderboard for legend */

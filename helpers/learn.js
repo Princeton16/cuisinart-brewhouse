@@ -149,6 +149,10 @@ function markLessonInProgress(lessonId) {
   if (inProgress.indexOf(lessonId) !== -1) return; // already in progress
   inProgress.push(lessonId);
   saveInProgressLessons(inProgress);
+  // Persist progress to Supabase if signed in
+  if (window.BeanBackend && window.BeanBackend.ready() && window.BeanBackend.userId()) {
+    window.BeanBackend.pushLesson(lessonId, 'in-progress').catch(() => {});
+  }
 }
 
 function markLessonComplete(lessonId) {
@@ -159,6 +163,9 @@ function markLessonComplete(lessonId) {
   // Remove from in-progress
   const inProgress = loadInProgressLessons().filter(id => id !== lessonId);
   saveInProgressLessons(inProgress);
+  if (window.BeanBackend && window.BeanBackend.ready() && window.BeanBackend.userId()) {
+    window.BeanBackend.pushLesson(lessonId, 'completed').catch(() => {});
+  }
   return true;
 }
 

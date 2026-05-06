@@ -276,6 +276,10 @@ function openAddCafeModal() {
         if (typeof saveBeanVisits === 'function') saveBeanVisits(visits);
         else localStorage.setItem('beanapp_visits', JSON.stringify(visits));
       } catch (_) {}
+      // Write-through to Supabase
+      if (window.BeanBackend && window.BeanBackend.ready() && window.BeanBackend.userId()) {
+        window.BeanBackend.pushVisit(visit).catch(() => {});
+      }
       if (typeof toast === 'function') toast('Saved to your passport');
       close();
       renderPassport(document.getElementById('bean-main'));

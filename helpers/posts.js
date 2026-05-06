@@ -73,81 +73,96 @@ function seedBeanPostsIfNeeded() {
 
   const seed = [
     {
-      id: 'post001', authorHandle: '@JamminJeff', authorName: 'Jammin Jeff', authorTier: 'Bean Scholar', authorAvatarColor: '#C99B1A',
-      date: new Date(now - 2 * HOUR).toISOString(), type: 'recipe',
-      title: 'Saturday Morning Cortado',
+      id: 'post001', authorHandle: '@maya.brews', authorName: 'Maya Okafor', authorTier: 'Pour Pro', authorAvatarColor: '#B68A1A',
+      date: new Date(now - 1 * HOUR).toISOString(), type: 'recipe',
+      title: 'Bright morning Yirgacheffe',
+      content: 'Hands down my favorite weekday cup.',
+      recipe: { ratio: '1:16', method: 'Pour-over', waterTempF: 202, grindSize: 'Medium-fine', instructions: '18g bloom 40g for 30s, three pours of 80g every 35s. Total time 3:15.' },
+      tags: ['yirgacheffe', 'pourover', 'bright'], photoUrl: photo(2), kudosCount: 64, commentsCount: 9
+    },
+    {
+      id: 'post002', authorHandle: '@theolin', authorName: 'Theo Lin', authorTier: 'Espresso Adept', authorAvatarColor: '#2D7A6B',
+      date: new Date(now - 4 * HOUR).toISOString(), type: 'general',
+      title: 'Pre-infusion is underrated',
+      content: 'Four seconds at low pressure pulled out so much more sweetness from the Brazilian I had been writing off. Try it before you change anything else.',
+      tags: ['espresso', 'preinfusion', 'tip'], photoUrl: photo(0), kudosCount: 38, commentsCount: 12
+    },
+    {
+      id: 'post003', authorHandle: '@carlam', authorName: 'Carla Mendoza', authorTier: 'Cold Brew Captain', authorAvatarColor: '#3F5B8A',
+      date: new Date(now - 7 * HOUR).toISOString(), type: 'recipe',
+      title: 'Maple bourbon cold brew',
       content: '',
-      recipe: { ratio: '1:2', method: 'Espresso', waterTempF: 200, grindSize: 'Fine', instructions: 'Pull a 36g shot, steam 60ml whole milk to 140°F, pour gently.' },
-      tags: ['cortado', 'espresso', 'weekend'], photoUrl: photo(0), kudosCount: 47, commentsCount: 8
+      recipe: { ratio: '1:8', method: 'Cold brew', waterTempF: 'Room temp', grindSize: 'Coarse', instructions: 'Steep 14 hours, finish with maple syrup and a tiny dash of bitters. Adult summer drink.' },
+      tags: ['coldbrew', 'summer', 'sweet'], photoUrl: photo(4), kudosCount: 92, commentsCount: 18
     },
     {
-      id: 'post002', authorHandle: '@DataGodLeslie', authorName: 'Data God Leslie', authorTier: 'Extraction Nerd', authorAvatarColor: '#2D7A6B',
-      date: new Date(now - 5 * HOUR).toISOString(), type: 'general',
-      title: 'Brew log update',
-      content: 'Finally hit a 22% extraction with my new Encore. Worth every penny.',
-      tags: ['extraction', 'grinder'], photoUrl: photo(1), kudosCount: 23, commentsCount: 3
+      id: 'post004', authorHandle: '@devonpark', authorName: 'Devon Park', authorTier: 'Bean Scholar', authorAvatarColor: '#8B4F2A',
+      date: new Date(now - 1 * DAY - 1 * HOUR).toISOString(), type: 'shop',
+      title: 'Sey lived up to the hype',
+      content: 'The Kenyan filter on the Mythos was something else. Tomato-bright, perfectly clean.',
+      shop: { name: 'Sey Coffee', city: 'Brooklyn', state: 'New York', featuredBean: 'Karatu AA' },
+      tags: ['sey', 'brooklyn', 'kenya'], photoUrl: photo(8), kudosCount: 71, commentsCount: 6
     },
     {
-      id: 'post003', authorHandle: '@PourOverPhil', authorName: 'Pour Over Phil', authorTier: 'Coffee Sommelier', authorAvatarColor: '#8B4F2A',
-      date: new Date(now - 1 * DAY - 1 * HOUR).toISOString(), type: 'recipe',
-      title: 'Hario V60 with Ethiopia',
-      content: '',
-      recipe: { ratio: '1:16', method: 'Pour-over', waterTempF: 200, grindSize: 'Medium-fine', instructions: '30g bloom for 30s, four pours of 80g every 30s. Total brew time 3:30.' },
-      tags: ['pourover', 'ethiopia', 'fruity'], photoUrl: photo(2), kudosCount: 89, commentsCount: 14
+      id: 'post005', authorHandle: '@hanak', authorName: 'Hana Kim', authorTier: 'Latte Art Lead', authorAvatarColor: '#A04848',
+      date: new Date(now - 1 * DAY - 5 * HOUR).toISOString(), type: 'general',
+      title: 'Day 14 of 30-day pour challenge',
+      content: 'Symmetry is finally clicking. Started 5oz pitcher week one and never looking back.',
+      tags: ['latteart', 'challenge', 'tulip'], photoUrl: photo(5), kudosCount: 134, commentsCount: 22
     },
     {
-      id: 'post004', authorHandle: '@ShopCrawlerSam', authorName: 'Shop Crawler Sam', authorTier: 'Bean Curious', authorAvatarColor: '#5B6FA5',
-      date: new Date(now - 1 * DAY - 5 * HOUR).toISOString(), type: 'shop',
-      title: 'Pilgrimage',
-      content: 'First time. The bar is set.',
-      shop: { name: 'Stumptown Coffee', city: 'Portland', state: 'Oregon', featuredBean: 'Hair Bender' },
-      tags: ['stumptown', 'portland', 'espresso'], photoUrl: photo(3), kudosCount: 31, commentsCount: 5
-    },
-    {
-      id: 'post005', authorHandle: '@ColdBrewCarla', authorName: 'Cold Brew Carla', authorTier: 'Cold Brew Captain', authorAvatarColor: '#3F5B8A',
+      id: 'post006', authorHandle: '@arisingh', authorName: 'Ari Singh', authorTier: 'Coffee Sommelier', authorAvatarColor: '#6B5FA8',
       date: new Date(now - 2 * DAY - 1 * HOUR).toISOString(), type: 'recipe',
-      title: '12-hour cold brew',
+      title: 'Cardamom rose cortado',
+      content: 'Floral, spicy, the small drink with the big finish.',
+      recipe: { ratio: '1:2', method: 'Espresso', waterTempF: 200, grindSize: 'Fine', instructions: 'Steam whole milk with three crushed cardamom pods + a teaspoon of rosewater. Pour over a 36g double.' },
+      tags: ['cortado', 'spiced', 'floral'], photoUrl: photo(7), kudosCount: 58, commentsCount: 11
+    },
+    {
+      id: 'post007', authorHandle: '@skyler', authorName: 'Skyler Reyes', authorTier: 'Bean Curious', authorAvatarColor: '#5B6FA5',
+      date: new Date(now - 2 * DAY - 6 * HOUR).toISOString(), type: 'general',
+      title: 'First espresso that tasted like coffee',
+      content: 'Week 2 of practice. Two months ago this was bitter sludge. Today: caramel and cherry. Keep going if you’re new.',
+      tags: ['beginner', 'espresso', 'progress'], photoUrl: photo(1), kudosCount: 89, commentsCount: 17
+    },
+    {
+      id: 'post008', authorHandle: '@quinnmoss', authorName: 'Quinn Moss', authorTier: 'Extraction Nerd', authorAvatarColor: '#2D4A3A',
+      date: new Date(now - 3 * DAY).toISOString(), type: 'recipe',
+      title: 'Aeropress inverted, light roast',
       content: '',
-      recipe: { ratio: '1:8', method: 'Cold brew', waterTempF: 'Room temp', grindSize: 'Coarse', instructions: 'Steep 12 hours in fridge, dilute 1:1 over ice.' },
-      tags: ['coldbrew', 'summer'], photoUrl: photo(4), kudosCount: 56, commentsCount: 9
+      recipe: { ratio: '1:14', method: 'Aeropress', waterTempF: 195, grindSize: 'Medium-fine', instructions: 'Bloom 30s with 50g, stir, top up to 240g, brew 75s, slow press over 30s.' },
+      tags: ['aeropress', 'lightroast'], photoUrl: photo(6), kudosCount: 47, commentsCount: 5
     },
     {
-      id: 'post006', authorHandle: '@MarcoLatte', authorName: 'Marco Latte', authorTier: 'Bean Scholar', authorAvatarColor: '#A04848',
-      date: new Date(now - 2 * DAY - 5 * HOUR).toISOString(), type: 'general',
-      title: 'Latte art update',
-      content: 'Day 90 of practicing rosettas. Still mostly look like clouds.',
-      tags: ['latteart', 'practice'], photoUrl: photo(5), kudosCount: 18, commentsCount: 12
-    },
-    {
-      id: 'post007', authorHandle: '@RoastieToastie', authorName: 'Roastie Toastie', authorTier: 'Extraction Nerd', authorAvatarColor: '#6B5FA8',
-      date: new Date(now - 3 * DAY - 1 * HOUR).toISOString(), type: 'recipe',
-      title: 'Aeropress inverted',
-      content: '',
-      recipe: { ratio: '1:14', method: 'Aeropress', waterTempF: 185, grindSize: 'Medium', instructions: 'Bloom 30s, stir, brew 90s, press slow.' },
-      tags: ['aeropress', 'travel'], photoUrl: photo(6), kudosCount: 67, commentsCount: 7
-    },
-    {
-      id: 'post008', authorHandle: '@ShopCrawlerSam', authorName: 'Shop Crawler Sam', authorTier: 'Bean Curious', authorAvatarColor: '#5B6FA5',
+      id: 'post009', authorHandle: '@raea', authorName: 'Rae Anderson', authorTier: 'Bean Scholar', authorAvatarColor: '#C99B1A',
       date: new Date(now - 3 * DAY - 5 * HOUR).toISOString(), type: 'shop',
-      title: 'Mint Plaza pilgrimage',
-      content: 'Iconic. The Gibraltar lives up.',
-      shop: { name: 'Blue Bottle Coffee', city: 'San Francisco', state: 'California', featuredBean: 'Bella Donovan' },
-      tags: ['bluebottle', 'gibraltar'], photoUrl: photo(7), kudosCount: 22, commentsCount: 2
+      title: 'Devoción in Williamsburg',
+      content: 'Bean-to-cup in fewer than 10 days from Colombia. You can taste the freshness.',
+      shop: { name: 'Devoción', city: 'Brooklyn', state: 'New York', featuredBean: 'Madremonte' },
+      tags: ['devocion', 'colombia', 'fresh'], photoUrl: photo(3), kudosCount: 33, commentsCount: 4
     },
     {
-      id: 'post009', authorHandle: '@PourOverPhil', authorName: 'Pour Over Phil', authorTier: 'Coffee Sommelier', authorAvatarColor: '#8B4F2A',
+      id: 'post010', authorHandle: '@jbell', authorName: 'Jordan Bell', authorTier: 'Pour Pro', authorAvatarColor: '#5B6FA5',
       date: new Date(now - 4 * DAY).toISOString(), type: 'general',
-      title: 'Tasting notes',
-      content: 'Today\'s bean: Costa Rica Tarrazu. Honey, almond, surprising stone fruit on the finish.',
-      tags: ['tasting', 'costarica'], photoUrl: photo(8), kudosCount: 41, commentsCount: 6
+      title: 'Grind size cheat sheet',
+      content: 'If your brew tastes harsh and bitter, grind coarser. If it tastes sour and weak, grind finer. The right answer is in the cup, not the manual.',
+      tags: ['grind', 'tip', 'beginner'], photoUrl: photo(9), kudosCount: 152, commentsCount: 31
     },
     {
-      id: 'post010', authorHandle: '@JamminJeff', authorName: 'Jammin Jeff', authorTier: 'Bean Scholar', authorAvatarColor: '#C99B1A',
+      id: 'post011', authorHandle: '@miac', authorName: 'Mia Choi', authorTier: 'Cafe Hopper', authorAvatarColor: '#A04848',
       date: new Date(now - 5 * DAY).toISOString(), type: 'shop',
-      title: 'HQ visit',
-      content: 'Took the cupping class. Worth the trip.',
-      shop: { name: 'Counter Culture Coffee', city: 'Durham', state: 'North Carolina', featuredBean: 'Apollo' },
-      tags: ['counterculture', 'cupping'], photoUrl: photo(9), kudosCount: 38, commentsCount: 4
+      title: 'Verve LA — Streetlevel never misses',
+      content: 'Pulled twice. The second was even better. Crema for days.',
+      shop: { name: 'Verve Coffee', city: 'Los Angeles', state: 'California', featuredBean: 'Streetlevel' },
+      tags: ['verve', 'la', 'espresso'], photoUrl: photo(7), kudosCount: 44, commentsCount: 7
+    },
+    {
+      id: 'post012', authorHandle: '@samvega', authorName: 'Sam Vega', authorTier: 'Bean Curious', authorAvatarColor: '#3F5B8A',
+      date: new Date(now - 6 * DAY).toISOString(), type: 'recipe',
+      title: 'Honey lavender latte',
+      content: 'A garden in a glass.',
+      recipe: { ratio: '1:2', method: 'Espresso', waterTempF: 200, grindSize: 'Fine', instructions: 'Infuse milk with a teaspoon of dried lavender for 10 minutes, strain, steam to 140°F. Drizzle of raw honey, double shot poured slow.' },
+      tags: ['latte', 'lavender', 'sweet'], photoUrl: photo(5), kudosCount: 76, commentsCount: 14
     }
   ];
   saveBeanPosts(seed);
@@ -198,6 +213,10 @@ function toggleKudos(postId) {
   }
   saveBeanKudos(kudos);
   saveBeanPosts(posts);
+  // Mirror to Supabase so kudos counts are real across devices/users.
+  if (window.BeanBackend && window.BeanBackend.ready() && window.BeanBackend.userId()) {
+    window.BeanBackend.pushKudos(postId, liked).catch(() => {});
+  }
   return liked;
 }
 
@@ -208,6 +227,9 @@ function toggleBookmark(postId) {
   if (idx >= 0) { arr.splice(idx, 1); bookmarked = false; }
   else { arr.push(postId); bookmarked = true; }
   saveBeanBookmarks(arr);
+  if (window.BeanBackend && window.BeanBackend.ready() && window.BeanBackend.userId()) {
+    window.BeanBackend.pushBookmark(postId, bookmarked).catch(() => {});
+  }
   return bookmarked;
 }
 
@@ -233,6 +255,12 @@ function createBeanPost(payload) {
   const posts = loadBeanPosts();
   posts.unshift(post);
   saveBeanPosts(posts);
+  // Write-through to Supabase so the post is visible to other members
+  // (and survives a localStorage clear). Fire-and-forget; the local cache
+  // is already updated, so the feed renders instantly.
+  if (window.BeanBackend && window.BeanBackend.ready() && window.BeanBackend.userId()) {
+    window.BeanBackend.pushPost(post).catch(() => {});
+  }
   return post;
 }
 

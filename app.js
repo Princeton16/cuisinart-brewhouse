@@ -428,7 +428,7 @@ function mountAppShell() {
         el('span', { class: 'bl-brand-mark' }, '◐'),
         el('span', { class: 'bl-brand-text' },
           el('span', { class: 'bl-brand-name' }, 'Brew Lab'),
-          el('span', { class: 'bl-brand-tag' }, 'by Cuisinart')
+          el('span', { class: 'bl-brand-tag' }, 'Coffee Community')
         )
       ),
       el('nav', { class: 'bl-nav' },
@@ -1366,7 +1366,7 @@ function todaysPourCard(recipe) {
     el('button', { class: 'btn btn-secondary btn-sm', onclick: () => navigate('journal') }, '+ Log this'),
     recipe.author ? el('div', { style: 'margin-left:auto;font-size:0.78rem;color:var(--ink-muted)' }, 'by ' + recipe.author) : null
   ));
-  // Subtle Cuisinart machine reference
+  // Subtle machine reference
   if (machine && machine.kind) {
     card.appendChild(el('div', { style: 'background:var(--surface-2);padding:10px 28px;font-size:0.78rem;color:var(--ink-muted);border-top:1px solid var(--line-soft)' },
       'Calibrated for ' + machine.name.toLowerCase() + ' · settings in step-by-step view'
@@ -1668,7 +1668,7 @@ function renderMagazineHome(main) {
             '.'
           ),
           el('p', { class: 'lede' },
-            'A coffee community calibrated to you, with recipes for your Cuisinart, classes from real baristas, and beans you can actually find. ',
+            'A coffee community calibrated to you, with recipes for your machine, classes from real baristas, and beans you can actually find. ',
             el('em', {}, 'Phase 1 of the connected ecosystem.')
           ),
           el('div', { class: 'cover-ctas' },
@@ -2132,7 +2132,7 @@ function renderMagazineHome(main) {
           ),
           el('p', {
             style: 'font-family:var(--font-display);font-size:16px;line-height:1.5;color:rgba(250, 246, 241, 0.78);margin:0 0 22px;max-width:520px'
-          }, 'Brew Lab will sync straight to the next Cuisinart smart machine. Save a recipe here, brew it there. Be the first to know when it ships.'),
+          }, 'Brew Lab will sync straight to the next generation of smart coffee machines. Save a recipe here, brew it there. Be the first to know when it ships.'),
           // Email capture
           el('form', {
             style: 'display:flex;gap:8px;flex-wrap:wrap;max-width:480px',
@@ -2751,14 +2751,14 @@ function renderHome_legacy(main) {
 
 }
 
-/* ----- Devices — connected Cuisinart products (preview) ----- */
+/* ----- Devices — connected coffee gear (preview) ----- */
 const ELIGIBLE_DEVICES = [
-  { name: 'Cuisinart Smart Brew 14-Cup Coffee Maker',     photoUrl: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&q=80' },
-  { name: 'Cuisinart EM-200 Programmable Espresso Maker', photoUrl: 'https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=400&q=80' },
-  { name: 'Cuisinart Cold Brew Coffee Maker',             photoUrl: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=400&q=80' },
-  { name: 'Cuisinart Burr Grind & Brew',                  photoUrl: 'https://images.unsplash.com/photo-1518057111178-44a106bad636?w=400&q=80' },
-  { name: 'Cuisinart AirFryer Toaster Oven',              photoUrl: 'https://images.unsplash.com/photo-1585515320310-259814833e62?w=400&q=80' },
-  { name: 'Cuisinart Hurricane Pro Blender',              photoUrl: 'https://images.unsplash.com/photo-1570222094114-d054a817e56b?w=400&q=80' }
+  { name: 'Smart Brew 14-Cup Coffee Maker',     photoUrl: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&q=80' },
+  { name: 'EM-200 Programmable Espresso Maker', photoUrl: 'https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=400&q=80' },
+  { name: 'Cold Brew Coffee Maker',             photoUrl: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=400&q=80' },
+  { name: 'Burr Grind & Brew',                  photoUrl: 'https://images.unsplash.com/photo-1518057111178-44a106bad636?w=400&q=80' },
+  { name: 'Pour-Over Drip Brewer',              photoUrl: 'https://images.unsplash.com/photo-1585515320310-259814833e62?w=400&q=80' },
+  { name: 'Hurricane Pro Blender',              photoUrl: 'https://images.unsplash.com/photo-1570222094114-d054a817e56b?w=400&q=80' }
 ];
 
 function renderDevices(main) {
@@ -2769,7 +2769,7 @@ function renderDevices(main) {
   c.appendChild(el('div', { class: 'devices-head' },
     el('p', { class: 'devices-eyebrow' }, 'Your kitchen'),
     el('h1', { class: 'devices-title' }, 'Products'),
-    el('p', { class: 'devices-sub' }, 'Cuisinart appliances, partner beans and pods, and the specialty equipment we recommend. Mark what you own to get tailored recipes.')
+    el('p', { class: 'devices-sub' }, 'Coffee appliances, partner beans and pods, and the specialty equipment we recommend. Mark what you own to get tailored recipes.')
   ));
 
   // Smart Appliances Coming Soon hero
@@ -2784,7 +2784,7 @@ function renderDevices(main) {
       'Personalize and elevate your drink experience.'
     ),
     el('p', { style: 'color:rgba(250,246,240,0.78);font-size:1rem;line-height:1.55;max-width:480px;margin-bottom:18px' },
-      'Connected Cuisinart appliances will brew recipes from this app on tap. Voice-activated brewing, taste-profile-tuned dialing, and remote calibration from creators. Phase 2 of the Brew Lab roadmap.'
+      'Connected coffee appliances will brew recipes from this app on tap. Voice-activated brewing, taste-profile-tuned dialing, and remote calibration from creators. Phase 2 of the Brew Lab roadmap.'
     ),
     el('div', { style: 'display:flex;gap:10px;flex-wrap:wrap' },
       el('button', {
@@ -2838,14 +2838,14 @@ function renderDevices(main) {
     [
       { id: 'onyx-pods', name: 'Onyx Coffee Lab Pods', icon: '🍫', desc: 'Onyx Monarch Blend in compostable pods. Medium roast.', tag: 'K-Cup compatible' },
       { id: 'cc-pods', name: 'Counter Culture Pods', icon: '✨', desc: 'Hologram blend in recyclable pods. Medium-light.', tag: 'K-Cup compatible' },
-      { id: 'illy-pods', name: 'illy Espresso Capsules', icon: '☕', desc: 'Italian roast capsules. Designed for Cuisinart espresso lines.', tag: 'iperEspresso' },
+      { id: 'illy-pods', name: 'illy Espresso Capsules', icon: '☕', desc: 'Italian roast capsules. Compatible with most espresso pod machines.', tag: 'iperEspresso' },
       { id: 'lavazza-pods', name: 'Lavazza A Modo Mio Capsules', icon: '🇮🇹', desc: 'Single-serve espresso pods, classic Italian roast.', tag: 'A Modo Mio' }
     ].map(p => productMiniCard(p, 'pods'))
   ));
 
   // ---------- Specialty equipment ----------
   c.appendChild(el('h2', { class: 'devices-section-h', style: 'margin-top:32px' }, 'Specialty equipment'));
-  c.appendChild(el('p', { style: 'color:var(--ink-soft);font-size:0.95rem;margin-bottom:16px;max-width:580px' }, 'Third-party gear our community uses alongside their Cuisinart machines.'));
+  c.appendChild(el('p', { style: 'color:var(--ink-soft);font-size:0.95rem;margin-bottom:16px;max-width:580px' }, 'Third-party gear our community uses alongside their coffee setups.'));
   c.appendChild(el('div', { style: 'display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px;margin-bottom:32px' },
     [
       { id: 'hario-v60', name: 'Hario V60 Dripper', icon: '🌊', desc: 'The classic conical pour-over. Glass or ceramic.', tag: 'Pour over' },
@@ -2861,7 +2861,7 @@ function renderDevices(main) {
   c.appendChild(el('h2', { class: 'devices-section-h', style: 'margin-top:32px' }, 'How device pairing works'));
   c.appendChild(el('div', { class: 'devices-steps' },
     [
-      { n: '1', text: 'Plug in your Cuisinart appliance.' },
+      { n: '1', text: 'Plug in your coffee appliance.' },
       { n: '2', text: 'Tap Add device and follow the in-app pairing.' },
       { n: '3', text: 'Get personalized recipes that work for your model.' }
     ].map(s => el('div', { class: 'devices-step' },
@@ -2894,7 +2894,7 @@ function openAddDeviceModal() {
     el('button', { type: 'button', class: 'bw-close', onclick: close, 'aria-label': 'Close', style: 'position:absolute;top:14px;right:14px' }, '×'),
     el('div', { class: 'add-device-icon' }, '📡'),
     el('h2', { class: 'add-device-title' }, 'Coming soon: device pairing'),
-    el('p', { class: 'add-device-body' }, 'This is a preview of what Cuisinart’s connected platform would feel like. Wi-Fi pairing, firmware updates, and per-appliance recipes will land here in a future build.'),
+    el('p', { class: 'add-device-body' }, 'This is a preview of what a connected coffee platform would feel like. Wi-Fi pairing, firmware updates, and per-appliance recipes will land here in a future build.'),
     el('button', { type: 'button', class: 'bw-btn-primary', onclick: close, style: 'margin-top:18px' }, 'Got it')
   );
 
@@ -2924,7 +2924,7 @@ function renderProducts(main) {
   c.appendChild(el('div', { class: 'page-head' },
     el('div', { class: 'eyebrow' }, 'Gear'),
     el('h1', { class: 'h1' }, 'Brewing equipment.'),
-    el('p', { style: 'max-width:580px' }, 'Coffee makers, espresso machines, grinders, and accessories from Cuisinart. Mark what you own to get tailored recipes.')
+    el('p', { style: 'max-width:580px' }, 'Coffee makers, espresso machines, grinders, and accessories. Mark what you own to get tailored recipes.')
   ));
 
   const grid = el('div', { class: 'grid grid-3' });
@@ -6401,7 +6401,7 @@ function ensureGuest() {
     state.communityPosts = [
       {
         id: 'seed-letter-1',
-        text: 'The Onyx Monarch is the most consistent bean I have run through my Cuisinart in two years. Worth the four week wait list.',
+        text: 'The Onyx Monarch is the most consistent bean I have run through my drip in two years. Worth the four week wait list.',
         kind: 'tip',
         icon: '💬',
         verb: 'dropped a tip',
@@ -6573,6 +6573,10 @@ function clearBeanUser() {
   localStorage.removeItem('beanapp_lessons_demo_seeded');
   localStorage.removeItem('beanapp_visits');
   localStorage.removeItem('beanapp_visits_demo_seeded');
+  // Tear down the Supabase session too, if there is one.
+  if (window.BeanBackend && window.BeanBackend.ready()) {
+    window.BeanBackend.signOut().catch(() => {});
+  }
 }
 
 function loadBeanBrews() {
@@ -6668,7 +6672,23 @@ function mountBeanApp() {
   document.body.appendChild(buildBeanNav());
 
   window.addEventListener('hashchange', beanRender);
-  beanRender();
+
+  // Try to restore an existing Supabase session before first paint. If the
+  // user is signed in, this hydrates localStorage caches (brews, visits,
+  // posts) from the server so the home view shows live data immediately.
+  if (window.BeanBackend && window.BeanBackend.ready()) {
+    window.BeanBackend.bootstrap()
+      .then((u) => {
+        if (u && !getBeanUser()) {
+          // Edge case: server session but no local cache. Persist + render.
+          localStorage.setItem(BEAN_USER_KEY, JSON.stringify(u));
+        }
+      })
+      .catch(() => {})
+      .finally(() => beanRender());
+  } else {
+    beanRender();
+  }
 }
 
 function buildBeanNav() {
@@ -6814,8 +6834,8 @@ function renderBeanAuth(main) {
     type: 'button',
     class: 'btn-ghost full',
     onclick: () => {
-      setBeanUser({ email: 'demo@brew.coffee', name: 'Demo Bobby', isDemo: true, createdAt: Date.now() });
-      window.location.hash = '#/you';
+      setBeanUser({ email: 'demo@brew.coffee', name: 'Maya Okafor', isDemo: true, createdAt: Date.now() });
+      window.location.hash = '#/home';
     }
   }, 'Explore as demo user'));
 
@@ -6854,8 +6874,46 @@ function renderBeanAuth(main) {
       return;
     }
     const localPart = email.includes('@') ? email.split('@')[0] : email;
-    setBeanUser({ email: email, name: localPart, createdAt: Date.now() });
-    window.location.hash = '#/you';
+    submitBtn.disabled = true;
+    const wasLabel = submitBtn.textContent;
+    submitBtn.textContent = mode === 'signin' ? 'Signing in…' : 'Creating account…';
+
+    // If the Supabase backend is reachable, run real auth. Otherwise fall
+    // back to a localStorage-only sign-in so demo / offline still works.
+    const backendReady = window.BeanBackend && window.BeanBackend.ready();
+    const authPromise = !backendReady
+      ? Promise.resolve(null)
+      : (mode === 'signin'
+          ? window.BeanBackend.signIn(email, password)
+          : window.BeanBackend.signUp(email, password, localPart));
+
+    authPromise
+      .then((res) => {
+        // The Supabase user (if any) becomes our local user. Either way we
+        // persist a local user so getBeanUser() returns something.
+        const supaUser = res && res.user;
+        const localUser = {
+          id: supaUser ? supaUser.id : null,
+          email: email,
+          name: localPart,
+          createdAt: supaUser ? new Date(supaUser.created_at || Date.now()).getTime() : Date.now()
+        };
+        setBeanUser(localUser);
+        window.location.hash = '#/home';
+      })
+      .catch((err) => {
+        // Auth-specific error — surface it inline; keep the form usable.
+        const msg = (err && err.message) || 'Auth failed';
+        if (typeof toast === 'function') toast(msg);
+        else alert(msg);
+        passInput.value = '';
+        passInput.style.borderColor = '#C9352F';
+        setTimeout(() => { passInput.style.borderColor = ''; }, 900);
+      })
+      .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = wasLabel;
+      });
   }
 }
 

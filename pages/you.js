@@ -74,8 +74,8 @@ function _star(filled) {
 
 /* ---------- Demo device seed ---------- */
 const DEMO_DEVICES = [
-  { name: 'Cuisinart PerfecTemp 14-Cup',  status: 'Synced 2 hours ago',    photoUrl: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=200&q=80' },
-  { name: 'Cuisinart Grind & Brew Smart', status: 'Synced 14 minutes ago', photoUrl: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=200&q=80' }
+  { name: 'PerfecTemp 14-Cup Drip',       status: 'Synced 2 hours ago',    photoUrl: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=200&q=80' },
+  { name: 'Grind & Brew Smart',           status: 'Synced 14 minutes ago', photoUrl: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=200&q=80' }
 ];
 
 /* ---------- Top-level renders ---------- */
@@ -591,14 +591,14 @@ function pastBrewRow(b) {
   );
 }
 
-/* ---------- 7. My Cuisinart Devices ---------- */
+/* ---------- 7. Connected coffee devices ---------- */
 function youDevicesCard(devices) {
   const card = el('div', { class: 'you-card you-devices' });
   card.appendChild(el('div', { class: 'you-eyebrow' }, 'MY CUISINART DEVICES'));
   card.appendChild(el('h3', { class: 'you-card-h-light' }, 'Connected appliances'));
 
   if (!devices.length) {
-    card.appendChild(el('p', { class: 'you-empty' }, 'No devices paired yet. Add a Cuisinart appliance to unlock guided brews.'));
+    card.appendChild(el('p', { class: 'you-empty' }, 'No devices paired yet. Connect a coffee appliance to unlock guided brews.'));
   } else {
     const list = el('div', { class: 'you-device-list' });
     devices.forEach(d => list.appendChild(deviceRow(d)));
@@ -939,6 +939,11 @@ function openBrewLogModal(prefill) {
       const all = loadBeanBrews();
       all.unshift(entry);
       saveBeanBrews(all);
+      // Write-through to Supabase. Fire-and-forget — the local cache is
+      // already updated, so the UI doesn't wait on the network.
+      if (window.BeanBackend && window.BeanBackend.ready() && window.BeanBackend.userId()) {
+        window.BeanBackend.pushBrew(entry).catch(() => {});
+      }
       close();
       // Re-render You so streak / palate / past brews refresh
       if (typeof beanRender === 'function') beanRender();
@@ -971,7 +976,7 @@ function openPairDeviceModal() {
     el('button', { type: 'button', class: 'brewlog-close', 'aria-label': 'Close', onclick: close, style: 'position:absolute;top:14px;right:14px' }, _svgEl(YOU_ICONS.close)),
     el('div', { class: 'pair-icon' }, '📡'),
     el('h2', { class: 'brewlog-title' }, 'Coming soon: device pairing'),
-    el('p', { class: 'pair-body' }, 'Wi-Fi pairing for your Cuisinart appliances will land here in a future build. For now, this is a preview.'),
+    el('p', { class: 'pair-body' }, 'Wi-Fi pairing for your coffee appliances will land here in a future build. For now, this is a preview.'),
     el('button', { class: 'brewlog-save', type: 'button', onclick: close }, 'Got it')
   );
   const backdrop = el('div', { id: 'pair-backdrop', class: 'brewlog-backdrop', onclick: close }, card);
