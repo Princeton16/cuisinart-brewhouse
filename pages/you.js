@@ -594,7 +594,7 @@ function pastBrewRow(b) {
 /* ---------- 7. Connected coffee devices ---------- */
 function youDevicesCard(devices) {
   const card = el('div', { class: 'you-card you-devices' });
-  card.appendChild(el('div', { class: 'you-eyebrow' }, 'MY CUISINART DEVICES'));
+  card.appendChild(el('div', { class: 'you-eyebrow' }, 'MY DEVICES'));
   card.appendChild(el('h3', { class: 'you-card-h-light' }, 'Connected appliances'));
 
   if (!devices.length) {

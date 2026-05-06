@@ -1,0 +1,1033 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brew Lab — Bean redesign preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;0,8..60,800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --cream: #FFF5EB;
+    --cream-warm: #FBE9D0;
+    --paper: #FFFEFB;
+    --linen: #F4DDB4;
+    --ink: #1F1A14;
+    --ink-soft: #4A4239;
+    --ink-faint: #8A7E6E;
+    --hairline: rgba(31, 26, 20, 0.14);
+    --tomato: #E84F1A;
+    --tomato-dark: #C73E0F;
+    --marigold: #F5C518;
+    --leaf: #31A14B;
+    --teal: #0E8B91;
+    --canopy: #2A6B3D;
+    --jungle-dark: #0E2A18;
+    --plum: #6B2D5C;
+    --green-deep: #233C28;
+    --gold: #C5962B;
+    --font-display: 'Source Serif 4', Georgia, serif;
+    --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+    --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  * { margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-body);
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  img, svg { display: block; max-width: 100%; }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; cursor: pointer; border: none; background: none; }
+
+  /* ============ Top header (.bl-*) ============ */
+  .bl-header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255, 245, 235, 0.92);
+    border-bottom: 1px solid var(--hairline);
+    backdrop-filter: saturate(140%) blur(6px);
+    -webkit-backdrop-filter: saturate(140%) blur(6px);
+  }
+  .bl-header-inner {
+    max-width: 1200px; margin: 0 auto;
+    padding: 14px 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 24px;
+  }
+  .bl-brand { display: inline-flex; align-items: center; gap: 10px; }
+  .bl-brand-mark {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--tomato);
+    color: var(--cream);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.1rem;
+  }
+  .bl-brand-text { display: inline-flex; flex-direction: column; line-height: 1; }
+  .bl-brand-name {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.35rem;
+    letter-spacing: -0.018em;
+    color: var(--ink);
+  }
+  .bl-brand-tag {
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: 0.58rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-top: 4px;
+  }
+
+  .bl-nav { display: flex; align-items: center; justify-content: center; gap: 4px; }
+  .bl-nav-link {
+    position: relative;
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ink);
+    transition: color 0.15s var(--ease);
+    cursor: pointer;
+  }
+  .bl-nav-link::after {
+    content: '';
+    position: absolute;
+    left: 16px; right: 16px; bottom: -2px;
+    height: 3px;
+    background: var(--tomato);
+    transform: scaleX(0);
+    transition: transform 0.18s var(--ease);
+  }
+  .bl-nav-link:hover { color: var(--tomato); }
+  .bl-nav-link.active { color: var(--tomato); }
+  .bl-nav-link.active::after { transform: scaleX(1); }
+  @media (max-width: 720px) { .bl-nav { display: none; } }
+
+  .bl-header-actions { display: inline-flex; align-items: center; gap: 12px; }
+  .bl-log-brew {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--ink); color: var(--cream);
+    padding: 9px 16px; border-radius: 999px;
+    font-weight: 600; font-size: 0.9rem;
+    transition: background 0.18s, transform 0.15s, box-shadow 0.18s;
+  }
+  .bl-log-brew:hover {
+    background: #2A1F14;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(31, 26, 20, 0.2);
+  }
+  .bl-avatar {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--green-deep); color: #FAF6F0;
+    font-weight: 600; font-size: 0.85rem;
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+  /* ============ Cover hero (magazine cover) ============ */
+  .cover-meta {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin: 28px 0 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--hairline);
+    flex-wrap: wrap; gap: 14px;
+  }
+  .cover-meta .left { display: flex; gap: 18px; align-items: center; }
+  .cover-meta .vol {
+    font-family: var(--font-display);
+    font-style: italic; font-weight: 600;
+    font-size: 18px;
+    color: var(--tomato);
+  }
+  .cover-meta .date {
+    font-family: var(--font-mono);
+    font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .cover-meta .chip-bar { display: flex; gap: 6px; flex-wrap: wrap; }
+  .cover-meta .chip {
+    background: var(--ink); color: var(--cream);
+    padding: 5px 10px; border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .cover-meta .chip.tomato { background: var(--tomato); }
+  .cover-meta .chip.teal   { background: var(--teal); }
+  .cover-meta .chip.leaf   { background: var(--leaf); }
+
+  .cover-grid {
+    display: grid; grid-template-columns: 1.3fr 1fr;
+    gap: 48px; align-items: start;
+  }
+  @media (max-width: 900px) { .cover-grid { grid-template-columns: 1fr; } }
+
+  .cover-grid h1 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(48px, 7vw, 96px);
+    line-height: 0.94;
+    letter-spacing: -0.025em;
+    margin-bottom: 22px;
+  }
+  .cover-grid h1 em { font-style: italic; color: var(--tomato); font-weight: 700; }
+  .cover-grid h1 .tomato-block, .cover-grid h1 .teal-block {
+    color: var(--cream);
+    padding: 0 14px; display: inline-block;
+    border-radius: 4px;
+  }
+  .cover-grid h1 .tomato-block { background: var(--tomato); }
+  .cover-grid h1 .teal-block { background: var(--teal); }
+  .cover-grid .lede {
+    font-family: var(--font-display);
+    font-size: 19px;
+    line-height: 1.45;
+    color: var(--ink-soft);
+    max-width: 540px;
+    margin-bottom: 26px;
+  }
+  .cover-ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 32px; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 22px;
+    border-radius: 999px;
+    font-weight: 700; font-size: 14px;
+    transition: transform 0.18s, box-shadow 0.2s, background 0.2s;
+  }
+  .btn-primary { background: var(--ink); color: var(--cream); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 28px -12px rgba(31,26,20,0.40); }
+  .btn-sticker {
+    background: var(--marigold); color: var(--ink);
+    font-weight: 800;
+    box-shadow: 0 1px 2px rgba(31,26,20,0.06), 0 10px 20px -10px rgba(31,26,20,0.32);
+  }
+  .btn-sticker:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(31,26,20,0.08), 0 18px 32px -14px rgba(31,26,20,0.42); }
+
+  .cat-row {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    padding-top: 20px; border-top: 1px solid var(--hairline);
+  }
+  .cat-chip {
+    display: inline-flex; padding: 8px 14px;
+    border-radius: 999px;
+    font-weight: 700; font-size: 12px;
+    border: 1px solid var(--hairline);
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .cat-chip:hover { transform: translateY(-2px); box-shadow: 0 6px 14px -6px rgba(31,26,20,0.30); }
+  .cat-chip.tomato { background: var(--tomato); color: var(--cream); border-color: transparent; }
+  .cat-chip.teal { background: var(--teal); color: var(--cream); border-color: transparent; }
+  .cat-chip.leaf { background: var(--leaf); color: var(--cream); border-color: transparent; }
+  .cat-chip.marigold { background: var(--marigold); color: var(--ink); border-color: transparent; }
+
+  .cover-photo {
+    position: relative;
+    aspect-ratio: 4/5;
+    background:
+      linear-gradient(160deg, rgba(0,0,0,0.05), rgba(0,0,0,0.45)),
+      radial-gradient(circle at 35% 30%, #C77B49 0%, transparent 55%),
+      linear-gradient(135deg, #3D2818 0%, #1A0D06 100%);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--hairline);
+    box-shadow: 0 4px 8px rgba(31,26,20,0.06), 0 32px 64px -28px rgba(31,26,20,0.42);
+  }
+  .cover-photo .stamp {
+    position: absolute; bottom: 14px; left: 14px;
+    font-family: var(--font-mono);
+    font-size: 10px; letter-spacing: 0.12em;
+    color: rgba(255, 245, 235, 0.55);
+    text-transform: uppercase;
+  }
+  .cover-ribbon {
+    position: absolute; top: 18px; right: 18px;
+    background: var(--marigold); color: var(--ink);
+    padding: 10px 14px; border-radius: 999px;
+    font-weight: 800; font-size: 11px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    box-shadow: 0 2px 4px rgba(31,26,20,0.08), 0 12px 24px -14px rgba(31,26,20,0.25);
+  }
+
+  /* ============ Section divider ============ */
+  .section-divider {
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+    padding: 10px 0;
+    margin: 56px 0 28px;
+    font-family: var(--font-mono);
+    font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .section-divider .num { font-weight: 600; color: var(--tomato); }
+
+  .section-h {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(32px, 4vw, 48px);
+    line-height: 1;
+    letter-spacing: -0.022em;
+    margin-bottom: 18px;
+  }
+  .section-h em { font-style: italic; color: var(--tomato); font-weight: 700; }
+
+  /* ============ Tile grid ============ */
+  .feat-grid {
+    display: grid; grid-template-columns: 1.3fr 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 900px) { .feat-grid { grid-template-columns: 1fr; } }
+
+  .tile {
+    position: relative;
+    border-radius: 20px;
+    padding: 32px;
+    border: 1px solid var(--hairline);
+    box-shadow: 0 1px 2px rgba(31,26,20,0.04), 0 12px 28px -16px rgba(31,26,20,0.18);
+    overflow: hidden;
+    transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+    min-height: 360px;
+    display: flex; flex-direction: column;
+    cursor: pointer;
+    color: var(--cream);
+  }
+  .tile:hover { transform: translateY(-3px); box-shadow: 0 2px 4px rgba(31,26,20,0.05), 0 24px 44px -20px rgba(31,26,20,0.28); }
+  .tile.barista { background: linear-gradient(140deg, #5C2E2A 0%, #2A100C 100%); grid-row: span 2; }
+  .tile.dotd { background: var(--cream); color: var(--ink); }
+  .tile.atlas { background: linear-gradient(160deg, var(--canopy) 0%, var(--jungle-dark) 100%); }
+  .tile.give { background: linear-gradient(140deg, #2C2A28 0%, #1A1816 100%); grid-column: span 2; min-height: 240px; }
+  .tile .tag {
+    font-weight: 800; font-size: 11px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    opacity: 0.9;
+    margin-bottom: 14px;
+    display: flex; justify-content: space-between;
+  }
+  .tile .tag .num { font-family: var(--font-mono); font-weight: 500; opacity: 0.7; }
+  .tile h3 {
+    font-family: var(--font-display);
+    font-weight: 800; font-size: 36px;
+    line-height: 0.96; letter-spacing: -0.02em;
+    margin-bottom: 14px;
+  }
+  .tile h3 em { font-style: italic; color: var(--marigold); }
+  .tile.dotd h3 em { color: var(--tomato); }
+  .tile p {
+    font-family: var(--font-display);
+    font-size: 16px; line-height: 1.45;
+    opacity: 0.88; margin-bottom: 18px;
+  }
+  .tile .arrow-cta {
+    margin-top: auto;
+    font-weight: 700; font-size: 14px;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .tile .arrow-cta .ar {
+    font-family: var(--font-display);
+    font-style: italic; font-weight: 700;
+    font-size: 24px;
+    transition: transform 0.25s;
+  }
+  .tile:hover .arrow-cta .ar { transform: translateX(6px); }
+
+  .give-grid { display: grid; grid-template-columns: auto 1fr auto; gap: 24px; align-items: center; flex: 1; }
+  @media (max-width: 700px) { .give-grid { grid-template-columns: 1fr; } }
+  .give-sticker {
+    width: 130px; height: 130px;
+    border-radius: 50%;
+    background: var(--marigold); color: var(--ink);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 800; font-size: 26px; line-height: 0.9;
+    box-shadow: 0 4px 8px rgba(31,26,20,0.10), 0 18px 36px -14px rgba(31,26,20,0.40);
+  }
+  .give-sticker em { font-style: italic; font-size: 14px; font-weight: 600; margin-top: 4px; color: var(--tomato); }
+  .give-info h3 { font-size: 26px; line-height: 1; }
+  .give-info .meta { display: flex; gap: 18px; font-size: 13px; flex-wrap: wrap; margin-top: 8px; opacity: 0.85; }
+
+  /* ============ "You" dashboard section ============ */
+  .you-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  @media (max-width: 900px) { .you-grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    border-radius: 16px;
+    padding: 24px 26px;
+    box-shadow: 0 1px 2px rgba(31,26,20,0.03), 0 14px 28px -18px rgba(31,26,20,0.18);
+  }
+  .card-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--tomato);
+    font-weight: 800;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 26px;
+    line-height: 1.05;
+    letter-spacing: -0.018em;
+    margin-bottom: 6px;
+  }
+  .card-sub {
+    font-family: var(--font-display);
+    font-size: 16px;
+    color: var(--ink-soft);
+    line-height: 1.45;
+  }
+
+  .palate-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 20px; }
+  @media (max-width: 600px) { .palate-row { grid-template-columns: repeat(2, 1fr); } }
+  .palate-cell {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 14px 10px;
+    background: var(--cream);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .palate-cell:hover { transform: translateY(-2px); border-color: var(--tomato); }
+  .palate-cell .lvl {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 22px;
+    line-height: 1;
+  }
+  .palate-cell .lbl {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .streak-card {
+    background: linear-gradient(135deg, var(--ink) 0%, #2A1F14 100%);
+    color: var(--cream);
+    border-radius: 16px;
+    padding: 26px;
+    box-shadow: 0 4px 8px rgba(31,26,20,0.10), 0 24px 48px -18px rgba(31,26,20,0.40);
+    position: relative;
+    overflow: hidden;
+  }
+  .streak-card::after {
+    content: '';
+    position: absolute;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(245,197,24,0.20) 0%, transparent 65%);
+    bottom: -80px; right: -60px;
+    pointer-events: none;
+  }
+  .streak-num {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 64px;
+    line-height: 1;
+    letter-spacing: -0.025em;
+    color: var(--marigold);
+    margin: 8px 0 6px;
+  }
+  .streak-meta { display: flex; gap: 20px; flex-wrap: wrap; font-size: 13px; color: rgba(255,245,235,0.78); margin-top: 18px; position: relative; z-index: 1; }
+  .streak-meta strong { color: var(--cream); font-weight: 700; }
+
+  /* ============ Feed ============ */
+  .feed-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  @media (max-width: 800px) { .feed-grid { grid-template-columns: 1fr; } }
+  .post {
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    border-radius: 16px;
+    padding: 18px 20px;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    cursor: pointer;
+  }
+  .post:hover {
+    transform: translateY(-2px);
+    border-color: rgba(31,26,20,0.22);
+    box-shadow: 0 1px 2px rgba(31,26,20,0.04), 0 14px 28px -16px rgba(31,26,20,0.22);
+  }
+  .post-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .post-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--tomato) 0%, var(--tomato-dark) 100%);
+    color: var(--cream);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+  }
+  .post-author { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
+  .post-handle {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: var(--ink-faint);
+    margin-top: 2px;
+  }
+  .post-kind {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    background: var(--cream);
+    padding: 4px 8px;
+    border-radius: 999px;
+  }
+  .post-kind.tip { background: rgba(245,197,24,0.20); color: #7A5C09; }
+  .post-kind.recipe { background: rgba(232,79,26,0.14); color: var(--tomato-dark); }
+  .post-kind.q { background: rgba(14,139,145,0.12); color: var(--teal); }
+  .post-body {
+    font-family: var(--font-display);
+    font-size: 15.5px;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+  .post-foot {
+    display: flex; gap: 14px; align-items: center;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--hairline);
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .post-foot .pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--cream);
+    font-weight: 600;
+  }
+
+  /* ============ Learn ============ */
+  .class-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  @media (max-width: 900px) { .class-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .class-grid { grid-template-columns: 1fr; } }
+  .class-card {
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(31,26,20,0.04), 0 12px 24px -16px rgba(31,26,20,0.18);
+  }
+  .class-card:hover { transform: translateY(-3px); box-shadow: 0 2px 4px rgba(31,26,20,0.05), 0 22px 42px -20px rgba(31,26,20,0.26); }
+  .class-thumb {
+    aspect-ratio: 16/10;
+    position: relative;
+    overflow: hidden;
+  }
+  .class-thumb .play {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--tomato);
+    color: var(--cream);
+    border: 3px solid var(--cream);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+  }
+  .class-meta {
+    padding: 16px 18px;
+  }
+  .class-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--tomato);
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+  .class-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 20px;
+    line-height: 1.15;
+    letter-spacing: -0.012em;
+    margin-bottom: 6px;
+  }
+  .class-sub {
+    font-size: 13px;
+    color: var(--ink-soft);
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .class-sub strong { color: var(--ink); font-weight: 600; }
+
+  /* ============ Passport ============ */
+  .passport-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 900px) { .passport-grid { grid-template-columns: 1fr; } }
+  .passport-map {
+    aspect-ratio: 16/10;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--hairline);
+    box-shadow: 0 4px 8px rgba(31,26,20,0.06), 0 28px 56px -28px rgba(31,26,20,0.32);
+    background:
+      radial-gradient(circle at 32% 38%, rgba(232,79,26,0.45) 0%, transparent 8%),
+      radial-gradient(circle at 38% 44%, rgba(232,79,26,0.45) 0%, transparent 6%),
+      radial-gradient(circle at 64% 30%, rgba(31,77,46,0.45) 0%, transparent 7%),
+      radial-gradient(circle at 70% 60%, rgba(245,197,24,0.55) 0%, transparent 6%),
+      linear-gradient(160deg, #E8DCC2 0%, #D4C19E 100%);
+    position: relative;
+  }
+  .passport-map::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(transparent 0px, rgba(31,26,20,0.04) 1px, transparent 1px) 0 0 / 100% 28px,
+      linear-gradient(90deg, transparent 0px, rgba(31,26,20,0.04) 1px, transparent 1px) 0 0 / 28px 100%;
+    pointer-events: none;
+  }
+  .passport-list {
+    display: flex; flex-direction: column;
+    gap: 10px;
+  }
+  .cafe-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    cursor: pointer;
+  }
+  .cafe-row:hover {
+    transform: translateY(-2px);
+    border-color: rgba(31,26,20,0.22);
+    box-shadow: 0 6px 16px -8px rgba(31,26,20,0.18);
+  }
+  .cafe-rank {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 24px;
+    color: var(--tomato);
+    width: 32px;
+    text-align: center;
+  }
+  .cafe-body { flex: 1; min-width: 0; }
+  .cafe-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1.2;
+    letter-spacing: -0.012em;
+    margin-bottom: 3px;
+  }
+  .cafe-hood {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .cafe-stat {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--marigold);
+    background: var(--ink);
+    padding: 4px 10px;
+    border-radius: 999px;
+    line-height: 1.4;
+  }
+
+  /* ============ Footer note ============ */
+  footer.note {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 36px 24px;
+    margin-top: 80px;
+    text-align: center;
+  }
+  footer.note strong {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 22px;
+    display: block;
+    margin-bottom: 8px;
+    letter-spacing: -0.012em;
+  }
+  footer.note span { color: rgba(255,245,235,0.72); font-size: 14px; }
+  footer.note em { color: var(--marigold); font-style: italic; }
+</style>
+</head>
+<body>
+
+<!-- ============ Top header ============ -->
+<header class="bl-header">
+  <div class="bl-header-inner">
+    <a class="bl-brand">
+      <span class="bl-brand-mark">b</span>
+      <div class="bl-brand-text">
+        <span class="bl-brand-name">Brew Lab</span>
+        <span class="bl-brand-tag">By Cuisinart</span>
+      </div>
+    </a>
+    <nav class="bl-nav">
+      <a class="bl-nav-link active">Home</a>
+      <a class="bl-nav-link">You</a>
+      <a class="bl-nav-link">Feed</a>
+      <a class="bl-nav-link">Learn</a>
+      <a class="bl-nav-link">Passport</a>
+    </nav>
+    <div class="bl-header-actions">
+      <a class="bl-log-brew"><span style="font-size:1.05rem">+</span> Log brew</a>
+      <a class="bl-avatar">BH</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ============ Cover ============ -->
+  <section>
+    <div class="container">
+      <div class="cover-meta">
+        <div class="left">
+          <span class="vol">Vol. 01</span>
+          <span class="date">Issue · May 2026</span>
+        </div>
+        <div class="chip-bar">
+          <span class="chip tomato">Recipes</span>
+          <span class="chip teal">Cold</span>
+          <span class="chip leaf">Origin</span>
+          <span class="chip">Brew School</span>
+        </div>
+      </div>
+
+      <div class="cover-grid">
+        <div>
+          <h1>
+            The brew that <em>knows</em><br>
+            <span class="tomato-block">your machine</span><br>
+            and your <em>palate</em>.
+          </h1>
+          <p class="lede">A coffee community calibrated to you, with recipes for your Cuisinart, classes from real baristas, and beans you can actually find. <em>Phase 1 of the connected ecosystem.</em></p>
+          <div class="cover-ctas">
+            <button class="btn btn-primary">Take the taste quiz</button>
+            <button class="btn btn-sticker">Free for owners</button>
+          </div>
+          <div class="cat-row">
+            <a class="cat-chip tomato">Espresso</a>
+            <a class="cat-chip teal">Iced</a>
+            <a class="cat-chip leaf">Pour over</a>
+            <a class="cat-chip marigold">Latte art</a>
+            <a class="cat-chip">Origin</a>
+          </div>
+        </div>
+        <div class="cover-photo">
+          <span class="cover-ribbon">New · Vol 01</span>
+          <span class="stamp">Photographed in Brooklyn · 2026</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Tile grid ============ -->
+  <section style="padding-top:56px">
+    <div class="container">
+      <div class="section-divider">
+        <span><span class="num">01</span> · The home grid</span>
+        <span>4 features</span>
+      </div>
+      <div class="feat-grid">
+        <a class="tile barista">
+          <div class="tag"><span>◆ Ask the Barista</span><span class="num">01</span></div>
+          <h3>Your <em>virtual</em> barista, trained on your machine.</h3>
+          <p>Gets to know your taste, remembers your last brew, tells you what to dial in next. Better than Google, kinder than r/espresso.</p>
+          <div class="arrow-cta">Open chat <span class="ar">↗</span></div>
+        </a>
+        <a class="tile dotd">
+          <div class="tag" style="color:var(--tomato)"><span>◆ Drink of the day</span><span class="num">02</span></div>
+          <h3>Iced cardamom <em>cortado</em>.</h3>
+          <p>4 minutes · 2 ingredients · medium difficulty. Calibrated to your EM-200.</p>
+          <div class="arrow-cta">See recipe <span class="ar">↗</span></div>
+        </a>
+        <a class="tile atlas">
+          <div class="tag"><span>◆ Origins atlas</span><span class="num">03</span></div>
+          <h3>17 farms. <em>4 continents.</em></h3>
+          <p>Visit the people behind your beans. Watch a 5-minute film at every origin.</p>
+          <div class="arrow-cta">Open the map <span class="ar">↗</span></div>
+        </a>
+        <a class="tile give">
+          <div class="give-grid">
+            <div class="give-sticker">WIN<em>this week</em></div>
+            <div class="give-info">
+              <div class="tag" style="color:var(--marigold);margin-bottom:8px">◆ Members only · giveaway</div>
+              <h3>An EM-1500 espresso machine, plus beans for a year.</h3>
+              <div class="meta">
+                <span><strong>1,284</strong> entries</span>
+                <span>Closes Sunday</span>
+                <span>Free to enter</span>
+              </div>
+            </div>
+            <div class="arrow-cta">Enter <span class="ar">↗</span></div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ You dashboard ============ -->
+  <section style="padding-top:24px">
+    <div class="container">
+      <div class="section-divider">
+        <span><span class="num">02</span> · You · personal dashboard</span>
+        <span>Streak · palate · achievements</span>
+      </div>
+      <h2 class="section-h">Your <em>palate</em>, dialed in.</h2>
+      <div class="you-grid">
+        <div class="card">
+          <div class="card-eyebrow">◆ Palate map · last 30 days</div>
+          <div class="card-title">Sweeter than last month, less acidic.</div>
+          <p class="card-sub">Based on the 12 brews you logged. Your tastebuds are leaning more chocolate-and-caramel, less citrus-and-floral. The Onyx Monarch blend is leading the chart.</p>
+          <div class="palate-row">
+            <div class="palate-cell"><div class="lvl">8.2</div><div class="lbl">Sweet</div></div>
+            <div class="palate-cell"><div class="lvl">3.4</div><div class="lbl">Acid</div></div>
+            <div class="palate-cell"><div class="lvl">7.0</div><div class="lbl">Body</div></div>
+            <div class="palate-cell"><div class="lvl">5.8</div><div class="lbl">Bitter</div></div>
+            <div class="palate-cell"><div class="lvl">6.6</div><div class="lbl">Crema</div></div>
+          </div>
+        </div>
+        <div class="streak-card">
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--marigold);font-weight:800">◆ Streak</div>
+          <div class="streak-num">14</div>
+          <div style="font-family:var(--font-display);font-weight:600;font-size:18px;color:var(--cream);position:relative;z-index:1">days in a row.</div>
+          <div class="streak-meta">
+            <span><strong>284</strong> total brews</span>
+            <span><strong>9</strong> badges earned</span>
+            <span>Next badge <strong>21 days</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Feed ============ -->
+  <section style="padding-top:24px">
+    <div class="container">
+      <div class="section-divider">
+        <span><span class="num">03</span> · Feed · letters to the editor</span>
+        <span>4 of 84 posts</span>
+      </div>
+      <h2 class="section-h">From the <em>community</em>.</h2>
+      <div class="feed-grid">
+        <article class="post">
+          <div class="post-head">
+            <div class="post-avatar">CA</div>
+            <div>
+              <div class="post-author">Catherine</div>
+              <div class="post-handle">@catherine · 4h</div>
+            </div>
+            <span class="post-kind tip">Tip</span>
+          </div>
+          <div class="post-body">If your shots are tasting harsh, try grinding a notch coarser before you up the dose. Saved my morning twice this week.</div>
+          <div class="post-foot">
+            <span class="pill">↑ 28 kudos</span>
+            <span>3 comments</span>
+            <span style="margin-left:auto;font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase">EM-200</span>
+          </div>
+        </article>
+        <article class="post">
+          <div class="post-head">
+            <div class="post-avatar" style="background:linear-gradient(135deg,var(--teal) 0%, #075E63 100%)">AL</div>
+            <div>
+              <div class="post-author">Aleks</div>
+              <div class="post-handle">@aleks · 6h</div>
+            </div>
+            <span class="post-kind recipe">Recipe</span>
+          </div>
+          <div class="post-body">My current pour-over for the Ethiopia Yirgacheffe: 18g in, 300g out, 92°C. 4 pours, 20s rest between.</div>
+          <div class="post-foot">
+            <span class="pill">↑ 41 kudos</span>
+            <span>11 comments</span>
+            <span style="margin-left:auto;font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase">Pour over</span>
+          </div>
+        </article>
+        <article class="post">
+          <div class="post-head">
+            <div class="post-avatar" style="background:linear-gradient(135deg,var(--canopy) 0%, #0E2A18 100%)">AN</div>
+            <div>
+              <div class="post-author">Andrew</div>
+              <div class="post-handle">@andrew · yesterday</div>
+            </div>
+            <span class="post-kind q">Q</span>
+          </div>
+          <div class="post-body">Anyone tried the new Onyx Monarch with a 1:2 ratio? Mine pulled in 32 seconds, tasted thin. Wondering if I should grind finer or shorten the shot.</div>
+          <div class="post-foot">
+            <span class="pill">↑ 9 kudos</span>
+            <span>17 comments</span>
+            <span style="margin-left:auto;font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase">Espresso</span>
+          </div>
+        </article>
+        <article class="post">
+          <div class="post-head">
+            <div class="post-avatar" style="background:linear-gradient(135deg,var(--plum) 0%, #4A1F40 100%)">ZA</div>
+            <div>
+              <div class="post-author">Zach</div>
+              <div class="post-handle">@zach · 2d</div>
+            </div>
+            <span class="post-kind tip">Tip</span>
+          </div>
+          <div class="post-body">Tip: don't sleep on the EM-1500's pre-infusion. 4 seconds at low pressure pulled out way more sweetness from a Brazilian natural for me.</div>
+          <div class="post-foot">
+            <span class="pill">↑ 52 kudos</span>
+            <span>6 comments</span>
+            <span style="margin-left:auto;font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase">EM-1500</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Learn ============ -->
+  <section style="padding-top:24px">
+    <div class="container">
+      <div class="section-divider">
+        <span><span class="num">04</span> · Learn · brew school</span>
+        <span>3 featured of 24 classes</span>
+      </div>
+      <h2 class="section-h">Latte Art 101 with <em>Lance Hedrick</em>.</h2>
+      <div class="class-grid">
+        <a class="class-card">
+          <div class="class-thumb" style="background:linear-gradient(135deg,#3D2818 0%, #1A0D06 100%)">
+            <div class="play">▶</div>
+          </div>
+          <div class="class-meta">
+            <div class="class-eyebrow">◆ Featured · 12 min</div>
+            <div class="class-title">The rosetta, demystified.</div>
+            <div class="class-sub"><strong>Lance Hedrick</strong> · Beginner</div>
+          </div>
+        </a>
+        <a class="class-card">
+          <div class="class-thumb" style="background:linear-gradient(135deg,#5C2E2A 0%, #2A100C 100%)">
+            <div class="play">▶</div>
+          </div>
+          <div class="class-meta">
+            <div class="class-eyebrow">◆ Espresso · 18 min</div>
+            <div class="class-title">Dialing in your first shot.</div>
+            <div class="class-sub"><strong>James Hoffmann</strong> · Beginner</div>
+          </div>
+        </a>
+        <a class="class-card">
+          <div class="class-thumb" style="background:linear-gradient(160deg, var(--canopy) 0%, var(--jungle-dark) 100%)">
+            <div class="play">▶</div>
+          </div>
+          <div class="class-meta">
+            <div class="class-eyebrow">◆ Origins · 24 min</div>
+            <div class="class-title">Inside an Ethiopian washing station.</div>
+            <div class="class-sub"><strong>Mikael Cho</strong> · All levels</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Passport ============ -->
+  <section style="padding-top:24px">
+    <div class="container">
+      <div class="section-divider">
+        <span><span class="num">05</span> · Passport · your café visits</span>
+        <span>14 stamps this year</span>
+      </div>
+      <h2 class="section-h">The <em>map</em> of where you've sipped.</h2>
+      <div class="passport-grid">
+        <div class="passport-map" aria-label="Map preview"></div>
+        <div class="passport-list">
+          <a class="cafe-row">
+            <span class="cafe-rank">01</span>
+            <div class="cafe-body">
+              <div class="cafe-name">Sey Coffee</div>
+              <div class="cafe-hood">Brooklyn · Bushwick</div>
+            </div>
+            <span class="cafe-stat">9.4</span>
+          </a>
+          <a class="cafe-row">
+            <span class="cafe-rank">02</span>
+            <div class="cafe-body">
+              <div class="cafe-name">Devoción</div>
+              <div class="cafe-hood">Brooklyn · Williamsburg</div>
+            </div>
+            <span class="cafe-stat">9.1</span>
+          </a>
+          <a class="cafe-row">
+            <span class="cafe-rank">03</span>
+            <div class="cafe-body">
+              <div class="cafe-name">Abraço</div>
+              <div class="cafe-hood">Manhattan · East Village</div>
+            </div>
+            <span class="cafe-stat">8.8</span>
+          </a>
+          <a class="cafe-row">
+            <span class="cafe-rank">04</span>
+            <div class="cafe-body">
+              <div class="cafe-name">Felix Roasting Co.</div>
+              <div class="cafe-hood">Manhattan · NoMad</div>
+            </div>
+            <span class="cafe-stat">8.6</span>
+          </a>
+          <a class="cafe-row">
+            <span class="cafe-rank">05</span>
+            <div class="cafe-body">
+              <div class="cafe-name">Variety Coffee Roasters</div>
+              <div class="cafe-hood">Brooklyn · Bedstuy</div>
+            </div>
+            <span class="cafe-stat">8.4</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="note">
+  <strong>Bean redesign · polished</strong>
+  <span>This is a static preview of the polished <em>the-bean-redesign</em> branch. Open <em>app.html</em> in the project folder for the live version with state, routing, and the full set of pages.</span>
+</footer>
+
+</body>
+</html>

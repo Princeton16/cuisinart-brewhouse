@@ -1,0 +1,1001 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brew Lab — polished app preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --bg-base: #0F1F14;
+    --bg-alt: #1A2D1F;
+    --bg-card: #FAF6F0;
+    --accent-yellow: #F5C842;
+    --accent-yellow-soft: #FCE5A4;
+    --accent-yellow-deep: #C99B1A;
+    --text-on-dark: #F8F4ED;
+    --text-on-dark-muted: #A89F8E;
+    --text-on-light: #1A1F14;
+    --text-on-light-muted: #6B6256;
+    --border-on-light: rgba(0,0,0,0.08);
+    --border-on-dark: rgba(255,255,255,0.08);
+    --display: 'DM Serif Display', Georgia, serif;
+    --body: 'Inter', system-ui, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  * { margin: 0; padding: 0; }
+  body {
+    font-family: var(--body);
+    background: var(--bg-base);
+    color: var(--text-on-dark);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    padding: 24px 0;
+  }
+  img { display: block; max-width: 100%; }
+
+  /* Banner */
+  .preview-bar {
+    max-width: 480px;
+    margin: 0 auto 24px;
+    background: var(--bg-alt);
+    color: var(--text-on-dark);
+    padding: 14px 18px;
+    border-radius: 14px;
+    font-size: 12px;
+  }
+  .preview-bar strong { font-family: var(--display); font-size: 16px; display: block; margin-bottom: 4px; color: var(--accent-yellow); }
+
+  /* Phone frame */
+  .frame {
+    max-width: 480px;
+    margin: 0 auto 28px;
+    background: var(--bg-base);
+    border-radius: 32px;
+    box-shadow: 0 0 0 1px var(--border-on-dark), 0 24px 64px rgba(0,0,0,0.45);
+    padding: 22px 16px 100px;
+    position: relative;
+    overflow: hidden;
+  }
+  .tab-label {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--text-on-dark-muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .stack > * + * { margin-top: 14px; }
+
+  /* Cards */
+  .card {
+    background: var(--bg-card);
+    color: var(--text-on-light);
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 12px 28px -16px rgba(0,0,0,0.16);
+  }
+  .card-dark {
+    background: var(--bg-alt);
+    color: var(--text-on-dark);
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.20), 0 14px 28px -14px rgba(0,0,0,0.45);
+  }
+  .eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-on-light-muted);
+    margin-bottom: 10px;
+  }
+  .eyebrow.yellow { color: var(--accent-yellow); }
+  .card-dark .eyebrow { color: var(--accent-yellow); }
+
+  /* You: profile */
+  .profile-actions { display: flex; gap: 6px; justify-content: flex-end; margin-bottom: 4px; }
+  .icon-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 0;
+    background: transparent;
+    color: var(--text-on-light-muted);
+    cursor: pointer;
+  }
+  .profile-row { display: flex; align-items: center; gap: 14px; }
+  .avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--accent-yellow);
+    color: var(--text-on-light);
+    font-family: var(--display);
+    font-size: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .name { font-family: var(--display); font-size: 22px; line-height: 1.1; color: var(--text-on-light); }
+  .profile-line { display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+  .pill-trophy {
+    background: var(--accent-yellow);
+    color: var(--text-on-light);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .joined { font-size: 11px; color: var(--text-on-light-muted); }
+  .bio { margin-top: 14px; font-size: 14px; color: var(--text-on-light-muted); line-height: 1.5; }
+  .pstats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-on-light);
+  }
+  .pstat { text-align: center; }
+  .pstat-value {
+    font-family: var(--display);
+    font-size: 22px;
+    line-height: 1;
+    color: var(--text-on-light);
+    letter-spacing: -0.01em;
+  }
+  .pstat-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-on-light-muted);
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  /* You: streak */
+  .streak-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .streak-num { display: flex; align-items: baseline; gap: 8px; color: var(--accent-yellow); }
+  .streak-flame { font-size: 22px; }
+  .streak-value { font-family: var(--display); font-size: 36px; color: var(--text-on-dark); line-height: 1; }
+  .streak-label { font-size: 13px; color: var(--text-on-dark-muted); }
+  .streak-best { font-size: 12px; color: var(--text-on-dark-muted); }
+  .streak-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 14px; }
+  .streak-cell {
+    height: 42px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2px;
+  }
+  .streak-cell.is-today { background: rgba(245,200,66,0.10); border: 1px solid rgba(245,200,66,0.3); }
+  .streak-letter { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-on-dark-muted); }
+  .streak-tick {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent-yellow);
+    color: var(--text-on-light);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+  }
+  .streak-empty {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.18);
+  }
+  .momentum {
+    margin-top: 4px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-on-dark);
+  }
+  .momentum-track {
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .momentum-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-yellow-deep), var(--accent-yellow));
+    border-radius: 999px;
+  }
+  .momentum-text { font-size: 11px; color: var(--text-on-dark-muted); letter-spacing: 0.04em; }
+
+  /* You: log CTA */
+  .log-wrap { display: flex; flex-direction: column; gap: 10px; }
+  .log-cta {
+    height: 54px;
+    background: var(--accent-yellow);
+    color: var(--text-on-light);
+    border: 0;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(245,200,66,0.18), 0 12px 24px -10px rgba(245,200,66,0.45);
+  }
+  .log-proof {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    align-self: center;
+    font-size: 12px;
+    color: var(--text-on-dark-muted);
+  }
+  .log-proof-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent-yellow);
+    box-shadow: 0 0 0 0 rgba(245,200,66,0.55);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(245,200,66,0.55); }
+    50% { box-shadow: 0 0 0 6px rgba(245,200,66,0); }
+  }
+
+  /* You: recommendations row */
+  .recs-card { padding: 18px 0 18px 18px; background: var(--bg-card); border-radius: 18px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 12px 28px -16px rgba(0,0,0,0.16); }
+  .recs-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding-right: 18px; margin-bottom: 14px;
+  }
+  .recs-meta { font-size: 11px; color: var(--text-on-light-muted); }
+  .recs-scroll {
+    display: flex; gap: 12px;
+    overflow-x: auto;
+    padding: 4px 18px 4px 0;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .recs-scroll::-webkit-scrollbar { display: none; }
+  .rec-tile {
+    flex: 0 0 78%;
+    scroll-snap-align: start;
+    background: #FFFFFF;
+    border: 1px solid var(--border-on-light);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 18px -10px rgba(0,0,0,0.18);
+  }
+  .rec-tile.is-featured { flex-basis: 84%; }
+  .rec-photo {
+    position: relative;
+    aspect-ratio: 5/3;
+    background-size: cover;
+    background-position: center;
+  }
+  .rec-flag {
+    position: absolute; top: 10px; left: 10px;
+    background: var(--accent-yellow);
+    color: var(--text-on-light);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 4px 9px;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  }
+  .rec-body { padding: 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .rec-name { font-family: var(--display); font-size: 18px; line-height: 1.15; color: var(--text-on-light); letter-spacing: -0.01em; }
+  .rec-meta {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--text-on-light-muted);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .rec-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(0,0,0,0.25); }
+  .rec-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--accent-yellow-soft);
+    color: var(--accent-yellow-deep);
+  }
+  .rec-cta {
+    margin-top: auto;
+    height: 40px;
+    background: var(--text-on-light);
+    color: #FFFFFF;
+    border: 0;
+    border-radius: 999px;
+    font-family: var(--body);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  /* Feed: top strip */
+  .feed-top { margin: 0 -16px 14px; }
+  .feed-top-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 0 16px; margin-bottom: 10px;
+  }
+  .feed-top-eyebrow {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--accent-yellow);
+  }
+  .feed-top-meta { font-size: 11px; color: var(--text-on-dark-muted); }
+  .feed-top-scroll {
+    display: flex; gap: 10px;
+    padding: 0 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .feed-top-scroll::-webkit-scrollbar { display: none; }
+  .feed-top-card {
+    flex: 0 0 72%;
+    background: var(--bg-card);
+    color: var(--text-on-light);
+    border: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.20), 0 12px 24px -12px rgba(0,0,0,0.40);
+    cursor: pointer;
+  }
+  .feed-top-card.is-first { flex-basis: 78%; }
+  .feed-top-photo {
+    position: relative;
+    aspect-ratio: 5/3;
+    background-size: cover;
+    background-position: center;
+  }
+  .feed-top-rank {
+    position: absolute; top: 8px; left: 8px;
+    background: var(--accent-yellow);
+    color: var(--text-on-light);
+    font-family: var(--display);
+    font-size: 14px; font-weight: 700;
+    padding: 4px 10px 3px;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.30);
+  }
+  .feed-top-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .feed-top-author { font-weight: 700; font-size: 13px; }
+  .feed-top-snippet {
+    font-family: var(--display);
+    font-size: 14px; line-height: 1.3;
+    letter-spacing: -0.005em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .feed-top-foot {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: auto;
+    font-size: 11px;
+    color: var(--text-on-light-muted);
+    font-weight: 500;
+  }
+
+  /* Feed: post card */
+  .post {
+    background: var(--bg-card);
+    color: var(--text-on-light);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 10px 24px -14px rgba(0,0,0,0.16);
+  }
+  .post-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .post-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #E84F1A, #C73E0F);
+    color: #FFF; font-weight: 700;
+    font-family: var(--display);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px;
+  }
+  .post-handle { font-weight: 700; font-size: 13px; }
+  .post-sub { font-size: 11px; color: var(--text-on-light-muted); }
+  .post-content { font-family: var(--display); font-size: 15px; line-height: 1.4; color: var(--text-on-light); margin-bottom: 12px; }
+  .post-foot {
+    display: flex; gap: 14px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-on-light);
+    font-size: 12px;
+    color: var(--text-on-light-muted);
+    font-weight: 500;
+  }
+
+  /* Learn: continue card */
+  .learn-continue {
+    display: flex; align-items: center; gap: 14px;
+    background: linear-gradient(135deg, var(--accent-yellow-soft), var(--accent-yellow));
+    color: var(--text-on-light);
+    border: 0;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 1px 2px rgba(245,200,66,0.20), 0 14px 28px -14px rgba(245,200,66,0.45);
+    cursor: pointer;
+  }
+  .learn-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    background: #8B4F2A;
+    color: #FFF;
+    font-size: 24px;
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+  }
+  .learn-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .learn-eyebrow {
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(64,36,2,0.7);
+  }
+  .learn-title {
+    font-family: var(--display);
+    font-size: 18px; line-height: 1.15;
+    color: var(--text-on-light);
+    letter-spacing: -0.01em;
+  }
+  .learn-meta {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 600;
+    color: rgba(64,36,2,0.78);
+  }
+  .learn-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(64,36,2,0.5); }
+  .learn-arrow {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--text-on-light);
+    color: var(--accent-yellow);
+    font-size: 18px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  /* Learn: tracks list */
+  .track {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 10px 24px -14px rgba(0,0,0,0.16);
+  }
+  .track-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .track-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: #8B4F2A;
+    color: #FFF;
+    font-size: 18px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .track-title { font-family: var(--display); font-size: 16px; color: var(--text-on-light); }
+  .track-sub { font-size: 12px; color: var(--text-on-light-muted); }
+  .track-bar {
+    height: 4px;
+    background: rgba(0,0,0,0.06);
+    border-radius: 999px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+  .track-fill { height: 100%; background: var(--accent-yellow); border-radius: 999px; }
+
+  /* Passport: rail */
+  .pp-rail { margin: 0 -16px 14px; }
+  .pp-rail-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 0 16px; margin-bottom: 10px;
+  }
+  .pp-eyebrow {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--accent-yellow);
+  }
+  .pp-rail-meta { font-size: 11px; color: var(--text-on-dark-muted); }
+  .pp-rail-scroll {
+    display: flex; gap: 10px;
+    padding: 0 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .pp-rail-scroll::-webkit-scrollbar { display: none; }
+  .pp-card {
+    flex: 0 0 64%;
+    background: var(--bg-card);
+    color: var(--text-on-light);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.20), 0 12px 24px -12px rgba(0,0,0,0.40);
+    cursor: pointer;
+  }
+  .pp-card.is-first { flex-basis: 70%; }
+  .pp-card-photo {
+    position: relative;
+    aspect-ratio: 4/3;
+    background-size: cover;
+    background-position: center;
+  }
+  .pp-card-rank {
+    position: absolute; top: 8px; left: 8px;
+    background: var(--accent-yellow);
+    color: var(--text-on-light);
+    font-family: var(--display);
+    font-size: 14px; font-weight: 700;
+    padding: 4px 10px 3px;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.30);
+  }
+  .pp-card-body { padding: 12px 14px; }
+  .pp-card-name { font-family: var(--display); font-size: 16px; line-height: 1.15; color: var(--text-on-light); margin-bottom: 3px; }
+  .pp-card-loc { font-size: 11px; color: var(--text-on-light-muted); font-weight: 500; }
+
+  /* Passport stats */
+  .pp-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  .pp-stat {
+    background: var(--bg-alt);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+  }
+  .pp-stat-icon { color: var(--accent-yellow); font-size: 16px; margin-bottom: 6px; }
+  .pp-stat-label {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-on-dark-muted);
+    font-weight: 700;
+  }
+  .pp-stat-value { font-family: var(--display); font-size: 20px; color: var(--text-on-dark); margin-top: 4px; }
+
+  /* Passport list card */
+  .pp-list-card {
+    display: flex;
+    background: var(--bg-card);
+    color: var(--text-on-light);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 18px -10px rgba(0,0,0,0.18);
+  }
+  .pp-list-photo { width: 100px; aspect-ratio: 1; background-size: cover; background-position: center; flex-shrink: 0; }
+  .pp-list-body { flex: 1; padding: 12px 14px; }
+  .pp-list-name { font-family: var(--display); font-size: 16px; }
+  .pp-list-loc { font-size: 11px; color: var(--text-on-light-muted); margin-top: 2px; font-weight: 500; }
+  .pp-list-drinks { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
+  .pp-list-drink { font-size: 10px; padding: 3px 8px; background: rgba(0,0,0,0.06); border-radius: 999px; color: var(--text-on-light-muted); font-weight: 600; }
+
+  /* Bottom nav */
+  .bean-nav {
+    position: absolute;
+    bottom: 16px;
+    left: 16px; right: 16px;
+    height: 60px;
+    background: var(--bg-alt);
+    border: 1px solid var(--border-on-dark);
+    border-radius: 999px;
+    display: flex;
+    padding: 6px;
+    gap: 4px;
+    box-shadow: 0 -8px 24px rgba(0,0,0,0.35);
+  }
+  .nav-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+    color: var(--text-on-dark-muted);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .nav-tab .icon { font-size: 16px; }
+  .nav-tab.active { background: var(--accent-yellow); color: var(--text-on-light); }
+</style>
+</head>
+<body>
+
+<div class="preview-bar">
+  <strong>Polished app — preview of all 4 tabs</strong>
+  Beli + DoorDash benchmarks: Beli-style stats strip + ranked rails, DoorDash-style horizontal-scroll cards, momentum bars, social proof, count-up streak, smooth press states. Live edits are in <code>pages/you.js</code>, <code>pages/feed.js</code>, <code>pages/learn.js</code>, <code>pages/passport.js</code>, and <code>styles.css</code>.
+</div>
+
+<!-- ============ YOU TAB ============ -->
+<div class="frame">
+  <div class="tab-label">▽ YOU TAB</div>
+  <div class="stack">
+    <!-- Profile -->
+    <div class="card">
+      <div class="profile-actions">
+        <button class="icon-btn" aria-label="Share">↗</button>
+        <button class="icon-btn" aria-label="Settings">⚙</button>
+      </div>
+      <div class="profile-row">
+        <div class="avatar">DB</div>
+        <div>
+          <div class="name">Demo Bobby</div>
+          <div class="profile-line">
+            <span class="pill-trophy">🏆 Coffee Apprentice</span>
+            <span class="joined">Joined May 2026</span>
+          </div>
+        </div>
+      </div>
+      <p class="bio">Daily brewer. Always one ratio away from perfect.</p>
+      <div class="pstats">
+        <div class="pstat">
+          <div class="pstat-value">14</div>
+          <div class="pstat-label">Brews</div>
+        </div>
+        <div class="pstat">
+          <div class="pstat-value">9</div>
+          <div class="pstat-label">Best streak</div>
+        </div>
+        <div class="pstat">
+          <div class="pstat-value">3</div>
+          <div class="pstat-label">Badges</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Streak -->
+    <div class="card-dark">
+      <div class="eyebrow">YOUR BREWS</div>
+      <div class="streak-row">
+        <div class="streak-num">
+          <span class="streak-flame">🔥</span>
+          <span class="streak-value">7</span>
+          <span class="streak-label">day streak</span>
+        </div>
+        <div class="streak-best">Best: 9 days</div>
+      </div>
+      <div class="streak-grid">
+        <div class="streak-cell"><span class="streak-letter">T</span><span class="streak-tick">✓</span></div>
+        <div class="streak-cell"><span class="streak-letter">F</span><span class="streak-tick">✓</span></div>
+        <div class="streak-cell"><span class="streak-letter">S</span><span class="streak-tick">✓</span></div>
+        <div class="streak-cell"><span class="streak-letter">S</span><span class="streak-tick">✓</span></div>
+        <div class="streak-cell"><span class="streak-letter">M</span><span class="streak-tick">✓</span></div>
+        <div class="streak-cell"><span class="streak-letter">T</span><span class="streak-tick">✓</span></div>
+        <div class="streak-cell is-today"><span class="streak-letter">W</span><span class="streak-tick">✓</span></div>
+      </div>
+      <div class="momentum">
+        <div class="momentum-track"><div class="momentum-fill" style="width:57%"></div></div>
+        <div class="momentum-text">7 days to 14-day milestone.</div>
+      </div>
+    </div>
+
+    <!-- Log CTA -->
+    <div class="log-wrap">
+      <button class="log-cta">Log Today's Brew  +</button>
+      <div class="log-proof">
+        <span class="log-proof-dot"></span>
+        <span>1,284 brewers logged today. Keep your streak.</span>
+      </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="recs-card">
+      <div class="recs-head">
+        <div class="eyebrow">RECOMMENDED FOR YOU</div>
+        <span class="recs-meta">Tuned to your last brews</span>
+      </div>
+      <div class="recs-scroll">
+        <div class="rec-tile is-featured">
+          <div class="rec-photo" style="background-image:url('https://images.unsplash.com/photo-1516559828984-fb3b99548b21?w=600&q=80')">
+            <span class="rec-flag">★ TODAY'S PICK</span>
+          </div>
+          <div class="rec-body">
+            <div class="rec-name">Bright Yirgacheffe pour-over</div>
+            <div class="rec-meta">
+              <span>POUR-OVER</span><span class="rec-dot"></span><span>1:16</span><span class="rec-dot"></span><span>MEDIUM-FINE</span>
+            </div>
+            <div class="rec-tags">
+              <span class="tag">floral</span>
+              <span class="tag">citrus</span>
+              <span class="tag">tea-like</span>
+            </div>
+            <button class="rec-cta">Try this brew</button>
+          </div>
+        </div>
+        <div class="rec-tile">
+          <div class="rec-photo" style="background-image:url('https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=600&q=80')"></div>
+          <div class="rec-body">
+            <div class="rec-name">Maple bourbon cold brew</div>
+            <div class="rec-meta">
+              <span>COLD BREW</span><span class="rec-dot"></span><span>1:8</span>
+            </div>
+            <div class="rec-tags">
+              <span class="tag">caramel</span>
+              <span class="tag">sweet</span>
+            </div>
+            <button class="rec-cta">Try this brew</button>
+          </div>
+        </div>
+        <div class="rec-tile">
+          <div class="rec-photo" style="background-image:url('https://images.unsplash.com/photo-1497515114629-f71d768fd07c?w=600&q=80')"></div>
+          <div class="rec-body">
+            <div class="rec-name">Honey lavender latte</div>
+            <div class="rec-meta">
+              <span>ESPRESSO</span><span class="rec-dot"></span><span>1:2</span>
+            </div>
+            <div class="rec-tags">
+              <span class="tag">floral</span>
+              <span class="tag">creamy</span>
+            </div>
+            <button class="rec-cta">Try this brew</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav class="bean-nav">
+    <button class="nav-tab active"><span class="icon">👤</span><span>You</span></button>
+    <button class="nav-tab"><span class="icon">💬</span><span>Feed</span></button>
+    <button class="nav-tab"><span class="icon">🎓</span><span>Learn</span></button>
+    <button class="nav-tab"><span class="icon">🌍</span><span>Passport</span></button>
+  </nav>
+</div>
+
+<!-- ============ FEED TAB ============ -->
+<div class="frame">
+  <div class="tab-label">▽ FEED TAB</div>
+  <div class="stack" style="--stack-gap:14px">
+    <h1 style="font-family:var(--display);font-size:32px;color:var(--text-on-dark)">Feed</h1>
+
+    <!-- Top this week strip -->
+    <div class="feed-top">
+      <div class="feed-top-head">
+        <span class="feed-top-eyebrow">TOP THIS WEEK</span>
+        <span class="feed-top-meta">Most kudos · last 7 days</span>
+      </div>
+      <div class="feed-top-scroll">
+        <div class="feed-top-card is-first">
+          <div class="feed-top-photo" style="background-image:url('https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=600&q=80')">
+            <span class="feed-top-rank">#1</span>
+          </div>
+          <div class="feed-top-body">
+            <div class="feed-top-author">@catherine</div>
+            <div class="feed-top-snippet">If your shots are tasting harsh, try grinding a notch coarser before you up the dose.</div>
+            <div class="feed-top-foot">☕ <span>52 kudos</span></div>
+          </div>
+        </div>
+        <div class="feed-top-card">
+          <div class="feed-top-photo" style="background-image:url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80')">
+            <span class="feed-top-rank">#2</span>
+          </div>
+          <div class="feed-top-body">
+            <div class="feed-top-author">@aleks</div>
+            <div class="feed-top-snippet">My pour-over for the Yirgacheffe: 18g in, 300g out, 92°C, 4 pours.</div>
+            <div class="feed-top-foot">☕ <span>41 kudos</span></div>
+          </div>
+        </div>
+        <div class="feed-top-card">
+          <div class="feed-top-photo" style="background-image:url('https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=600&q=80')">
+            <span class="feed-top-rank">#3</span>
+          </div>
+          <div class="feed-top-body">
+            <div class="feed-top-author">@zach</div>
+            <div class="feed-top-snippet">Don't sleep on the EM-1500 pre-infusion. 4 seconds at low pressure.</div>
+            <div class="feed-top-foot">☕ <span>28 kudos</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sample posts -->
+    <div class="post">
+      <div class="post-top">
+        <div class="post-avatar">CA</div>
+        <div>
+          <div class="post-handle">@catherine</div>
+          <div class="post-sub">Coffee Apprentice · 4h</div>
+        </div>
+      </div>
+      <div class="post-content">If your shots are tasting harsh, try grinding a notch coarser before you up the dose. Saved my morning twice this week.</div>
+      <div class="post-foot">
+        <span>☕ 52</span>
+        <span>💬 11</span>
+        <span>↗</span>
+      </div>
+    </div>
+    <div class="post">
+      <div class="post-top">
+        <div class="post-avatar" style="background:linear-gradient(135deg,#0E8B91,#075E63)">AL</div>
+        <div>
+          <div class="post-handle">@aleks</div>
+          <div class="post-sub">Pour Pro · 6h</div>
+        </div>
+      </div>
+      <div class="post-content">My pour-over for the Yirgacheffe: 18g in, 300g out, 92°C, 4 pours, 20s rest between.</div>
+      <div class="post-foot">
+        <span>☕ 41</span>
+        <span>💬 11</span>
+        <span>↗</span>
+      </div>
+    </div>
+  </div>
+  <nav class="bean-nav">
+    <button class="nav-tab"><span class="icon">👤</span><span>You</span></button>
+    <button class="nav-tab active"><span class="icon">💬</span><span>Feed</span></button>
+    <button class="nav-tab"><span class="icon">🎓</span><span>Learn</span></button>
+    <button class="nav-tab"><span class="icon">🌍</span><span>Passport</span></button>
+  </nav>
+</div>
+
+<!-- ============ LEARN TAB ============ -->
+<div class="frame">
+  <div class="tab-label">▽ LEARN TAB</div>
+  <div class="stack" style="--stack-gap:14px">
+    <!-- Header -->
+    <div class="card-dark">
+      <div class="eyebrow">COFFEE IQ</div>
+      <h1 style="font-family:var(--display);font-size:28px;color:var(--text-on-dark);line-height:1">Coffee Apprentice</h1>
+      <p style="font-size:13px;color:var(--text-on-dark-muted);margin-top:4px">240 / 400 XP to Bean Sage</p>
+      <div class="momentum-track" style="margin-top:10px">
+        <div class="momentum-fill" style="width:60%"></div>
+      </div>
+      <p style="font-size:11px;color:var(--text-on-dark-muted);margin-top:8px">7 of 24 lessons completed</p>
+    </div>
+
+    <!-- Continue card -->
+    <button class="learn-continue">
+      <div class="learn-icon">☕</div>
+      <div class="learn-body">
+        <div class="learn-eyebrow">◆ PICK UP WHERE YOU LEFT OFF</div>
+        <div class="learn-title">Dialing in your first espresso shot</div>
+        <div class="learn-meta">
+          <span>Espresso Fundamentals</span><span class="learn-dot"></span><span>+25 XP</span>
+        </div>
+      </div>
+      <div class="learn-arrow">▶</div>
+    </button>
+
+    <!-- Tracks -->
+    <div class="track">
+      <div class="track-head">
+        <div class="track-icon">☕</div>
+        <div style="flex:1">
+          <div class="track-title">Espresso Fundamentals</div>
+          <div class="track-sub">3/8 lessons</div>
+        </div>
+      </div>
+      <div class="track-bar"><div class="track-fill" style="width:38%"></div></div>
+    </div>
+    <div class="track">
+      <div class="track-head">
+        <div class="track-icon" style="background:#5DAA6E">🌿</div>
+        <div style="flex:1">
+          <div class="track-title">Origin & Sourcing</div>
+          <div class="track-sub">2/6 lessons</div>
+        </div>
+      </div>
+      <div class="track-bar"><div class="track-fill" style="width:33%"></div></div>
+    </div>
+    <div class="track">
+      <div class="track-head">
+        <div class="track-icon" style="background:#85B7EB">💧</div>
+        <div style="flex:1">
+          <div class="track-title">Water & Brewing Chemistry</div>
+          <div class="track-sub">2/10 lessons</div>
+        </div>
+      </div>
+      <div class="track-bar"><div class="track-fill" style="width:20%"></div></div>
+    </div>
+  </div>
+  <nav class="bean-nav">
+    <button class="nav-tab"><span class="icon">👤</span><span>You</span></button>
+    <button class="nav-tab"><span class="icon">💬</span><span>Feed</span></button>
+    <button class="nav-tab active"><span class="icon">🎓</span><span>Learn</span></button>
+    <button class="nav-tab"><span class="icon">🌍</span><span>Passport</span></button>
+  </nav>
+</div>
+
+<!-- ============ PASSPORT TAB ============ -->
+<div class="frame">
+  <div class="tab-label">▽ PASSPORT TAB</div>
+  <div class="stack" style="--stack-gap:14px">
+    <h1 style="font-family:var(--display);font-size:32px;color:var(--text-on-dark)">Passport</h1>
+    <div class="pp-stats">
+      <div class="pp-stat">
+        <div class="pp-stat-icon">☕</div>
+        <div class="pp-stat-label">VISITED</div>
+        <div class="pp-stat-value">14</div>
+      </div>
+      <div class="pp-stat">
+        <div class="pp-stat-icon">🌍</div>
+        <div class="pp-stat-label">CITIES</div>
+        <div class="pp-stat-value">4</div>
+      </div>
+      <div class="pp-stat">
+        <div class="pp-stat-icon">★</div>
+        <div class="pp-stat-label">AVG RATING</div>
+        <div class="pp-stat-value">4.4</div>
+      </div>
+    </div>
+
+    <!-- Next stops rail -->
+    <div class="pp-rail">
+      <div class="pp-rail-head">
+        <span class="pp-eyebrow">NEXT STOPS</span>
+        <span class="pp-rail-meta">Top matches you haven't hit</span>
+      </div>
+      <div class="pp-rail-scroll">
+        <div class="pp-card is-first">
+          <div class="pp-card-photo" style="background-image:url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&q=80')">
+            <span class="pp-card-rank">#1</span>
+          </div>
+          <div class="pp-card-body">
+            <div class="pp-card-name">Sey Coffee</div>
+            <div class="pp-card-loc">Brooklyn, NY</div>
+          </div>
+        </div>
+        <div class="pp-card">
+          <div class="pp-card-photo" style="background-image:url('https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=600&q=80')">
+            <span class="pp-card-rank">#2</span>
+          </div>
+          <div class="pp-card-body">
+            <div class="pp-card-name">Devoción</div>
+            <div class="pp-card-loc">Brooklyn, NY</div>
+          </div>
+        </div>
+        <div class="pp-card">
+          <div class="pp-card-photo" style="background-image:url('https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=600&q=80')">
+            <span class="pp-card-rank">#3</span>
+          </div>
+          <div class="pp-card-body">
+            <div class="pp-card-name">Felix Roasting Co.</div>
+            <div class="pp-card-loc">Manhattan, NY</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- List cards -->
+    <div class="pp-list-card">
+      <div class="pp-list-photo" style="background-image:url('https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=400&q=80')"></div>
+      <div class="pp-list-body">
+        <div class="pp-list-name">Dirt Cowboy Café</div>
+        <div class="pp-list-loc">Hanover, NH</div>
+        <div class="pp-list-drinks">
+          <span class="pp-list-drink">Cortado</span>
+          <span class="pp-list-drink">Pour-over</span>
+          <span class="pp-list-drink">+3</span>
+        </div>
+      </div>
+    </div>
+    <div class="pp-list-card">
+      <div class="pp-list-photo" style="background-image:url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&q=80')"></div>
+      <div class="pp-list-body">
+        <div class="pp-list-name">Abraço</div>
+        <div class="pp-list-loc">Manhattan, NY</div>
+        <div class="pp-list-drinks">
+          <span class="pp-list-drink">Espresso</span>
+          <span class="pp-list-drink">Cortado</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav class="bean-nav">
+    <button class="nav-tab"><span class="icon">👤</span><span>You</span></button>
+    <button class="nav-tab"><span class="icon">💬</span><span>Feed</span></button>
+    <button class="nav-tab"><span class="icon">🎓</span><span>Learn</span></button>
+    <button class="nav-tab active"><span class="icon">🌍</span><span>Passport</span></button>
+  </nav>
+</div>
+
+</body>
+</html>
