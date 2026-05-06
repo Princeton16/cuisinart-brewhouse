@@ -85,6 +85,9 @@ function renderPassport(main) {
 
   main.appendChild(page);
   paintStage();
+  // Desktop wheel-to-horizontal for the Next stops rail (must happen after
+  // paintStage runs so the rail is in the DOM).
+  if (typeof enableHorizontalWheelScroll === 'function') enableHorizontalWheelScroll(page);
 }
 
 function paintStage() {

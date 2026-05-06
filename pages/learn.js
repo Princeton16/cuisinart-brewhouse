@@ -10,7 +10,9 @@ const LEARN_ICONS = {
   lock:    '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="11" width="12" height="9" rx="2"/><path d="M9 11 V8 a3 3 0 0 1 6 0 V11" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>',
   play:    '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M10 8 L16 12 L10 16 Z" fill="#FFFFFF"/></svg>',
   trophy:  '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4 h10 v3 a5 5 0 0 1 -10 0 Z"/><path d="M5 5 H3 v2 a3 3 0 0 0 3 3 V8 Z M19 5 h2 v2 a3 3 0 0 1 -3 3 V8 Z"/><path d="M9 13 h6 v2 H9 Z M8 16 h8 v3 H8 Z M7 19 h10 v2 H7 Z"/></svg>',
-  close:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg>'
+  close:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg>',
+  // Footprint — single shoe sole + heel circle. Used between path nodes.
+  footprint: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 3 C7 3 6 5 6 8 C6 11 7 12 9 12 C11 12 12 11 12 8 C12 5 11 3 9 3 Z"/><circle cx="9" cy="16" r="2.4"/></svg>'
 };
 
 function _learnSvg(html) {
@@ -141,57 +143,97 @@ function buildTrackBlock(track) {
   head.appendChild(mini);
   block.appendChild(head);
 
-  // Lessons grid
-  const grid = el('div', { class: 'learn-lesson-grid' });
-  (track.lessons || []).forEach(lesson => grid.appendChild(buildLessonCard(track, lesson)));
-  block.appendChild(grid);
+  // Lessons "path" — scrollable footprint trail with each lesson as a node
+  // and walking footprints stepping between them. Replaces the old grid;
+  // the trail alternates left/center/right anchors so the footprints can
+  // visibly step from one to the next inside a fixed-height scroll box.
+  const path = el('div', { class: 'learn-path' });
+  const pathInner = el('div', { class: 'learn-path-inner' });
+  const lessons = track.lessons || [];
+  lessons.forEach((lesson, i) => {
+    const side = (i % 2 === 0) ? 'left' : 'right';
+    pathInner.appendChild(buildPathNode(track, lesson, side, i + 1));
+    if (i < lessons.length - 1) {
+      const nextSide = ((i + 1) % 2 === 0) ? 'left' : 'right';
+      pathInner.appendChild(buildPathSteps(side, nextSide));
+    }
+  });
+  path.appendChild(pathInner);
+  block.appendChild(path);
 
   return block;
 }
 
-function buildLessonCard(track, lesson) {
+/* A node on the path — circular badge with status icon, lesson title to the
+   side. Tapping a non-locked node opens the lesson video modal. */
+function buildPathNode(track, lesson, side, index) {
   const state = getLessonState(lesson.id);
-  const card = el('button', {
+  const node = el('div', { class: 'learn-path-node learn-path-' + side + ' learn-state-' + state });
+
+  // Circular badge with status icon
+  let statusHtml = LEARN_ICONS.play;
+  if (state === 'completed') statusHtml = LEARN_ICONS.check;
+  else if (state === 'in-progress') statusHtml = LEARN_ICONS.hourglass;
+  else if (state === 'locked') statusHtml = LEARN_ICONS.lock;
+
+  const badge = el('button', {
     type: 'button',
-    class: 'learn-lesson-card learn-state-' + state,
+    class: 'learn-path-badge',
+    'aria-label': lesson.title,
+    style: state === 'locked' ? '' : 'background:' + (track.iconColor || '#8B4F2A'),
     onclick: () => {
       if (state === 'locked') {
-        // Subtle horizontal shake
-        card.classList.remove('shake');
-        // Force reflow so the animation re-triggers on rapid taps
-        void card.offsetWidth;
-        card.classList.add('shake');
+        node.classList.remove('shake');
+        void node.offsetWidth;
+        node.classList.add('shake');
         return;
       }
       openLessonModal(track, lesson);
     }
-  });
+  }, _learnSvg(statusHtml));
+  node.appendChild(badge);
 
-  // Status icon
-  let statusHtml = LEARN_ICONS.play;
-  let statusColor = 'var(--accent-yellow-deep)';
-  if (state === 'completed') { statusHtml = LEARN_ICONS.check; statusColor = '#5DAA6E'; }
-  else if (state === 'in-progress') { statusHtml = LEARN_ICONS.hourglass; statusColor = '#F5C842'; }
-  else if (state === 'locked') { statusHtml = LEARN_ICONS.lock; statusColor = '#A89F8E'; }
-  const status = _learnSvg(statusHtml);
-  status.classList.add('learn-lesson-status');
-  status.style.color = statusColor;
-  card.appendChild(status);
+  // Lesson info card next to the badge
+  let stateLabel = '+' + lesson.xp + ' XP';
+  if (state === 'completed') stateLabel = 'Completed · +' + lesson.xp + ' XP';
+  else if (state === 'in-progress') stateLabel = 'Continue · +' + lesson.xp + ' XP';
+  else if (state === 'locked') stateLabel = 'Locked';
 
-  card.appendChild(el('div', { class: 'learn-lesson-title' }, lesson.title));
-
-  // Bottom row
-  let label = '+' + lesson.xp + ' XP';
-  if (state === 'completed') label = 'Completed';
-  else if (state === 'in-progress') label = 'Pick up where you left off';
-  else if (state === 'locked') label = 'Locked';
-  const foot = el('div', { class: 'learn-lesson-foot' },
-    el('span', { class: 'learn-lesson-state' }, label),
-    el('span', { class: 'learn-lesson-xp' }, '+' + lesson.xp + ' XP')
+  const info = el('div', { class: 'learn-path-info' },
+    el('div', { class: 'learn-path-step' }, 'STEP ' + index),
+    el('div', { class: 'learn-path-title' }, lesson.title),
+    el('div', { class: 'learn-path-state' }, stateLabel)
   );
-  card.appendChild(foot);
+  // Make the info card itself tappable so users don't have to hit the small
+  // badge — improves UX dramatically on mobile.
+  info.style.cursor = state === 'locked' ? 'default' : 'pointer';
+  if (state !== 'locked') {
+    info.addEventListener('click', () => openLessonModal(track, lesson));
+  }
+  node.appendChild(info);
+  return node;
+}
 
-  return card;
+/* A run of footprints connecting two adjacent nodes. Renders 3-4 small foot
+   icons in a gentle curve, alternating left/right feet to look like a
+   natural walking trail. Direction depends on which side the prev/next
+   nodes anchor to. */
+function buildPathSteps(prevSide, nextSide) {
+  const steps = el('div', { class: 'learn-path-steps' });
+  // 4 foot icons stepping diagonally; we tilt them slightly L/R/L/R
+  const tilts = [-22, 18, -18, 22];
+  // Direction informs which way the line of feet skews
+  const direction = (prevSide === nextSide) ? 'straight' :
+    (prevSide === 'left' && nextSide === 'right') ? 'rightward' : 'leftward';
+  steps.classList.add('learn-path-steps-' + direction);
+  tilts.forEach((t, i) => {
+    const foot = _learnSvg(LEARN_ICONS.footprint);
+    foot.classList.add('learn-path-foot');
+    foot.style.transform = 'rotate(' + t + 'deg)';
+    foot.style.opacity = String(0.35 + (i / tilts.length) * 0.45);
+    steps.appendChild(foot);
+  });
+  return steps;
 }
 
 function buildCertSection() {
@@ -269,6 +311,20 @@ function openLessonModal(track, lesson) {
 
   card.appendChild(el('div', { class: 'learn-modal-eyebrow' }, track.title.toUpperCase()));
   card.appendChild(el('h2', { class: 'learn-modal-title' }, lesson.title));
+
+  // YouTube video — embedded at top of body. Curated per lesson in data.js
+  // (lesson.youtubeId). The iframe loads with privacy-enhanced nocookie.
+  if (lesson.youtubeId) {
+    const videoWrap = el('div', { class: 'learn-modal-video' });
+    const iframe = document.createElement('iframe');
+    iframe.src = 'https://www.youtube-nocookie.com/embed/' + lesson.youtubeId + '?rel=0&modestbranding=1';
+    iframe.title = lesson.title;
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+    iframe.setAttribute('allowfullscreen', '');
+    iframe.setAttribute('loading', 'lazy');
+    videoWrap.appendChild(iframe);
+    card.appendChild(videoWrap);
+  }
 
   const body = el('div', { class: 'learn-modal-body' });
   String(lesson.body || '').split(/\n\n+/).forEach(para => {

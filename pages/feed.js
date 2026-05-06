@@ -109,6 +109,9 @@ function renderFeed(main) {
 
   main.appendChild(root);
 
+  // Desktop wheel-to-horizontal for the Top this week rail.
+  if (typeof enableHorizontalWheelScroll === 'function') enableHorizontalWheelScroll(root);
+
   function paintList() {
     list.innerHTML = '';
     const posts = filterPosts(loadBeanPosts(), _feedState.filter, _feedState.query);

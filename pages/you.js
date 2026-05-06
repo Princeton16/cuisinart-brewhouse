@@ -110,6 +110,30 @@ function renderYou(main) {
 
   // Tactile micro-interaction: count up the streak number on first paint.
   requestAnimationFrame(() => animateStreakValue(cs));
+  // Make all horizontal scrollers respond to vertical mouse-wheel input on
+  // desktop (touch / trackpad already work natively).
+  enableHorizontalWheelScroll(page);
+}
+
+/* Find every horizontal scroll container in the subtree and let a vertical
+   mouse wheel translate to horizontal scroll. Without this, desktop users
+   without a trackpad have no way to swipe through recommendation cards. */
+function enableHorizontalWheelScroll(root) {
+  const scrollers = root.querySelectorAll('.you-recs-scroll, .feed-top-scroll, .pp-rail-scroll');
+  scrollers.forEach(s => {
+    s.addEventListener('wheel', (e) => {
+      // If the user is scrolling primarily horizontally already, don't fight it.
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      // Let the page scroll vertically if the row is already scrolled to its end
+      // in the wheel direction — this avoids "trapping" vertical scroll.
+      const max = s.scrollWidth - s.clientWidth;
+      const atStart = s.scrollLeft <= 0 && e.deltaY < 0;
+      const atEnd = s.scrollLeft >= max - 1 && e.deltaY > 0;
+      if (atStart || atEnd) return;
+      e.preventDefault();
+      s.scrollLeft += e.deltaY;
+    }, { passive: false });
+  });
 }
 
 /* ---------- 1. Profile header ----------

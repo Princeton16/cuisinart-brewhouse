@@ -5729,6 +5729,170 @@ body.bean-app .learn-continue-arrow {
 body.bean-app .learn-continue-arrow svg { width: 22px; height: 22px; }
 
 /* ============================================================
+   POLISH PASS — Lessons "footprint path"
+   The old lesson grid is replaced by a vertical scrollable trail. Each
+   lesson is a circular badge anchored alternately left/right, with small
+   footprint icons stepping between them. Scrollable inside its own box
+   (max-height + overflow-y) so a long track doesn't blow up the page.
+   ============================================================ */
+body.bean-app .learn-path {
+  position: relative;
+  max-height: 460px;
+  overflow-y: auto;
+  padding: 4px 4px 8px;
+  margin: 0 -4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.12) transparent;
+}
+body.bean-app .learn-path::-webkit-scrollbar { width: 4px; }
+body.bean-app .learn-path::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.12);
+  border-radius: 999px;
+}
+body.bean-app .learn-path-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+/* A single node — circular badge + adjacent info card. The whole row
+   alternates anchor: even-indexed nodes hug the left, odd-indexed the
+   right. The footprints in between visually walk diagonally. */
+body.bean-app .learn-path-node {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+}
+body.bean-app .learn-path-right { flex-direction: row-reverse; text-align: right; }
+
+body.bean-app .learn-path-badge {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--accent-yellow-deep);
+  color: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  position: relative;
+  z-index: 1;
+}
+body.bean-app .learn-path-badge svg { width: 26px; height: 26px; }
+body.bean-app .learn-path-badge:hover { transform: scale(1.06); box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
+body.bean-app .learn-path-badge:active { transform: scale(0.96); }
+
+body.bean-app .learn-path-node.learn-state-completed .learn-path-badge {
+  background: #5DAA6E !important;
+}
+body.bean-app .learn-path-node.learn-state-locked .learn-path-badge {
+  background: rgba(0,0,0,0.10) !important;
+  color: rgba(0,0,0,0.4);
+  box-shadow: none;
+  cursor: default;
+}
+body.bean-app .learn-path-node.learn-state-locked .learn-path-badge:hover { transform: none; }
+
+body.bean-app .learn-path-info {
+  flex: 1;
+  min-width: 0;
+}
+body.bean-app .learn-path-step {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-on-light-muted);
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+body.bean-app .learn-path-title {
+  font-family: var(--bean-display);
+  font-size: 16px;
+  line-height: 1.2;
+  color: var(--text-on-light);
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+body.bean-app .learn-path-state {
+  font-size: 11px;
+  color: var(--text-on-light-muted);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+body.bean-app .learn-path-node.learn-state-completed .learn-path-state { color: #5DAA6E; }
+body.bean-app .learn-path-node.learn-state-in-progress .learn-path-state { color: var(--accent-yellow-deep); }
+body.bean-app .learn-path-node.learn-state-locked .learn-path-title,
+body.bean-app .learn-path-node.learn-state-locked .learn-path-state { opacity: 0.55; }
+
+/* Footprints — 4 small foot icons between two nodes. They line up diagonally
+   based on which side the previous and next nodes anchored to. */
+body.bean-app .learn-path-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 4px 0;
+  height: 36px;
+  margin: 0 24px;
+  pointer-events: none;
+}
+body.bean-app .learn-path-steps-rightward { justify-content: flex-start; padding-left: 60px; }
+body.bean-app .learn-path-steps-leftward  { justify-content: flex-end;   padding-right: 60px; }
+body.bean-app .learn-path-foot {
+  display: inline-flex;
+  color: var(--accent-yellow-deep);
+}
+body.bean-app .learn-path-foot svg { width: 16px; height: 16px; }
+
+/* Locked-node tap shake */
+@keyframes learn-path-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+body.bean-app .learn-path-node.shake { animation: learn-path-shake 0.32s ease-in-out; }
+
+/* Lesson modal video wrapper */
+body.bean-app .learn-modal-video {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  margin: 12px 0 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+body.bean-app .learn-modal-video iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Make the recs / feed-top / pp-rail scrollers more obviously scrollable —
+   add a slim scrollbar on desktop hover so users get visual feedback. */
+body.bean-app .you-recs-scroll,
+body.bean-app .feed-top-scroll,
+body.bean-app .pp-rail-scroll {
+  scroll-behavior: smooth;
+}
+
+/* ============================================================
    POLISH PASS — Passport "Next stops" rail
    Beli-style ranked target list above the main café list. Pushes the
    user toward their next visit with rank numbers and big photo cards.
