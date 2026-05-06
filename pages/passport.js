@@ -251,19 +251,32 @@ function initMap() {
   const mapEl = document.getElementById('pp-map');
   if (!mapEl || !window.L) return;
 
-  const usBounds = [[24.396308, -125.0], [49.384358, -66.93457]];
+  // Generous bounding box for the continental US — bumped out so the
+  // fitBounds call below frames the whole country with breathing room.
+  const usBounds = [[22.5, -128.0], [50.5, -64.5]];
   _ppMap = L.map(mapEl, {
     zoomControl: true,
-    attributionControl: true,
+    attributionControl: false,
     maxBounds: usBounds,
-    maxBoundsViscosity: 1.0,
-    minZoom: 4,
-    maxZoom: 16
-  }).setView([39.8283, -98.5795], 4);
+    maxBoundsViscosity: 0.9,
+    minZoom: 3,
+    maxZoom: 16,
+    zoomSnap: 0.25
+  });
+  // Frame the entire continental US instead of pinning to a fixed zoom.
+  // Padding gives the map a clean border inside the card.
+  _ppMap.fitBounds(usBounds, { padding: [12, 12] });
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
+  // Lighter "positron" tiles for a cleaner editorial feel — less visual
+  // chatter from labels and roads, easier on the eye than the colored
+  // voyager tiles.
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; OpenStreetMap &copy; Carto',
     subdomains: 'abcd'
+  }).addTo(_ppMap);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
+    subdomains: 'abcd',
+    pane: 'shadowPane'
   }).addTo(_ppMap);
 
   // Re-paint markers + cluster on zoom change so the Hanover/Norwich

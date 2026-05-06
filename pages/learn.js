@@ -11,8 +11,10 @@ const LEARN_ICONS = {
   play:    '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M10 8 L16 12 L10 16 Z" fill="#FFFFFF"/></svg>',
   trophy:  '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4 h10 v3 a5 5 0 0 1 -10 0 Z"/><path d="M5 5 H3 v2 a3 3 0 0 0 3 3 V8 Z M19 5 h2 v2 a3 3 0 0 1 -3 3 V8 Z"/><path d="M9 13 h6 v2 H9 Z M8 16 h8 v3 H8 Z M7 19 h10 v2 H7 Z"/></svg>',
   close:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg>',
-  // Footprint — single shoe sole + heel circle. Used between path nodes.
-  footprint: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 3 C7 3 6 5 6 8 C6 11 7 12 9 12 C11 12 12 11 12 8 C12 5 11 3 9 3 Z"/><circle cx="9" cy="16" r="2.4"/></svg>'
+  // Footprint — top-down view of a right foot, toes pointing UP. Rotated +90°
+   // in the path to face right (toward the next module). Mirror via
+   // transform:scaleY(-1) for alternating left foot.
+  footprint: '<svg viewBox="0 0 18 24" fill="currentColor" aria-hidden="true"><ellipse cx="9" cy="9" rx="5" ry="7"/><circle cx="6.2" cy="3" r="1.6"/><circle cx="9.5" cy="2" r="1.4"/><circle cx="12.6" cy="3" r="1.4"/><circle cx="14.4" cy="5.5" r="1.2"/><circle cx="9" cy="20.5" r="2.6"/></svg>'
 };
 
 function _learnSvg(html) {
@@ -211,15 +213,30 @@ function buildPathNode(track, lesson, index) {
 }
 
 /* Footprints between two adjacent lesson cards. Four small feet walking
-   left-to-right, alternating tilt to look like real steps. */
+   left-to-right, all toes pointing toward the NEXT card. Alternating L/R
+   feet are mirrored vertically (scaleY -1) and offset up/down to mimic a
+   real walking gait. Each foot fades in slightly to the right of the last
+   to suggest forward motion. */
 function buildPathSteps() {
   const steps = el('div', { class: 'learn-path-steps' });
-  const tilts = [-22, 18, -18, 22];
-  tilts.forEach((t, i) => {
+  // 4 feet: right (down), left (up), right (down), left (up).
+  // The "lean" in degrees gives each foot a tiny forward tilt.
+  const gait = [
+    { side: 'right', lean: 12 },
+    { side: 'left',  lean: 8 },
+    { side: 'right', lean: 12 },
+    { side: 'left',  lean: 8 }
+  ];
+  gait.forEach((step, i) => {
     const foot = _learnSvg(LEARN_ICONS.footprint);
-    foot.classList.add('learn-path-foot');
-    foot.style.transform = 'rotate(' + t + 'deg)';
-    foot.style.opacity = String(0.35 + (i / tilts.length) * 0.45);
+    foot.classList.add('learn-path-foot', 'learn-path-foot-' + step.side);
+    // Toes face right (rotate 90° from the upright SVG); mirror Y for left foot;
+    // add a small forward lean.
+    const yScale = step.side === 'left' ? -1 : 1;
+    foot.style.transform = 'rotate(' + (90 + step.lean) + 'deg) scaleY(' + yScale + ')';
+    // Vertical offset puts right feet slightly below the centerline, left feet above.
+    foot.style.marginTop = step.side === 'right' ? '8px' : '-8px';
+    foot.style.opacity = String(0.40 + (i / gait.length) * 0.45);
     steps.appendChild(foot);
   });
   return steps;

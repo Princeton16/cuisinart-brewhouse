@@ -6539,10 +6539,11 @@ const BEAN_USER_KEY = 'beanapp_user';
 const BEAN_BREWS_KEY = 'beanapp_brews';
 const BEAN_DEMO_SEEDED_KEY = 'beanapp_demo_seeded';
 const BEAN_TABS = [
-  { route: 'you',      label: 'You',      icon: 'user' },
+  { route: 'home',     label: 'Home',     icon: 'home' },
   { route: 'feed',     label: 'Feed',     icon: 'feed' },
   { route: 'learn',    label: 'Learn',    icon: 'book' },
-  { route: 'passport', label: 'Passport', icon: 'globe' }
+  { route: 'passport', label: 'Passport', icon: 'globe' },
+  { route: 'profile',  label: 'Profile',  icon: 'user' }
 ];
 const BEAN_STUBS = {
   recipes:  { title: 'Recipes',  sub: 'Phase 6 builds the recipes browser.' },
@@ -6648,6 +6649,7 @@ function beanLogoSvg(size) {
 }
 
 const BEAN_NAV_ICONS = {
+  home:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 L12 3 L21 11 V20 a1 1 0 0 1 -1 1 H15 V14 H9 V21 H4 a1 1 0 0 1 -1 -1 Z"/></svg>',
   user:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21 a8 8 0 0 1 16 0"/></svg>',
   feed:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5 h16 a2 2 0 0 1 2 2 v9 a2 2 0 0 1 -2 2 H8 l-4 4 V7 a2 2 0 0 1 2 -2 Z"/></svg>',
   book:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5 a2 2 0 0 1 2 -2 h6 v17 H5 a2 2 0 0 0 -2 2 Z"/><path d="M21 5 a2 2 0 0 0 -2 -2 h-6 v17 h6 a2 2 0 0 1 2 2 Z"/></svg>',
@@ -6691,14 +6693,16 @@ function beanRender() {
   const route = beanRoute();
   const user = getBeanUser();
 
-  // Routing rules: no user → force /auth. User on no/unknown route → /you.
+  // Routing rules: no user → force /auth. User on no/unknown route → /home.
   if (!user && route !== 'auth') {
     if (window.location.hash !== '#/auth') { window.location.hash = '#/auth'; return; }
   }
   if (user && (route === '' || route === 'auth')) {
-    if (window.location.hash !== '#/you') { window.location.hash = '#/you'; return; }
+    if (window.location.hash !== '#/home') { window.location.hash = '#/home'; return; }
   }
   if (!user && route === '') { window.location.hash = '#/auth'; return; }
+  // Legacy /you links continue to work — bounce them to /home.
+  if (route === 'you') { window.location.hash = '#/home'; return; }
 
   const main = document.getElementById('bean-main');
   if (!main) return;
@@ -6706,8 +6710,10 @@ function beanRender() {
 
   if (route === 'auth') {
     renderBeanAuth(main);
-  } else if (route === 'you' && typeof renderYou === 'function') {
-    renderYou(main);
+  } else if (route === 'home' && typeof renderHome === 'function') {
+    renderHome(main);
+  } else if (route === 'profile' && typeof renderProfile === 'function') {
+    renderProfile(main);
   } else if (route === 'feed' && typeof renderFeed === 'function') {
     renderFeed(main);
   } else if (route === 'learn' && typeof renderLearn === 'function') {
@@ -6719,15 +6725,15 @@ function beanRender() {
   } else if (BEAN_STUBS[route]) {
     renderBeanStub(main, BEAN_STUBS[route]);
   } else {
-    // Unknown route — bounce back to /you (or /auth)
-    window.location.hash = user ? '#/you' : '#/auth';
+    // Unknown route — bounce back to /home (or /auth)
+    window.location.hash = user ? '#/home' : '#/auth';
     return;
   }
 
   // Hide nav on auth, show + highlight elsewhere. Sub-routes that
-  // belong to a parent tab (badges and palate sit under You) keep that
-  // parent tab highlighted in the bottom nav.
-  const SUBROUTE_PARENT = { badges: 'you', palate: 'you' };
+  // belong to a parent tab (badges sits under Home; palate sits under
+  // Profile) keep that parent tab highlighted in the bottom nav.
+  const SUBROUTE_PARENT = { badges: 'home', palate: 'profile' };
   const activeRoute = SUBROUTE_PARENT[route] || route;
   const nav = document.getElementById('bean-nav');
   if (nav) {

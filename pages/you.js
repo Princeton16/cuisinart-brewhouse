@@ -78,13 +78,50 @@ const DEMO_DEVICES = [
   { name: 'Cuisinart Grind & Brew Smart', status: 'Synced 14 minutes ago', photoUrl: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=200&q=80' }
 ];
 
-/* ---------- Top-level render ---------- */
-function renderYou(main) {
+/* ---------- Top-level renders ---------- */
+/* Home tab — the user's daily activity hub. Holds streak, log brew CTA,
+   recommended brews, past brews, and badges link. Profile header, palate,
+   and connected devices live on the new Profile tab now. */
+function renderHome(main) {
+  const user = getBeanUser() || { name: 'You', email: '', createdAt: Date.now() };
+  const brews = loadBeanBrews();
+  const recommendations = pickRecommendedBrews(5);
+
+  const cs = currentStreak(brews);
+  const bs = bestStreak(brews);
+  const palate = computePalate(brews);
+  const origins = uniqueBeanOrigins(brews);
+  const userPosts = (typeof userPostCount === 'function') ? userPostCount() : 0;
+  const kudosGiven = (typeof loadBeanKudos === 'function') ? loadBeanKudos().length : 0;
+  const xp = (typeof getXP === 'function') ? getXP() : 0;
+  const achievements = computeAchievements(brews, cs, palate.coverage, origins, userPosts, kudosGiven, xp);
+  const unlockedCount = achievements.filter(a => a.unlocked).length;
+
+  const page = el('div', { class: 'bean-page you-page home-page' });
+  // A small welcome line at the top of the home hub
+  const firstName = (user.name || 'friend').split(/\s+/)[0];
+  page.appendChild(el('div', { class: 'home-hello' },
+    el('div', { class: 'home-hello-greeting' }, 'Welcome back, ', el('strong', {}, firstName), '.'),
+    el('div', { class: 'home-hello-sub' }, 'Here is your brew ritual today.')
+  ));
+  page.appendChild(youStreakCard(cs, bs, brews));
+  page.appendChild(youLogCta(cs));
+  page.appendChild(youRecommendedRow(recommendations));
+  page.appendChild(youPastBrewsCard(brews));
+  page.appendChild(youBadgesLinkCard(achievements, unlockedCount));
+  main.appendChild(page);
+
+  requestAnimationFrame(() => animateStreakValue(cs));
+  enableHorizontalWheelScroll(page);
+  if (typeof revealNewAchievements === 'function') revealNewAchievements(achievements);
+}
+
+/* Profile tab — identity surface. Profile header (avatar, name, tier, bio,
+   stats), palate analysis, connected devices, and sign-out. */
+function renderProfile(main) {
   const user = getBeanUser() || { name: 'You', email: '', createdAt: Date.now() };
   const isDemo = !!user.isDemo;
   const brews = loadBeanBrews();
-  const recommended = pickRecommendedBrew();
-  const recommendations = pickRecommendedBrews(5);
 
   const cs = currentStreak(brews);
   const bs = bestStreak(brews);
@@ -97,25 +134,15 @@ function renderYou(main) {
   const unlockedCount = achievements.filter(a => a.unlocked).length;
   const devices = isDemo ? DEMO_DEVICES : [];
 
-  const page = el('div', { class: 'bean-page you-page' });
+  const page = el('div', { class: 'bean-page you-page profile-page' });
   page.appendChild(youProfileHeader(user, brews, bs, unlockedCount));
-  page.appendChild(youStreakCard(cs, bs, brews));
-  page.appendChild(youLogCta(cs));
-  page.appendChild(youRecommendedRow(recommendations));
   page.appendChild(youPalateCardCompact(palate, brews));
-  page.appendChild(youPastBrewsCard(brews));
   page.appendChild(youDevicesCard(devices));
-  page.appendChild(youBadgesLinkCard(achievements, unlockedCount));
   main.appendChild(page);
-
-  // Tactile micro-interaction: count up the streak number on first paint.
-  requestAnimationFrame(() => animateStreakValue(cs));
-  // Make all horizontal scrollers respond to vertical mouse-wheel input on
-  // desktop (touch / trackpad already work natively).
-  enableHorizontalWheelScroll(page);
-  // Fire a celebration toast for any badge that just unlocked.
-  if (typeof revealNewAchievements === 'function') revealNewAchievements(achievements);
 }
+
+/* Backwards-compat alias — older internal links may still reference renderYou. */
+function renderYou(main) { return renderHome(main); }
 
 /* Find every horizontal scroll container in the subtree and let a vertical
    mouse wheel translate to horizontal scroll. Without this, desktop users
@@ -337,17 +364,89 @@ function recCard(rec, isFeatured) {
     el('button', {
       class: 'you-rec-tile-cta',
       type: 'button',
-      onclick: () => openBrewLogModal({
+      // Open the recipe detail modal first; the Log this brew button inside
+      // pre-fills the brew log so the user can save what they actually made.
+      onclick: () => openRecipeDetailModal(rec)
+    }, 'Try this brew')
+  ));
+  return card;
+}
+
+/* ---------- Recipe detail modal ----------
+   Opened from any "Try this brew" CTA. Shows the recipe full-bleed: hero
+   photo, name, description, every parameter, flavor tags, and a primary
+   "Log this brew" CTA that hands off to the existing brew-log flow with
+   the recipe's parameters pre-filled. */
+function openRecipeDetailModal(rec) {
+  if (document.getElementById('rec-detail-backdrop')) return;
+  const card = el('div', { class: 'rec-detail-card', onclick: (e) => e.stopPropagation() });
+
+  card.appendChild(el('button', {
+    type: 'button',
+    class: 'rec-detail-close',
+    'aria-label': 'Close',
+    onclick: close
+  }, _svgEl(YOU_ICONS.close)));
+
+  if (rec.photoUrl) {
+    card.appendChild(el('div', {
+      class: 'rec-detail-hero',
+      style: 'background-image:url(\'' + rec.photoUrl + '\')'
+    }));
+  }
+
+  const body = el('div', { class: 'rec-detail-body' });
+  body.appendChild(el('div', { class: 'rec-detail-eyebrow' }, '◆ RECOMMENDED RECIPE'));
+  body.appendChild(el('h2', { class: 'rec-detail-name' }, rec.name));
+  if (rec.description) body.appendChild(el('p', { class: 'rec-detail-desc' }, rec.description));
+
+  // Parameters grid — all four knobs, easy to scan
+  body.appendChild(el('div', { class: 'rec-detail-grid' },
+    statTile('Method', rec.method),
+    statTile('Ratio', rec.ratio),
+    statTile('Water', rec.waterTempF + '°F'),
+    statTile('Grind', rec.grindSize)
+  ));
+
+  // Tags — flavor profile to expect
+  if (rec.flavorTags && rec.flavorTags.length) {
+    body.appendChild(el('div', { class: 'rec-detail-section-label' }, 'FLAVOR NOTES'));
+    body.appendChild(el('div', { class: 'rec-detail-tags' },
+      rec.flavorTags.map(t => el('span', { class: 'you-tag' }, t))
+    ));
+  }
+
+  // Primary CTA — hand off to the brew log with the recipe pre-filled
+  body.appendChild(el('button', {
+    type: 'button',
+    class: 'rec-detail-cta',
+    onclick: () => {
+      close();
+      openBrewLogModal({
         method: rec.method,
         ratio: rec.ratio,
         grindSize: rec.grindSize,
         waterTempF: rec.waterTempF,
         flavorTags: rec.flavorTags || [],
         beanOrigin: ''
-      })
-    }, 'Try this brew')
-  ));
-  return card;
+      });
+    }
+  }, 'Log this brew'));
+
+  card.appendChild(body);
+
+  const backdrop = el('div', { id: 'rec-detail-backdrop', class: 'brewlog-backdrop', onclick: close }, card);
+  document.body.appendChild(backdrop);
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => backdrop.classList.add('open'), 10);
+  document.addEventListener('keydown', onKey);
+  function onKey(e) { if (e.key === 'Escape') close(); }
+  function close() {
+    document.removeEventListener('keydown', onKey);
+    backdrop.classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(() => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); }, 180);
+  }
 }
 
 function statTile(label, value) {
@@ -357,45 +456,90 @@ function statTile(label, value) {
   );
 }
 
-/* ---------- 5. Palate snapshot (compact) ---------- */
+/* ---------- 5. Palate snapshot ----------
+   Refreshed: a "palate vibe" personality tag at the top, a horizontal bar
+   chart of top-4 flavors, and a small method breakdown row. Reads quickly
+   without overloading the card. */
+const PALATE_VIBES = {
+  bright:      { label: 'The Bright Explorer', emoji: '🍋', sub: 'Citrus, floral, sunny cups.' },
+  fruity:      { label: 'The Berry Hunter',    emoji: '🫐', sub: 'Always chasing berry-fruit notes.' },
+  floral:      { label: 'The Garden Brewer',   emoji: '🌸', sub: 'Jasmine and stone-fruit kind of mornings.' },
+  citrus:      { label: 'The Bright Explorer', emoji: '🍋', sub: 'Citrus and sunshine in the cup.' },
+  chocolatey:  { label: 'The Chocolate Loyalist', emoji: '🍫', sub: 'Cocoa, caramel, comfort.' },
+  caramel:     { label: 'The Sweet Caramel Fan', emoji: '🧈', sub: 'Sugar-browning notes win every time.' },
+  nutty:       { label: 'The Nut & Roast Seeker', emoji: '🌰', sub: 'Almond, walnut, roasted depth.' },
+  smoky:       { label: 'The Roasted Soul',    emoji: '🔥', sub: 'Dark roast and smoky bottoms.' },
+  earthy:      { label: 'The Old-School Brewer', emoji: '🌍', sub: 'Earthy, full-body, deep-roast comfort.' },
+  berry:       { label: 'The Berry Hunter',    emoji: '🫐', sub: 'Always chasing berry-fruit notes.' },
+  sweet:       { label: 'The Sweet Tooth',     emoji: '🍬', sub: 'Honey, caramel, dessert-y finishes.' },
+  balanced:    { label: 'The Balanced Drinker', emoji: '⚖️', sub: 'No extremes. Every cup tuned.' }
+};
+
 function youPalateCardCompact(palate, brews) {
-  const card = el('div', { class: 'you-card you-card-dark you-palate-compact' });
+  const card = el('div', { class: 'you-card you-card-dark you-palate-card' });
   card.appendChild(el('div', { class: 'you-palate-compact-head' },
     el('div', { class: 'you-eyebrow you-eyebrow-yellow' }, 'PALATE SNAPSHOT'),
-    el('a', {
-      href: '#/palate',
-      class: 'you-palate-link'
-    }, 'View full palate →')
+    el('a', { href: '#/palate', class: 'you-palate-link' }, 'View full →')
   ));
+
   if (!brews || !brews.length || palate.coverage === 0) {
     card.appendChild(el('p', { class: 'you-empty you-palate-empty' }, 'Log a few brews to build your palate.'));
     return card;
   }
-  // Top flavor: the dimension with the highest count
-  const topFlavor = palate.dimensions.slice().sort((a, b) => b.count - a.count)[0];
-  const flavorSub = topFlavor && topFlavor.count
-    ? 'logged ' + topFlavor.count + ' time' + (topFlavor.count === 1 ? '' : 's')
-    : '';
 
-  // Top method percentage
-  const methodCount = palate.topMethod
-    ? brews.filter(b => b.method === palate.topMethod).length
-    : 0;
-  const methodPct = brews.length ? Math.round((methodCount / brews.length) * 100) : 0;
-  const methodSub = palate.topMethod ? methodPct + '% of your brews' : '';
+  // Sort dimensions by count
+  const ranked = palate.dimensions.slice().sort((a, b) => b.count - a.count);
+  const top = ranked[0];
+  const totalFlavorTags = ranked.reduce((acc, d) => acc + d.count, 0);
+  const vibe = (top && PALATE_VIBES[String(top.label).toLowerCase()]) || {
+    label: 'The Coffee Curious', emoji: '☕', sub: 'Just getting started.'
+  };
 
-  card.appendChild(el('div', { class: 'you-palate-compact-row' },
-    el('div', { class: 'you-palate-compact-tile' },
-      el('div', { class: 'you-palate-compact-label' }, 'TOP FLAVOR'),
-      el('div', { class: 'you-palate-compact-value' }, topFlavor && topFlavor.count ? topFlavor.label : '—'),
-      el('div', { class: 'you-palate-compact-sub' }, flavorSub)
-    ),
-    el('div', { class: 'you-palate-compact-tile' },
-      el('div', { class: 'you-palate-compact-label' }, 'TOP METHOD'),
-      el('div', { class: 'you-palate-compact-value' }, palate.topMethod || '—'),
-      el('div', { class: 'you-palate-compact-sub' }, methodSub)
+  // Vibe tag — playful "personality" reading, single-line
+  card.appendChild(el('div', { class: 'palate-vibe' },
+    el('div', { class: 'palate-vibe-emoji' }, vibe.emoji),
+    el('div', { class: 'palate-vibe-text' },
+      el('div', { class: 'palate-vibe-label' }, vibe.label),
+      el('div', { class: 'palate-vibe-sub' }, vibe.sub)
     )
   ));
+
+  // Bar chart — top 4 flavors as horizontal bars relative to the leader
+  const top4 = ranked.filter(d => d.count > 0).slice(0, 4);
+  if (top4.length) {
+    const max = top4[0].count || 1;
+    const bars = el('div', { class: 'palate-bars' });
+    top4.forEach((d, i) => {
+      const pct = Math.round((d.count / max) * 100);
+      bars.appendChild(el('div', { class: 'palate-bar-row' },
+        el('div', { class: 'palate-bar-label' }, d.label),
+        el('div', { class: 'palate-bar-track' },
+          el('div', {
+            class: 'palate-bar-fill' + (i === 0 ? ' is-top' : ''),
+            style: 'width:' + pct + '%'
+          })
+        ),
+        el('div', { class: 'palate-bar-count' }, String(d.count))
+      ));
+    });
+    card.appendChild(bars);
+  }
+
+  // Foot row — method breakdown + origin diversity in a 2-up
+  const methodCount = palate.topMethod ? brews.filter(b => b.method === palate.topMethod).length : 0;
+  const methodPct = brews.length ? Math.round((methodCount / brews.length) * 100) : 0;
+  const uniqueOrigins = (typeof uniqueBeanOrigins === 'function') ? uniqueBeanOrigins(brews).length : 0;
+  card.appendChild(el('div', { class: 'palate-foot' },
+    el('div', { class: 'palate-foot-tile' },
+      el('div', { class: 'palate-foot-num' }, palate.topMethod || '—'),
+      el('div', { class: 'palate-foot-sub' }, methodPct + '% of your brews')
+    ),
+    el('div', { class: 'palate-foot-tile' },
+      el('div', { class: 'palate-foot-num' }, String(uniqueOrigins)),
+      el('div', { class: 'palate-foot-sub' }, 'origin' + (uniqueOrigins === 1 ? '' : 's') + ' explored')
+    )
+  ));
+
   return card;
 }
 

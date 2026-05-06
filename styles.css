@@ -3045,20 +3045,27 @@ body.bean-app .auth-disclaimer {
 /* === Bottom navigation === */
 body.bean-app .bean-nav {
   position: fixed;
-  bottom: calc(8px + env(safe-area-inset-bottom));
+  bottom: calc(12px + env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
-  width: calc(100% - 16px);
-  max-width: 464px;
-  height: 60px;
-  background: var(--bg-alt);
-  border: 1px solid var(--border-on-dark);
+  width: calc(100% - 24px);
+  max-width: 460px;
+  height: 64px;
+  background: rgba(20, 36, 26, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 999px;
   display: flex;
   align-items: stretch;
   padding: 6px;
-  gap: 4px;
-  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--border-on-dark);
+  gap: 2px;
+  /* Layered shadows + a soft outer glow give the bar real elevation. */
+  box-shadow:
+    0 -2px 12px rgba(0, 0, 0, 0.20),
+    0 18px 40px -16px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  /* Frosted-glass blur so it floats over content cleanly. */
+  backdrop-filter: saturate(140%) blur(14px);
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
   z-index: 50;
 }
 body.bean-app .bean-nav-tab {
@@ -3067,25 +3074,48 @@ body.bean-app .bean-nav-tab {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 3px;
   background: transparent;
   border: 0;
   border-radius: 999px;
-  color: var(--text-on-dark-muted);
+  color: rgba(255, 255, 255, 0.55);
   font-family: var(--bean-body);
   font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.18s ease, color 0.18s ease;
   text-decoration: none;
+  position: relative;
+  /* Single transition driving every interactive property */
+  transition:
+    background 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
+    color 0.18s ease,
+    transform 0.18s ease;
 }
-body.bean-app .bean-nav-tab svg { width: 22px; height: 22px; display: block; }
+body.bean-app .bean-nav-tab svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+body.bean-app .bean-nav-tab:hover { color: rgba(255, 255, 255, 0.82); }
+body.bean-app .bean-nav-tab:active { transform: scale(0.92); }
+body.bean-app .bean-nav-tab:hover svg { transform: translateY(-1px); }
+/* Active tab — amber pill that visually reads as "you are here" without
+   shouting. Subtle inner highlight + matching elevation. */
 body.bean-app .bean-nav-tab.active {
   background: var(--accent-yellow);
   color: var(--text-on-light);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.15),
+    0 6px 14px -6px rgba(232, 179, 60, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.30);
 }
+body.bean-app .bean-nav-tab.active svg { transform: translateY(-1px); }
+/* Tighten the label spacing for the active tab so the pill reads as one
+   unit rather than icon-and-text. */
+body.bean-app .bean-nav-tab.active { font-weight: 700; letter-spacing: 0.08em; }
 
 /* === Tab views === */
 body.bean-app .bean-page {
@@ -5828,27 +5858,54 @@ body.bean-app .learn-path-node.learn-state-in-progress .learn-path-state { color
 body.bean-app .learn-path-node.learn-state-locked .learn-path-title,
 body.bean-app .learn-path-node.learn-state-locked .learn-path-state { opacity: 0.55; }
 
-/* Footprints between cards — flex strip with 4 feet walking horizontally,
-   each one tilted slightly to look like real steps. */
+/* Footprints between cards — flex strip with 4 feet walking horizontally
+   from one card's right edge to the next card's left edge. Each foot is
+   rotated to face the direction of travel and offset up/down by JS to
+   mimic a real walking gait. */
 body.bean-app .learn-path-steps {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 0 6px;
+  gap: 4px;
+  padding: 0 10px;
   height: 100%;
   pointer-events: none;
 }
 body.bean-app .learn-path-foot {
   display: inline-flex;
   color: var(--accent-yellow-deep);
+  transform-origin: center;
 }
-body.bean-app .learn-path-foot svg { width: 16px; height: 16px; }
+body.bean-app .learn-path-foot svg { width: 14px; height: 18px; }
 
 /* ============================================================
    POLISH PASS — Empty states + reveal toast + brew log refinements
    ============================================================ */
+
+/* Home hub greeting line */
+body.bean-app .home-hello {
+  margin-bottom: 4px;
+  padding: 4px 4px 0;
+}
+body.bean-app .home-hello-greeting {
+  font-family: var(--bean-display);
+  font-size: 26px;
+  line-height: 1.1;
+  color: var(--text-on-dark);
+  letter-spacing: -0.012em;
+}
+body.bean-app .home-hello-greeting strong {
+  font-weight: 400;
+  color: var(--accent-yellow);
+  font-style: italic;
+}
+body.bean-app .home-hello-sub {
+  font-size: 13px;
+  color: var(--text-on-dark-muted);
+  margin-top: 4px;
+  letter-spacing: 0.01em;
+}
 
 /* You: streak card empty (first-time user) */
 body.bean-app .you-streak-empty-state {
@@ -5920,6 +5977,106 @@ body.bean-app .you-empty-sub {
   font-style: normal;
 }
 
+/* Palate vibe + bars — fun visual breakdown */
+body.bean-app .palate-vibe {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  margin: 6px 0 14px;
+  background: rgba(232, 179, 60, 0.10);
+  border: 1px solid rgba(232, 179, 60, 0.22);
+  border-radius: 14px;
+}
+body.bean-app .palate-vibe-emoji {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--accent-yellow);
+  font-size: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+body.bean-app .palate-vibe-label {
+  font-family: var(--bean-display);
+  font-size: 16px;
+  line-height: 1.1;
+  color: var(--text-on-dark);
+  letter-spacing: -0.01em;
+}
+body.bean-app .palate-vibe-sub {
+  font-size: 11px;
+  color: var(--text-on-dark-muted);
+  margin-top: 2px;
+}
+body.bean-app .palate-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+body.bean-app .palate-bar-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 24px;
+  align-items: center;
+  gap: 10px;
+}
+body.bean-app .palate-bar-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-on-dark);
+  text-transform: capitalize;
+  letter-spacing: 0.01em;
+}
+body.bean-app .palate-bar-track {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  overflow: hidden;
+}
+body.bean-app .palate-bar-fill {
+  height: 100%;
+  background: rgba(232, 179, 60, 0.5);
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+body.bean-app .palate-bar-fill.is-top {
+  background: linear-gradient(90deg, var(--accent-yellow-deep), var(--accent-yellow));
+}
+body.bean-app .palate-bar-count {
+  font-family: var(--bean-display);
+  font-size: 13px;
+  color: var(--text-on-dark);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+body.bean-app .palate-foot {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-on-dark);
+}
+body.bean-app .palate-foot-tile {
+  text-align: center;
+}
+body.bean-app .palate-foot-num {
+  font-family: var(--bean-display);
+  font-size: 18px;
+  line-height: 1.05;
+  color: var(--text-on-dark);
+  letter-spacing: -0.01em;
+}
+body.bean-app .palate-foot-sub {
+  font-size: 10px;
+  color: var(--text-on-dark-muted);
+  letter-spacing: 0.04em;
+  margin-top: 4px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
 /* Achievement reveal toast — celebratory burst when a new badge unlocks */
 .bean-reveal-toast {
   position: fixed;
@@ -5988,6 +6145,112 @@ body.bean-app .you-empty-sub {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Recipe detail modal — opened from "Try this brew" CTAs */
+body.bean-app .rec-detail-card {
+  position: relative;
+  background: var(--bg-card);
+  color: var(--text-on-light);
+  border-radius: 22px;
+  overflow: hidden;
+  max-width: 460px;
+  width: 100%;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  -webkit-overflow-scrolling: touch;
+}
+body.bean-app .rec-detail-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #FFFFFF;
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.15s ease;
+}
+body.bean-app .rec-detail-close:hover { background: rgba(0, 0, 0, 0.75); }
+body.bean-app .rec-detail-close svg { width: 16px; height: 16px; }
+body.bean-app .rec-detail-hero {
+  width: 100%;
+  aspect-ratio: 5/3;
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(0, 0, 0, 0.06);
+}
+body.bean-app .rec-detail-body {
+  padding: 22px 22px 24px;
+}
+body.bean-app .rec-detail-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-yellow-deep);
+  margin-bottom: 8px;
+}
+body.bean-app .rec-detail-name {
+  font-family: var(--bean-display);
+  font-size: 26px;
+  line-height: 1.1;
+  letter-spacing: -0.012em;
+  color: var(--text-on-light);
+  margin-bottom: 8px;
+}
+body.bean-app .rec-detail-desc {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-on-light-muted);
+  margin-bottom: 18px;
+}
+body.bean-app .rec-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+body.bean-app .rec-detail-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-on-light-muted);
+  margin: 6px 0 8px;
+}
+body.bean-app .rec-detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+body.bean-app .rec-detail-cta {
+  display: block;
+  width: 100%;
+  height: 50px;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  border: 0;
+  border-radius: 999px;
+  font-family: var(--bean-body);
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 1px 2px rgba(232, 179, 60, 0.18), 0 10px 22px -10px rgba(232, 179, 60, 0.45);
+}
+body.bean-app .rec-detail-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(232, 179, 60, 0.22), 0 14px 28px -12px rgba(232, 179, 60, 0.55);
+}
+body.bean-app .rec-detail-cta:active { transform: translateY(0); }
 
 /* Brew log modal — tighter spacing + sectioned look */
 body.bean-app .brewlog-card {
