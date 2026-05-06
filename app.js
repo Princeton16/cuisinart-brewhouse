@@ -1623,108 +1623,91 @@ function renderMagazineHome(main) {
     helloPieces.push(' Last brewed: ', el('em', { style: 'font-style:italic' }, lastBrewName), '.');
   }
 
-  const hero = el('section', { style: 'padding:12px 0 32px' },
+  /* === Polished magazine cover hero ===
+     Cover-meta bar (Vol/date + category chips) → cover-grid (headline + lede + CTAs left,
+     cover photo with ribbon right). Replaces the old briefs strip + two-tile grid hero. */
+  const shortDateStr = today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase();
+  const coverPhotoUrl = DRINK_CATEGORY_PHOTOS[drink.category] || DRINK_CATEGORY_PHOTOS.latte;
+  const drinkLastWord = (() => {
+    const parts = drink.name.split(' ');
+    return { lead: parts.slice(0, -1).join(' '), tail: parts.slice(-1)[0] };
+  })();
+
+  const hero = el('section', { style: 'padding:24px 0 32px' },
     el('div', { class: 'container' },
-      // Personal hello line (small, italic)
+      // Personal hello line (small, italic) — kept above the cover meta
       el('div', {
-        style: 'font-family:var(--font-display);font-style:italic;font-size:14px;color:var(--ink-soft);margin-bottom:14px;letter-spacing:0.01em'
+        style: 'font-family:var(--font-display);font-style:italic;font-size:14px;color:var(--ink-soft);margin-bottom:18px;letter-spacing:0.01em'
       }, helloPieces),
-      // Newspaper-style masthead rule
-      el('div', {
-        style: 'display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);padding:10px 0;margin-bottom:24px;font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink)'
-      },
-        el('span', { style: 'font-weight:700' }, 'Vol. III · No. ' + issueNum),
-        el('span', { style: 'opacity:0.7' }, dateStr),
-        el('span', { style: 'font-weight:700' }, 'The Daily Brew')
+
+      // Cover meta bar: Vol/date on left, category chips on right
+      el('div', { class: 'cover-meta' },
+        el('div', { class: 'left' },
+          el('span', { class: 'vol' }, 'Vol. III · No. ' + issueNum),
+          el('span', { class: 'date' }, 'Issue · ' + shortDateStr)
+        ),
+        el('div', { class: 'chip-bar' },
+          el('a', { class: 'chip tomato', onclick: () => navigate('recipes'), style: 'cursor:pointer' }, 'Recipes'),
+          el('a', { class: 'chip teal', onclick: () => navigate('recipes'), style: 'cursor:pointer' }, 'Cold'),
+          el('a', { class: 'chip leaf', onclick: () => navigate('recipes'), style: 'cursor:pointer' }, 'Origin'),
+          el('a', { class: 'chip', onclick: () => navigate('learn'), style: 'cursor:pointer' }, 'Brew School')
+        )
       ),
-      // Newsroom briefs ticker — 4 mini headlines
-      (() => {
-        const briefs = [
-          { eyebrow: 'Drops', text: 'Onyx unveils new ', emph: 'Monarch', tail: ' lot Friday at 10 a.m. Eastern.', to: 'devices' },
-          { eyebrow: 'Community', text: 'Catherine takes the ', emph: 'Latte Art crown', tail: ', her third this season.', to: 'community' },
-          { eyebrow: 'Open', text: 'Espresso Open registrations close ', emph: 'Sunday', tail: '. Sixty seats filled.', to: 'community' },
-          { eyebrow: 'Trip', text: 'Stumptown teases a ', emph: 'Hair Bender', tail: ' refresh after fifteen years untouched.', to: 'home' }
-        ];
-        const strip = el('div', {
-          style: 'display:grid;grid-template-columns:repeat(4, 1fr);gap:0;border-bottom:1px solid var(--ink);padding-bottom:16px;margin-bottom:32px'
-        });
-        briefs.forEach((b, i) => {
-          strip.appendChild(el('a', {
-            onclick: () => navigate(b.to),
-            style: 'cursor:pointer;padding:0 16px;' + (i < 3 ? 'border-right:1px solid var(--ink);' : '') + (i === 0 ? 'padding-left:0;' : '') + (i === 3 ? 'padding-right:0;' : '') + 'transition:opacity 0.2s'
+
+      // Cover grid: text on left, photo on right
+      el('div', { class: 'cover-grid' },
+        el('div', {},
+          el('h1', {},
+            'The brew that ',
+            el('em', {}, 'knows'),
+            el('br'),
+            el('span', { class: 'tomato-block' }, 'your machine'),
+            el('br'),
+            'and your ',
+            el('em', {}, 'palate'),
+            '.'
+          ),
+          el('p', { class: 'lede' },
+            'A coffee community calibrated to you, with recipes for your Cuisinart, classes from real baristas, and beans you can actually find. ',
+            el('em', {}, 'Phase 1 of the connected ecosystem.')
+          ),
+          el('div', { class: 'cover-ctas' },
+            el('a', {
+              class: 'btn btn-primary',
+              onclick: () => navigate(state.profile ? 'recipes' : 'onboard'),
+              style: 'cursor:pointer'
+            }, state.profile ? 'See your recipes' : 'Take the taste quiz'),
+            el('a', {
+              class: 'btn btn-sticker',
+              onclick: () => openBaristaWheel(),
+              style: 'cursor:pointer'
+            }, 'Ask the barista')
+          )
+        ),
+        // Cover photo — uses this week's drink imagery
+        el('a', {
+          class: 'cover-photo',
+          onclick: () => navigate(drink.recipeId ? 'recipe/' + drink.recipeId : 'recipes'),
+          style: 'display:block;cursor:pointer;background-image:linear-gradient(160deg, rgba(0,0,0,0.05), rgba(0,0,0,0.45)), url(\'' + coverPhotoUrl + '\');background-size:cover;background-position:center'
+        },
+          el('span', { class: 'cover-ribbon' }, 'New · Vol ' + issueNum),
+          // Soft caption block over the bottom-left of the cover
+          el('div', {
+            style: 'position:absolute;left:20px;right:20px;bottom:18px;color:var(--cream)'
           },
             el('div', {
-              style: 'font-family:var(--font-mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--tomato);font-weight:800;margin-bottom:6px'
-            }, '◆ ' + b.eyebrow),
+              style: 'font-family:var(--font-mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;font-weight:800;color:var(--marigold);margin-bottom:6px'
+            }, "★ This Week's Brew"),
             el('div', {
-              style: 'font-family:var(--font-display);font-size:13px;line-height:1.35;color:var(--ink)'
-            }, b.text, el('em', { style: 'font-style:italic;font-weight:700' }, b.emph), b.tail)
-          ));
-        });
-        return strip;
-      })(),
-      el('h1', {
-        style: 'font-family:var(--font-display);font-weight:800;font-size:clamp(48px, 7vw, 96px);line-height:0.94;letter-spacing:-0.025em;margin-bottom:48px;max-width:880px'
-      },
-        "What are you ",
-        el('em', { style: 'font-style:italic;color:var(--tomato)' }, 'drinking'),
-        ' today?'
-      ),
-      // Two primary tiles — smaller now — This Week's Brew | Ask the Barista
-      el('div', {
-        style: 'display:grid;grid-template-columns:1fr 1fr;gap:24px'
-      },
-        // 1. THIS WEEK'S BREW (marigold yellow)
-        el('a', {
-          class: 'tile dotd',
-          style: 'min-height:400px',
-          onclick: () => navigate(drink.recipeId ? 'recipe/' + drink.recipeId : 'recipes')
-        },
-          el('div', { class: 'tag' },
-            el('span', {}, "★ This Week's Brew")
-          ),
-          el('h3', { style: 'font-size:36px' },
-            (() => {
-              const parts = drink.name.split(' ');
-              return [parts.slice(0, -1).join(' '), ' ', el('em', {}, parts.slice(-1)[0] + '.')];
-            })()
-          ),
-          el('p', { style: 'font-size:15px;margin-bottom:auto' }, drink.desc.split('.').slice(0, 1).join('.') + '.'),
-          el('div', { class: 'dotd-art', style: 'margin:14px 0' },
-            el('div', { class: 'dotd-cup' }, milkPourSmileySvg(drink))
-          ),
-          el('div', { class: 'dotd-meta' },
-            el('span', {}, el('strong', {}, '5 min')),
-            el('span', {}, el('strong', {}, '★★★★★'), ' 4.8')
-          ),
-          el('span', { class: 'arrow-cta' }, 'See recipe ', el('span', { class: 'ar' }, '→'))
-        ),
-        // 2. ASK THE BARISTA (tomato red — vibe chips instead of wheel)
-        el('a', {
-          class: 'tile barista',
-          style: 'min-height:400px;grid-row:auto;overflow:hidden',
-          onclick: () => openBaristaWheel()
-        },
-          el('div', { class: 'tag' },
-            el('span', {}, '● Ask the barista')
-          ),
-          el('h3', { style: 'font-size:36px' },
-            'Or pick ',
-            el('em', {}, 'your own.')
-          ),
-          el('p', { style: 'font-size:15px;margin-bottom:14px' }, "Tell us how you feel. We'll pour something."),
-          // Vibe wheel preview — full version lives in the modal
-          el('div', { style: 'flex:1;display:flex;align-items:center;justify-content:center;width:100%;min-height:0;margin:4px 0' },
-            (() => {
-              const wrap = el('div', { style: 'width:min(280px, 100%);aspect-ratio:1;display:flex;align-items:center;justify-content:center' });
-              const mini = buildVibeWheelSvg({ size: 280, onWedgeClick: () => openBaristaWheel(), isWedgeSelected: () => false });
-              mini.svg.setAttribute('style', 'width:100%;height:100%;display:block');
-              mini.svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-              wrap.appendChild(mini.svg);
-              return wrap;
-            })()
-          ),
-          el('span', { class: 'arrow-cta' }, 'Open the wheel ', el('span', { class: 'ar' }, '→'))
+              style: 'font-family:var(--font-display);font-weight:800;font-size:26px;line-height:1.05;letter-spacing:-0.018em;text-shadow:0 2px 12px rgba(0,0,0,0.5)'
+            },
+              drinkLastWord.lead + ' ',
+              el('em', { style: 'font-style:italic;color:var(--marigold)' }, drinkLastWord.tail + '.')
+            ),
+            el('div', {
+              style: 'font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,245,235,0.6);margin-top:10px'
+            }, '5 min · ★★★★★ 4.8 · Tap to open the recipe')
+          )
         )
       )
     )
