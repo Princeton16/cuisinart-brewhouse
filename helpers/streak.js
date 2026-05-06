@@ -58,18 +58,27 @@ function bestStreak(brews) {
 }
 
 function last7DayCells(brews) {
-  // Returns 7 cells from 6 days ago through today, with letter + brewed flag.
+  // Returns this calendar week, Sunday through Saturday. Each cell carries
+  // the letter, ymd key, brewed flag, and whether it's today (highlighted)
+  // or in the future (dimmed — can't have brewed yet).
   const days = _brewDayKeys(brews);
   const letters = ['S', 'M', 'T', 'W', 'T', 'F', 'S']; // Sun..Sat indexed by Date#getDay
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const sunday = new Date(today);
+  sunday.setDate(today.getDate() - today.getDay()); // walk back to this Sunday
+  const todayKey = _ymd(today);
   const cells = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(sunday);
+    d.setDate(sunday.getDate() + i);
+    const key = _ymd(d);
     cells.push({
       letter: letters[d.getDay()],
-      key: _ymd(d),
-      brewed: days.has(_ymd(d)),
-      isToday: i === 0
+      key: key,
+      brewed: days.has(key),
+      isToday: key === todayKey,
+      isFuture: d > today
     });
   }
   return cells;

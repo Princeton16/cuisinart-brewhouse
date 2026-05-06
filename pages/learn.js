@@ -318,8 +318,10 @@ function openLessonModal(track, lesson) {
   card.appendChild(el('div', { class: 'learn-modal-eyebrow' }, track.title.toUpperCase()));
   card.appendChild(el('h2', { class: 'learn-modal-title' }, lesson.title));
 
-  // YouTube video — embedded at top of body. Curated per lesson in data.js
-  // (lesson.youtubeId). The iframe loads with privacy-enhanced nocookie.
+  // YouTube video — embedded at top of body. The iframe loads via
+  // youtube-nocookie. If the embed is blocked (e.g. video unavailable, owner
+  // disabled embedding, GitHub Pages CSP), we surface a "Watch on YouTube"
+  // fallback link so the user always has a working path to the content.
   if (lesson.youtubeId) {
     const videoWrap = el('div', { class: 'learn-modal-video' });
     const iframe = document.createElement('iframe');
@@ -330,6 +332,14 @@ function openLessonModal(track, lesson) {
     iframe.setAttribute('loading', 'lazy');
     videoWrap.appendChild(iframe);
     card.appendChild(videoWrap);
+
+    // Always-visible fallback link — opens the video on YouTube directly.
+    card.appendChild(el('a', {
+      class: 'learn-modal-yt-link',
+      href: 'https://www.youtube.com/watch?v=' + lesson.youtubeId,
+      target: '_blank',
+      rel: 'noopener noreferrer'
+    }, 'Watch on YouTube ↗'));
   }
 
   const body = el('div', { class: 'learn-modal-body' });

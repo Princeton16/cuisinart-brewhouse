@@ -20,7 +20,12 @@ const PP_ICONS = {
   close:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg>'
 };
 
-let _ppState = { view: 'map', filter: 'all', query: '' };
+// _ppState.layer controls which dataset is foregrounded on the map:
+//   'cafes' (default) shows US cafés, fits to US bounds
+//   'beans' shows bean origins worldwide, fits to bean bounds
+//   'both'  shows both at once
+let _ppState = { view: 'map', filter: 'all', query: '', layer: 'cafes' };
+let _ppBeanMarkers = [];
 let _ppMap = null;
 let _ppMarkerById = {};
 let _ppClusterMarker = null;
@@ -73,10 +78,12 @@ function renderPassport(main) {
   header.appendChild(buildViewToggle());
   page.appendChild(header);
 
-  /* 2. Controls (search + Near Me + filters) */
+  /* 2. Controls (search + Near Me + filters + map layer toggle + add cafe) */
   const controls = el('div', { class: 'pp-controls' });
   controls.appendChild(buildSearchAndNearMe());
   controls.appendChild(buildFilterPills());
+  controls.appendChild(buildLayerToggle());
+  controls.appendChild(buildAddCafeButton());
   page.appendChild(controls);
 
   /* 3 + 4. Map view OR list view */
@@ -139,6 +146,154 @@ function buildViewToggle() {
     wrap.appendChild(pill);
   });
   return wrap;
+}
+
+/* Map layer toggle — Cafés / Beans / Both. Re-fits the map to the right
+   bounds when the user switches and repaints markers. */
+function buildLayerToggle() {
+  const wrap = el('div', { class: 'pp-layer-toggle', role: 'tablist' });
+  const layers = [
+    { key: 'cafes', label: 'Cafés', icon: 'cup' },
+    { key: 'beans', label: 'Beans', icon: 'globe' },
+    { key: 'both',  label: 'Both',  icon: 'star' }
+  ];
+  layers.forEach(l => {
+    const pill = el('button', {
+      type: 'button',
+      class: 'pp-layer-pill' + (l.key === _ppState.layer ? ' active' : ''),
+      'data-layer': l.key,
+      onclick: () => {
+        _ppState.layer = l.key;
+        wrap.querySelectorAll('.pp-layer-pill').forEach(p => p.classList.toggle('active', p.dataset.layer === l.key));
+        if (_ppMap) {
+          if (l.key === 'beans') {
+            // Fit to bean origins worldwide
+            const origins = (typeof DATA !== 'undefined' && Array.isArray(DATA.origins)) ? DATA.origins : [];
+            const pts = origins.filter(o => o.coords).map(o => o.coords);
+            if (pts.length >= 2) _ppMap.fitBounds(L.latLngBounds(pts), { padding: [40, 40] });
+          } else if (l.key === 'cafes') {
+            _ppMap.fitBounds(_ppMap._usBounds || [[22.5, -128.0], [50.5, -64.5]], { padding: [12, 12] });
+          } else {
+            // Both — fit to the union
+            const cafes = (typeof DATA !== 'undefined' && Array.isArray(DATA.cafes)) ? DATA.cafes : [];
+            const origins = (typeof DATA !== 'undefined' && Array.isArray(DATA.origins)) ? DATA.origins : [];
+            const pts = cafes.filter(c => c.coords).map(c => c.coords)
+              .concat(origins.filter(o => o.coords).map(o => o.coords));
+            if (pts.length >= 2) _ppMap.fitBounds(L.latLngBounds(pts), { padding: [30, 30] });
+          }
+        }
+        paintMarkers();
+      }
+    }, l.label);
+    wrap.appendChild(pill);
+  });
+  return wrap;
+}
+
+/* "+ Add a cafe" button — opens a small form to log a custom visit when
+   the cafe isn't in the curated list yet. Saves to bean visits as a
+   user-defined cafe id. */
+function buildAddCafeButton() {
+  return el('button', {
+    type: 'button',
+    class: 'pp-add-cafe',
+    onclick: () => openAddCafeModal()
+  },
+    _ppSvg('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5 v14 M5 12 h14"/></svg>'),
+    el('span', {}, 'Add a cafe you visited')
+  );
+}
+
+function openAddCafeModal() {
+  if (document.getElementById('pp-add-backdrop')) return;
+  const card = el('div', { class: 'pp-add-card', onclick: (e) => e.stopPropagation() });
+  card.appendChild(el('button', {
+    type: 'button',
+    class: 'brewlog-close pp-detail-close',
+    'aria-label': 'Close',
+    onclick: close
+  }, _ppSvg(PP_ICONS.close)));
+  card.appendChild(el('h2', { class: 'pp-add-title' }, 'Add a cafe'));
+  card.appendChild(el('p', { class: 'pp-add-sub' }, 'Logging a cafe that isn’t in our curated list yet. We’ll save it to your visits — only you’ll see it.'));
+
+  const nameInput  = el('input', { class: 'brewlog-input', type: 'text', placeholder: 'Cafe name (e.g. Stumptown Annex)' });
+  const cityInput  = el('input', { class: 'brewlog-input', type: 'text', placeholder: 'City' });
+  const stateInput = el('input', { class: 'brewlog-input', type: 'text', placeholder: 'State' });
+  const notesInput = el('textarea', { class: 'brewlog-textarea', placeholder: 'Notes — what did you order? Any standouts?', rows: 3 });
+
+  let rating = 0;
+  const stars = el('div', { class: 'pp-add-stars' });
+  for (let i = 1; i <= 5; i++) {
+    const btn = el('button', {
+      type: 'button',
+      class: 'pp-add-star',
+      'data-i': String(i),
+      onclick: () => {
+        rating = i;
+        stars.querySelectorAll('.pp-add-star').forEach((s, idx) => s.classList.toggle('on', idx < i));
+      }
+    }, _ppSvg(PP_ICONS.starOutline));
+    stars.appendChild(btn);
+  }
+
+  card.appendChild(el('div', { class: 'brewlog-label' }, 'CAFE'));
+  card.appendChild(nameInput);
+  card.appendChild(el('div', { class: 'pp-add-row' }, cityInput, stateInput));
+  card.appendChild(el('div', { class: 'brewlog-label' }, 'YOUR RATING'));
+  card.appendChild(stars);
+  card.appendChild(el('div', { class: 'brewlog-label' }, 'NOTES'));
+  card.appendChild(notesInput);
+
+  card.appendChild(el('button', {
+    type: 'button',
+    class: 'brewlog-save',
+    onclick: () => {
+      const name = (nameInput.value || '').trim();
+      if (!name) {
+        nameInput.style.borderColor = '#D63A2F';
+        nameInput.focus();
+        return;
+      }
+      // Save as a user-cafe visit. We synthesize an id and persist via the
+      // standard visits store so the rest of the passport stats pick it up.
+      const cafeId = 'user-' + Date.now();
+      const visit = {
+        cafeId: cafeId,
+        dateISO: new Date().toISOString(),
+        rating: rating,
+        notes: (notesInput.value || '').trim(),
+        userCafe: {
+          id: cafeId,
+          name: name,
+          city: (cityInput.value || '').trim(),
+          state: (stateInput.value || '').trim(),
+          isCustom: true
+        }
+      };
+      try {
+        const visits = (typeof loadBeanVisits === 'function') ? loadBeanVisits() : [];
+        visits.push(visit);
+        if (typeof saveBeanVisits === 'function') saveBeanVisits(visits);
+        else localStorage.setItem('beanapp_visits', JSON.stringify(visits));
+      } catch (_) {}
+      if (typeof toast === 'function') toast('Saved to your passport');
+      close();
+      renderPassport(document.getElementById('bean-main'));
+    }
+  }, 'Save visit'));
+
+  const backdrop = el('div', { id: 'pp-add-backdrop', class: 'brewlog-backdrop', onclick: close }, card);
+  document.body.appendChild(backdrop);
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => backdrop.classList.add('open'), 10);
+  document.addEventListener('keydown', onKey);
+  function onKey(e) { if (e.key === 'Escape') close(); }
+  function close() {
+    document.removeEventListener('keydown', onKey);
+    backdrop.classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(() => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); }, 180);
+  }
 }
 
 /* ----- Search + Near Me ----- */
@@ -254,17 +409,18 @@ function initMap() {
   // Generous bounding box for the continental US — bumped out so the
   // fitBounds call below frames the whole country with breathing room.
   const usBounds = [[22.5, -128.0], [50.5, -64.5]];
+  // Allow panning freely so users can swing to bean origins (Ethiopia,
+  // Colombia, etc.) — the toggle in the controls will reframe to either
+  // the US (cafés) or the bean-growing belt.
   _ppMap = L.map(mapEl, {
     zoomControl: true,
     attributionControl: false,
-    maxBounds: usBounds,
-    maxBoundsViscosity: 0.9,
-    minZoom: 3,
+    minZoom: 2,
     maxZoom: 16,
-    zoomSnap: 0.25
+    zoomSnap: 0.25,
+    worldCopyJump: true
   });
-  // Frame the entire continental US instead of pinning to a fixed zoom.
-  // Padding gives the map a clean border inside the card.
+  _ppMap._usBounds = usBounds;
   _ppMap.fitBounds(usBounds, { padding: [12, 12] });
 
   // Lighter "positron" tiles for a cleaner editorial feel — less visual
@@ -294,21 +450,65 @@ function paintMarkers() {
   _ppMarkerById = {};
   if (_ppClusterMarker) { try { _ppMap.removeLayer(_ppClusterMarker); } catch (_) {} _ppClusterMarker = null; }
   if (_ppPolyline) { try { _ppMap.removeLayer(_ppPolyline); } catch (_) {} _ppPolyline = null; }
+  _ppBeanMarkers.forEach(m => { try { _ppMap.removeLayer(m); } catch (_) {} });
+  _ppBeanMarkers = [];
+
+  const layer = _ppState.layer || 'cafes';
+  const showCafes = layer === 'cafes' || layer === 'both';
+  const showBeans = layer === 'beans' || layer === 'both';
 
   const cafes = getFilteredCafes(_ppState.filter, _ppState.query);
   const zoom = _ppMap.getZoom();
   const inCluster = cafes.filter(c => PP_CLUSTER_IDS.indexOf(c.id) !== -1);
   const shouldCluster = (zoom < PP_CLUSTER_ZOOM_THRESHOLD) && (inCluster.length === PP_CLUSTER_IDS.length);
 
-  // Polyline first so markers paint on top
-  drawJourneyPolyline(cafes);
+  if (showCafes) {
+    drawJourneyPolyline(cafes);
+    cafes.forEach(cafe => {
+      if (shouldCluster && PP_CLUSTER_IDS.indexOf(cafe.id) !== -1) return;
+      addPhotoMarker(cafe);
+    });
+    if (shouldCluster) drawCluster(inCluster);
+  }
+  if (showBeans) {
+    const origins = (typeof DATA !== 'undefined' && Array.isArray(DATA.origins)) ? DATA.origins : [];
+    origins.forEach(o => addBeanMarker(o));
+  }
+}
 
-  cafes.forEach(cafe => {
-    if (shouldCluster && PP_CLUSTER_IDS.indexOf(cafe.id) !== -1) return;
-    addPhotoMarker(cafe);
+/* Bean origin marker — a smaller dark disc with a marigold bean seam.
+   Visually distinct from café markers (which use the user's photo). */
+function addBeanMarker(origin) {
+  if (!origin || !origin.coords) return;
+  const html =
+    '<div class="bean-marker">' +
+      '<svg viewBox="0 0 32 32" width="34" height="34" aria-hidden="true">' +
+        '<circle cx="16" cy="16" r="13" fill="#1A2D1F"/>' +
+        '<circle cx="16" cy="16" r="13" fill="none" stroke="#E8B33C" stroke-width="1.5" opacity="0.7"/>' +
+        // Stylized coffee bean (kidney + center seam)
+        '<g transform="translate(16 16) rotate(-22)">' +
+          '<path d="M-5,-7 Q-7,-2 -5,5 Q-2,8 3,7 Q7,5 7,0 Q6,-6 1,-7 Q-3,-8 -5,-7 Z" fill="#E8B33C"/>' +
+          '<path d="M-2,-6 Q0,0 -1,6" stroke="#1A2D1F" stroke-width="1.2" fill="none" stroke-linecap="round"/>' +
+        '</g>' +
+      '</svg>' +
+    '</div>';
+  const icon = L.divIcon({
+    className: 'bean-marker-wrap',
+    html: html,
+    iconSize: [34, 34],
+    iconAnchor: [17, 17]
   });
-
-  if (shouldCluster) drawCluster(inCluster);
+  const marker = L.marker(origin.coords, { icon: icon }).addTo(_ppMap);
+  // Click → simple popup with origin name + farm
+  marker.bindPopup(
+    '<div style="font-family:var(--bean-display, Georgia, serif);font-weight:700;font-size:15px;color:#1A1F14">' + (origin.farmName || origin.region) + '</div>' +
+    '<div style="font-family:var(--bean-body, sans-serif);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#6B6256;margin-top:2px">BEAN ORIGIN · ' + origin.region + ', ' + origin.country + '</div>' +
+    (origin.altitude ? '<div style="font-size:11px;color:#1A1F14;margin-top:6px"><strong>Altitude:</strong> ' + origin.altitude + '</div>' : '') +
+    (origin.varietal ? '<div style="font-size:11px;color:#1A1F14"><strong>Varietal:</strong> ' + origin.varietal + '</div>' : '') +
+    (origin.processing ? '<div style="font-size:11px;color:#1A1F14"><strong>Processing:</strong> ' + origin.processing + '</div>' : ''),
+    { closeButton: true, maxWidth: 240, minWidth: 200 }
+  );
+  _ppBeanMarkers.push(marker);
 }
 
 function addPhotoMarker(cafe) {

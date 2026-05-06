@@ -107,6 +107,8 @@ function renderHome(main) {
   page.appendChild(youStreakCard(cs, bs, brews));
   page.appendChild(youLogCta(cs));
   page.appendChild(youRecommendedRow(recommendations));
+  page.appendChild(homeCompetitionsCard());
+  page.appendChild(homeLatteMarquee());
   page.appendChild(youPastBrewsCard(brews));
   page.appendChild(youBadgesLinkCard(achievements, unlockedCount));
   main.appendChild(page);
@@ -243,7 +245,10 @@ function youStreakCard(cs, bs, brews) {
   ));
   const grid = el('div', { class: 'you-streak-grid' });
   last7DayCells(brews).forEach(c => {
-    grid.appendChild(el('div', { class: 'you-streak-cell' + (c.isToday ? ' is-today' : '') },
+    const cls = 'you-streak-cell'
+      + (c.isToday ? ' is-today' : '')
+      + (c.isFuture ? ' is-future' : '');
+    grid.appendChild(el('div', { class: cls },
       el('span', { class: 'you-streak-letter' }, c.letter),
       c.brewed
         ? el('span', { class: 'you-streak-tick' }, '✓')
@@ -660,6 +665,133 @@ function youBadgesLinkCard(achievements, unlockedCount) {
   fillers.slice(0, 4).forEach(a => strip.appendChild(badgeStripTile(a)));
   card.appendChild(strip);
 
+  return card;
+}
+
+/* ---------- Home — Competitions / Giveaways card ----------
+   Beli/DoorDash-style "what's hot right now" surface. Pulls live competition
+   + giveaway data from DATA.challenges and DATA.giveaways, falls back to
+   curated dummy entries so the card always feels alive. Tapping any tile
+   opens an entry modal (placeholder for now — would wire to DB.enterGiveaway
+   in a real backend). */
+const HOME_FALLBACK_COMPETITIONS = [
+  {
+    kind: 'giveaway',
+    title: 'EM-1500 espresso machine',
+    sub: 'Free entry · drawing Sunday',
+    photo: 'https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=600&q=80',
+    cta: 'Enter to win',
+    countdownDays: 4
+  },
+  {
+    kind: 'comp',
+    title: '30 days of latte art',
+    sub: 'Daily pour · win a Fellow milk pitcher',
+    photo: 'https://images.unsplash.com/photo-1497515114629-f71d768fd07c?w=600&q=80',
+    cta: 'Join challenge',
+    countdownDays: 12
+  },
+  {
+    kind: 'giveaway',
+    title: 'Counter Culture beans for a year',
+    sub: 'Members-only · 12 winners',
+    photo: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&q=80',
+    cta: 'Enter to win',
+    countdownDays: 9
+  }
+];
+
+function homeCompetitionsCard() {
+  const card = el('div', { class: 'you-card you-card-dark home-comps' });
+  card.appendChild(el('div', { class: 'you-palate-compact-head' },
+    el('div', { class: 'you-eyebrow you-eyebrow-yellow' }, 'COMPETITIONS & GIVEAWAYS'),
+    el('span', { class: 'home-comps-meta' }, 'New every week')
+  ));
+  const scroller = el('div', { class: 'home-comps-scroll' });
+  HOME_FALLBACK_COMPETITIONS.forEach((c, i) => scroller.appendChild(buildCompTile(c, i === 0)));
+  card.appendChild(scroller);
+  return card;
+}
+
+function buildCompTile(c, isFeatured) {
+  const tile = el('button', {
+    type: 'button',
+    class: 'home-comp-tile' + (isFeatured ? ' is-featured' : '') + (c.kind === 'giveaway' ? ' kind-giveaway' : ' kind-comp'),
+    onclick: () => alert(c.title + '\n\nEntry coming online soon — your entry will be saved once we wire it up.')
+  });
+  tile.appendChild(el('div', {
+    class: 'home-comp-photo',
+    style: 'background-image:url(\'' + c.photo + '\')'
+  },
+    el('span', { class: 'home-comp-flag' }, c.kind === 'giveaway' ? '★ GIVEAWAY' : '◉ COMPETITION')
+  ));
+  tile.appendChild(el('div', { class: 'home-comp-body' },
+    el('div', { class: 'home-comp-title' }, c.title),
+    el('div', { class: 'home-comp-sub' }, c.sub),
+    el('div', { class: 'home-comp-foot' },
+      el('span', { class: 'home-comp-countdown' }, c.countdownDays + ' day' + (c.countdownDays === 1 ? '' : 's') + ' left'),
+      el('span', { class: 'home-comp-cta' }, c.cta + ' →')
+    )
+  ));
+  return tile;
+}
+
+/* ---------- Home — Latte art marquee ----------
+   Auto-scrolling row of impressive community pours. Pulls from DATA.latteArt
+   when present and falls back to a curated demo set. The CSS animation is
+   defined in styles.css under .home-latte-marquee. */
+const HOME_LATTE_FALLBACK = [
+  { pattern: 'Rosetta',  handle: '@aleks',     bg1: '#3D2818', bg2: '#C77B49', photo: 'https://images.unsplash.com/photo-1497515114629-f71d768fd07c?w=400&q=80' },
+  { pattern: 'Tulip',    handle: '@catherine', bg1: '#1F4D2E', bg2: '#7FCDD0', photo: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&q=80' },
+  { pattern: 'Heart',    handle: '@andrew',    bg1: '#2A1A14', bg2: '#E8B33C', photo: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&q=80' },
+  { pattern: 'Swan',     handle: '@dan',       bg1: '#3D2418', bg2: '#E84F1A', photo: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=400&q=80' },
+  { pattern: 'Layered',  handle: '@zach',      bg1: '#0E2A18', bg2: '#5BA8C4', photo: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=400&q=80' },
+  { pattern: 'Free pour',handle: '@maya',      bg1: '#5C2E2A', bg2: '#F4DDB4', photo: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?w=400&q=80' },
+  { pattern: 'Etched',   handle: '@jules',     bg1: '#1A0D06', bg2: '#E8B33C', photo: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=400&q=80' },
+  { pattern: 'Phoenix',  handle: '@noah',      bg1: '#2A6B3D', bg2: '#C77B49', photo: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=400&q=80' }
+];
+
+function homeLatteMarquee() {
+  // Use DATA.latteArt if present and rich enough, otherwise fall back
+  const live = (typeof DATA !== 'undefined' && Array.isArray(DATA.latteArt)) ? DATA.latteArt : [];
+  const items = live.length >= 4
+    ? live.map(la => ({
+        pattern: la.pattern,
+        handle: '@' + (la.member || '').toLowerCase().replace(/[^a-z]/g, '').slice(0, 12),
+        bg1: '#3D2818', bg2: '#C77B49',
+        photo: ''
+      }))
+    : HOME_LATTE_FALLBACK;
+
+  const card = el('div', { class: 'you-card home-latte' });
+  card.appendChild(el('div', { class: 'home-latte-head' },
+    el('div', { class: 'you-eyebrow' }, 'COMMUNITY POURS'),
+    el('span', { class: 'home-latte-meta' }, 'This week’s standouts')
+  ));
+  const wrap = el('div', { class: 'home-latte-marquee' });
+  const track = el('div', { class: 'home-latte-track' });
+  // Two passes for a seamless infinite loop
+  [].concat(items, items).forEach(it => track.appendChild(buildLatteCard(it)));
+  wrap.appendChild(track);
+  card.appendChild(wrap);
+  return card;
+}
+
+function buildLatteCard(it) {
+  const card = el('div', { class: 'home-latte-card' });
+  const photo = el('div', { class: 'home-latte-photo' });
+  if (it.photo) {
+    photo.style.backgroundImage = "url('" + it.photo + "')";
+    photo.style.backgroundSize = 'cover';
+    photo.style.backgroundPosition = 'center';
+  } else {
+    photo.style.background = 'radial-gradient(ellipse at 50% 55%, ' + it.bg2 + ' 0%, ' + it.bg1 + ' 60%)';
+  }
+  card.appendChild(photo);
+  card.appendChild(el('div', { class: 'home-latte-meta-row' },
+    el('div', { class: 'home-latte-pattern' }, it.pattern),
+    el('div', { class: 'home-latte-handle' }, it.handle)
+  ));
   return card;
 }
 

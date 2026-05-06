@@ -3311,7 +3311,8 @@ body.bean-app .you-streak-cell {
   justify-content: center;
   gap: 2px;
 }
-body.bean-app .you-streak-cell.is-today { background: rgba(245, 200, 66, 0.08); border: 1px solid rgba(245, 200, 66, 0.3); }
+body.bean-app .you-streak-cell.is-today { background: rgba(232, 179, 60, 0.10); border: 1px solid rgba(232, 179, 60, 0.32); }
+body.bean-app .you-streak-cell.is-future { opacity: 0.45; }
 body.bean-app .you-streak-letter {
   font-size: 10px;
   letter-spacing: 0.08em;
@@ -6145,6 +6146,296 @@ body.bean-app .palate-foot-sub {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* ============================================================
+   POLISH PASS — Home extras: Competitions/giveaways + latte marquee.
+   Map layer toggle + add-cafe + bean markers on Passport. YouTube fallback.
+   ============================================================ */
+
+/* Home — Competitions / Giveaways card */
+body.bean-app .home-comps { padding: 18px 0 18px 18px; }
+body.bean-app .home-comps-meta {
+  font-size: 11px;
+  color: var(--text-on-dark-muted);
+  letter-spacing: 0.02em;
+}
+body.bean-app .home-comps-scroll {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: 18px;
+  padding: 4px 18px 4px 0;
+  scrollbar-width: none;
+}
+body.bean-app .home-comps-scroll::-webkit-scrollbar { display: none; }
+body.bean-app .home-comp-tile {
+  flex: 0 0 76%;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  color: var(--text-on-light);
+  border: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.20), 0 12px 24px -12px rgba(0,0,0,0.40);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+body.bean-app .home-comp-tile.is-featured { flex-basis: 84%; }
+body.bean-app .home-comp-tile:active { transform: scale(0.985); }
+body.bean-app .home-comp-photo {
+  position: relative;
+  aspect-ratio: 16/9;
+  background-size: cover;
+  background-position: center;
+}
+body.bean-app .home-comp-flag {
+  position: absolute;
+  top: 10px; left: 10px;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  padding: 4px 10px 3px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+body.bean-app .home-comp-tile.kind-comp .home-comp-flag {
+  background: #E84F1A;
+  color: #FFFFFF;
+}
+body.bean-app .home-comp-body {
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+body.bean-app .home-comp-title {
+  font-family: var(--bean-display);
+  font-size: 17px;
+  line-height: 1.15;
+  color: var(--text-on-light);
+  letter-spacing: -0.01em;
+}
+body.bean-app .home-comp-sub {
+  font-size: 12px;
+  color: var(--text-on-light-muted);
+  font-weight: 500;
+}
+body.bean-app .home-comp-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+body.bean-app .home-comp-countdown { color: var(--accent-yellow-deep); letter-spacing: 0.04em; }
+body.bean-app .home-comp-cta { color: var(--text-on-light); }
+
+/* Home — Latte art auto-scrolling marquee */
+body.bean-app .home-latte { padding: 18px 0 4px 18px; }
+body.bean-app .home-latte-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-right: 18px;
+  margin-bottom: 12px;
+}
+body.bean-app .home-latte-meta {
+  font-size: 11px;
+  color: var(--text-on-light-muted);
+}
+body.bean-app .home-latte-marquee {
+  width: calc(100% + 18px);
+  margin-left: -18px;
+  margin-right: -18px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
+          mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
+}
+body.bean-app .home-latte-track {
+  display: flex;
+  gap: 10px;
+  width: max-content;
+  animation: home-latte-scroll 50s linear infinite;
+}
+body.bean-app .home-latte-marquee:hover .home-latte-track { animation-play-state: paused; }
+@keyframes home-latte-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+body.bean-app .home-latte-card {
+  flex: 0 0 auto;
+  width: 132px;
+  background: #FFFFFF;
+  border: 1px solid var(--border-on-light);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 6px 14px -8px rgba(0,0,0,0.18);
+}
+body.bean-app .home-latte-photo {
+  width: 100%;
+  aspect-ratio: 1;
+  background-color: rgba(0,0,0,0.06);
+}
+body.bean-app .home-latte-meta-row {
+  padding: 8px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+body.bean-app .home-latte-pattern {
+  font-family: var(--bean-display);
+  font-size: 13px;
+  color: var(--text-on-light);
+}
+body.bean-app .home-latte-handle {
+  font-size: 9px;
+  color: var(--accent-yellow-deep);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* Passport — map layer toggle (Cafés / Beans / Both) */
+body.bean-app .pp-layer-toggle {
+  display: flex;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 999px;
+  border: 1px solid var(--border-on-dark);
+}
+body.bean-app .pp-layer-pill {
+  flex: 1;
+  padding: 8px 0;
+  background: transparent;
+  color: var(--text-on-dark-muted);
+  border: 0;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+body.bean-app .pp-layer-pill:hover { color: var(--text-on-dark); }
+body.bean-app .pp-layer-pill.active {
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  font-weight: 700;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+/* Passport — Add a cafe button */
+body.bean-app .pp-add-cafe {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: rgba(232, 179, 60, 0.08);
+  border: 1px dashed rgba(232, 179, 60, 0.40);
+  color: var(--accent-yellow);
+  border-radius: 14px;
+  font-family: var(--bean-body);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  justify-content: center;
+}
+body.bean-app .pp-add-cafe svg { width: 18px; height: 18px; }
+body.bean-app .pp-add-cafe:hover {
+  background: rgba(232, 179, 60, 0.14);
+  border-color: var(--accent-yellow);
+}
+
+/* Add cafe modal */
+body.bean-app .pp-add-card {
+  position: relative;
+  background: var(--bg-card);
+  color: var(--text-on-light);
+  border-radius: 22px;
+  padding: 24px 22px 22px;
+  max-width: 460px;
+  width: 100%;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+body.bean-app .pp-add-title {
+  font-family: var(--bean-display);
+  font-size: 22px;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+body.bean-app .pp-add-sub {
+  font-size: 13px;
+  color: var(--text-on-light-muted);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+body.bean-app .pp-add-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+body.bean-app .pp-add-stars {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+body.bean-app .pp-add-star {
+  width: 32px; height: 32px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.18);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+body.bean-app .pp-add-star:hover { color: var(--accent-yellow); transform: scale(1.1); }
+body.bean-app .pp-add-star.on { color: var(--accent-yellow); }
+body.bean-app .pp-add-star svg { width: 22px; height: 22px; }
+
+/* Bean origin marker (passport map) */
+.bean-marker-wrap { background: transparent; border: 0; }
+.bean-marker {
+  width: 34px; height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.40));
+  transition: transform 0.18s ease;
+}
+.bean-marker:hover { transform: scale(1.1); }
+
+/* YouTube fallback link below the embed */
+body.bean-app .learn-modal-yt-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-yellow-deep);
+  text-decoration: none;
+  margin-bottom: 16px;
+  letter-spacing: 0.02em;
+}
+body.bean-app .learn-modal-yt-link:hover { text-decoration: underline; }
 
 /* Recipe detail modal — opened from "Try this brew" CTAs */
 body.bean-app .rec-detail-card {
