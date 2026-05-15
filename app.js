@@ -428,7 +428,7 @@ function mountAppShell() {
         el('span', { class: 'bl-brand-mark' }, '◐'),
         el('span', { class: 'bl-brand-text' },
           el('span', { class: 'bl-brand-name' }, 'Brew Lab'),
-          el('span', { class: 'bl-brand-tag' }, 'Coffee Community')
+          el('span', { class: 'bl-brand-tag' }, 'by Cuisinart')
         )
       ),
       el('nav', { class: 'bl-nav' },
@@ -6539,11 +6539,9 @@ const BEAN_USER_KEY = 'beanapp_user';
 const BEAN_BREWS_KEY = 'beanapp_brews';
 const BEAN_DEMO_SEEDED_KEY = 'beanapp_demo_seeded';
 const BEAN_TABS = [
-  { route: 'home',     label: 'Home',     icon: 'home' },
-  { route: 'feed',     label: 'Feed',     icon: 'feed' },
-  { route: 'learn',    label: 'Learn',    icon: 'book' },
+  { route: 'profile',  label: 'Profile',  icon: 'user' },
   { route: 'passport', label: 'Passport', icon: 'globe' },
-  { route: 'profile',  label: 'Profile',  icon: 'user' }
+  { route: 'learning', label: 'Learning', icon: 'book' }
 ];
 const BEAN_STUBS = {
   recipes:  { title: 'Recipes',  sub: 'Phase 6 builds the recipes browser.' },
@@ -6718,11 +6716,14 @@ function beanRender() {
     if (window.location.hash !== '#/auth') { window.location.hash = '#/auth'; return; }
   }
   if (user && (route === '' || route === 'auth')) {
-    if (window.location.hash !== '#/home') { window.location.hash = '#/home'; return; }
+    if (window.location.hash !== '#/profile') { window.location.hash = '#/profile'; return; }
   }
   if (!user && route === '') { window.location.hash = '#/auth'; return; }
-  // Legacy /you links continue to work — bounce them to /home.
-  if (route === 'you') { window.location.hash = '#/home'; return; }
+  // Legacy routes — bounce to their new home in the 3-tab layout.
+  if (route === 'you' || route === 'home' || route === 'feed') {
+    window.location.hash = '#/profile'; return;
+  }
+  if (route === 'learn') { window.location.hash = '#/learning'; return; }
 
   const main = document.getElementById('bean-main');
   if (!main) return;
@@ -6730,13 +6731,9 @@ function beanRender() {
 
   if (route === 'auth') {
     renderBeanAuth(main);
-  } else if (route === 'home' && typeof renderHome === 'function') {
-    renderHome(main);
   } else if (route === 'profile' && typeof renderProfile === 'function') {
     renderProfile(main);
-  } else if (route === 'feed' && typeof renderFeed === 'function') {
-    renderFeed(main);
-  } else if (route === 'learn' && typeof renderLearn === 'function') {
+  } else if (route === 'learning' && typeof renderLearn === 'function') {
     renderLearn(main);
   } else if (route === 'passport' && typeof renderPassport === 'function') {
     renderPassport(main);
@@ -6745,15 +6742,13 @@ function beanRender() {
   } else if (BEAN_STUBS[route]) {
     renderBeanStub(main, BEAN_STUBS[route]);
   } else {
-    // Unknown route — bounce back to /home (or /auth)
-    window.location.hash = user ? '#/home' : '#/auth';
+    window.location.hash = user ? '#/profile' : '#/auth';
     return;
   }
 
-  // Hide nav on auth, show + highlight elsewhere. Sub-routes that
-  // belong to a parent tab (badges sits under Home; palate sits under
-  // Profile) keep that parent tab highlighted in the bottom nav.
-  const SUBROUTE_PARENT = { badges: 'home', palate: 'profile' };
+  // Hide nav on auth, show + highlight elsewhere. Sub-routes inherit their
+  // parent tab's highlight.
+  const SUBROUTE_PARENT = { badges: 'profile', palate: 'profile' };
   const activeRoute = SUBROUTE_PARENT[route] || route;
   const nav = document.getElementById('bean-nav');
   if (nav) {
@@ -6835,7 +6830,7 @@ function renderBeanAuth(main) {
     class: 'btn-ghost full',
     onclick: () => {
       setBeanUser({ email: 'demo@brew.coffee', name: 'Maya Okafor', isDemo: true, createdAt: Date.now() });
-      window.location.hash = '#/home';
+      window.location.hash = '#/profile';
     }
   }, 'Explore as demo user'));
 

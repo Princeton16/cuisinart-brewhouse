@@ -5884,6 +5884,182 @@ body.bean-app .learn-path-foot svg { width: 14px; height: 18px; }
    POLISH PASS — Empty states + reveal toast + brew log refinements
    ============================================================ */
 
+/* ============================================================
+   CUISINART DEVICE CONTROL — the Profile tab's hero panel
+   "Your Cuisinart" with photo, remote-start (pod / carafe), self-clean,
+   palate calibration line. Positions Cuisinart as the coffee authority.
+   ============================================================ */
+body.bean-app .cuisinart-device { padding: 18px 20px 16px; }
+body.bean-app .cuisinart-device-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 14px;
+}
+body.bean-app .cuisinart-device-meta {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--text-on-dark-muted);
+}
+body.bean-app .cuisinart-device-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-on-dark);
+}
+body.bean-app .cuisinart-device-photo {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(255, 255, 255, 0.04);
+  flex-shrink: 0;
+}
+body.bean-app .cuisinart-device-meta-wrap { flex: 1; min-width: 0; }
+body.bean-app .cuisinart-device-name {
+  font-family: var(--bean-display);
+  font-size: 16px;
+  line-height: 1.15;
+  color: var(--text-on-dark);
+  letter-spacing: -0.005em;
+}
+body.bean-app .cuisinart-device-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-on-dark-muted);
+  margin-top: 4px;
+}
+body.bean-app .cuisinart-device-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #5DAA6E;
+  box-shadow: 0 0 0 0 rgba(93, 170, 110, 0.55);
+  animation: bean-pulse 2.4s ease-in-out infinite;
+}
+body.bean-app .cuisinart-device-empty {
+  font-size: 13px;
+  color: var(--text-on-dark-muted);
+  line-height: 1.5;
+  margin: 4px 0 12px;
+}
+body.bean-app .cuisinart-pair-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 4px;
+  padding: 12px 16px;
+  background: rgba(232, 179, 60, 0.10);
+  border: 1px dashed rgba(232, 179, 60, 0.45);
+  color: var(--accent-yellow);
+  border-radius: 12px;
+  font-family: var(--bean-body);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+body.bean-app .cuisinart-pair-cta:hover {
+  background: rgba(232, 179, 60, 0.16);
+  border-color: var(--accent-yellow);
+}
+
+/* Remote-start controls — two big tappable tiles. */
+body.bean-app .cuisinart-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+body.bean-app .cuisinart-control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  padding: 16px 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-on-dark);
+  border-radius: 14px;
+  color: var(--text-on-dark);
+  cursor: pointer;
+  font: inherit;
+  transition: background 0.18s ease, transform 0.15s ease, border-color 0.18s ease;
+}
+body.bean-app .cuisinart-control:hover {
+  background: rgba(232, 179, 60, 0.10);
+  border-color: rgba(232, 179, 60, 0.45);
+}
+body.bean-app .cuisinart-control:active { transform: scale(0.97); }
+body.bean-app .cuisinart-control-icon {
+  font-size: 26px;
+  line-height: 1;
+}
+body.bean-app .cuisinart-control-title {
+  font-family: var(--bean-display);
+  font-size: 15px;
+  line-height: 1.1;
+  letter-spacing: -0.005em;
+  margin-top: 2px;
+}
+body.bean-app .cuisinart-control-sub {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-on-dark-muted);
+  font-weight: 600;
+}
+
+/* Self-cleaning button */
+body.bean-app .cuisinart-secondary { margin-bottom: 12px; }
+body.bean-app .cuisinart-clean {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 14px;
+  background: transparent;
+  border: 1px solid var(--border-on-dark);
+  color: var(--text-on-dark);
+  border-radius: 12px;
+  font-family: var(--bean-body);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+body.bean-app .cuisinart-clean:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--accent-yellow);
+}
+body.bean-app .cuisinart-clean-icon {
+  color: var(--accent-yellow);
+  font-size: 14px;
+}
+
+/* "Calibrated by Cuisinart" trust line */
+body.bean-app .cuisinart-tuned {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-on-dark-muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+body.bean-app .cuisinart-tuned-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent-yellow);
+}
+
 /* Home hub greeting line */
 body.bean-app .home-hello {
   margin-bottom: 4px;
@@ -6422,6 +6598,454 @@ body.bean-app .pp-add-star svg { width: 22px; height: 22px; }
   transition: transform 0.18s ease;
 }
 .bean-marker:hover { transform: scale(1.1); }
+
+/* ============================================================
+   LEARNING — Creator content + Gear (Cuisinart product links)
+   ============================================================ */
+body.bean-app .learn-creators { margin: 18px 0 4px; }
+body.bean-app .learn-creators-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+body.bean-app .learn-creators-meta {
+  font-size: 11px;
+  color: var(--text-on-dark-muted);
+}
+body.bean-app .learn-creators-scroll {
+  display: flex;
+  gap: 12px;
+  margin: 0 -16px;
+  padding: 4px 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+body.bean-app .learn-creators-scroll::-webkit-scrollbar { display: none; }
+body.bean-app .learn-creator-card {
+  flex: 0 0 70%;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  color: var(--text-on-light);
+  border-radius: 14px;
+  overflow: hidden;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.20), 0 12px 24px -12px rgba(0,0,0,0.40);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+body.bean-app .learn-creator-card.is-featured { flex-basis: 78%; }
+body.bean-app .learn-creator-card:active { transform: scale(0.985); }
+body.bean-app .learn-creator-photo {
+  position: relative;
+  aspect-ratio: 16/9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+body.bean-app .learn-creator-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+  font-family: var(--bean-display);
+  font-size: 19px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+}
+body.bean-app .learn-creator-play {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.30);
+}
+body.bean-app .learn-creator-body {
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+body.bean-app .learn-creator-name {
+  font-family: var(--bean-display);
+  font-size: 16px;
+  line-height: 1.15;
+  letter-spacing: -0.005em;
+}
+body.bean-app .learn-creator-role {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-yellow-deep);
+  font-weight: 700;
+}
+body.bean-app .learn-creator-topic {
+  font-size: 12px;
+  color: var(--text-on-light-muted);
+  line-height: 1.45;
+}
+
+/* Gear section — Cuisinart product links */
+body.bean-app .learn-gear { margin: 18px 0 4px; }
+body.bean-app .learn-gear-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+body.bean-app .learn-gear-meta {
+  font-size: 11px;
+  color: var(--text-on-dark-muted);
+}
+body.bean-app .learn-gear-scroll {
+  display: flex;
+  gap: 12px;
+  margin: 0 -16px;
+  padding: 4px 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+body.bean-app .learn-gear-scroll::-webkit-scrollbar { display: none; }
+body.bean-app .learn-gear-card {
+  flex: 0 0 64%;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  color: var(--text-on-light);
+  border-radius: 14px;
+  overflow: hidden;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.20), 0 12px 24px -12px rgba(0,0,0,0.40);
+  transition: transform 0.18s ease;
+}
+body.bean-app .learn-gear-card:active { transform: scale(0.985); }
+body.bean-app .learn-gear-photo {
+  position: relative;
+  aspect-ratio: 4/3;
+  background-size: cover;
+  background-position: center;
+}
+body.bean-app .learn-gear-pillar {
+  position: absolute;
+  top: 8px; left: 8px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #FFFFFF;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 4px 10px 3px;
+  border-radius: 999px;
+}
+body.bean-app .learn-gear-body {
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+body.bean-app .learn-gear-name {
+  font-family: var(--bean-display);
+  font-size: 15px;
+  line-height: 1.15;
+  letter-spacing: -0.005em;
+}
+body.bean-app .learn-gear-sub {
+  font-size: 12px;
+  color: var(--text-on-light-muted);
+  line-height: 1.45;
+}
+body.bean-app .learn-gear-shop {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--accent-yellow-deep);
+}
+
+/* ============================================================
+   PASSPORT — Connections + Visit feed + Shop Cuisinart
+   ============================================================ */
+body.bean-app .pp-connections {
+  margin: 16px -16px 4px;
+}
+body.bean-app .pp-connections-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0 16px;
+  margin-bottom: 10px;
+}
+body.bean-app .pp-connections-scroll {
+  display: flex;
+  gap: 10px;
+  padding: 4px 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+body.bean-app .pp-connections-scroll::-webkit-scrollbar { display: none; }
+body.bean-app .pp-connection-tile {
+  flex: 0 0 84px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: center;
+  font: inherit;
+  padding: 4px 0;
+  transition: transform 0.15s ease;
+}
+body.bean-app .pp-connection-tile:active { transform: scale(0.95); }
+body.bean-app .pp-connection-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent-yellow);
+  color: #FFFFFF;
+  font-family: var(--bean-display);
+  font-size: 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.30);
+}
+body.bean-app .pp-connection-avatar-add {
+  background: transparent;
+  border: 1px dashed rgba(232, 179, 60, 0.55);
+  color: var(--accent-yellow);
+  font-size: 22px;
+  font-weight: 400;
+  box-shadow: none;
+}
+body.bean-app .pp-connection-name {
+  font-size: 11px;
+  color: var(--text-on-dark);
+  font-weight: 600;
+}
+body.bean-app .pp-connection-handle {
+  font-size: 9px;
+  color: var(--text-on-dark-muted);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+/* Visit feed */
+body.bean-app .pp-feed {
+  background: var(--bg-card);
+  color: var(--text-on-light);
+  border-radius: 18px;
+  padding: 18px 18px 12px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 12px 28px -16px rgba(0,0,0,0.16);
+}
+body.bean-app .pp-feed-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 14px;
+}
+body.bean-app .pp-feed .pp-eyebrow {
+  color: var(--accent-yellow-deep);
+}
+body.bean-app .pp-feed-empty {
+  font-size: 13px;
+  color: var(--text-on-light-muted);
+  font-style: italic;
+}
+body.bean-app .pp-feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+body.bean-app .pp-feed-item {
+  border-top: 1px solid var(--border-on-light);
+  padding-top: 14px;
+}
+body.bean-app .pp-feed-item:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+body.bean-app .pp-feed-head-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+body.bean-app .pp-feed-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: #FFFFFF;
+  font-family: var(--bean-display);
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+body.bean-app .pp-feed-meta { flex: 1; min-width: 0; }
+body.bean-app .pp-feed-who {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-on-light);
+}
+body.bean-app .pp-feed-you-tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 6px;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  vertical-align: middle;
+}
+body.bean-app .pp-feed-when {
+  font-size: 11px;
+  color: var(--text-on-light-muted);
+  margin-top: 2px;
+}
+body.bean-app .pp-feed-photo {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 12px;
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(0,0,0,0.04);
+  margin-bottom: 10px;
+}
+body.bean-app .pp-feed-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+body.bean-app .pp-feed-cafe-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+body.bean-app .pp-feed-cafe {
+  font-family: var(--bean-display);
+  font-size: 16px;
+  color: var(--text-on-light);
+  letter-spacing: -0.005em;
+}
+body.bean-app .pp-feed-loc {
+  font-size: 11px;
+  color: var(--text-on-light-muted);
+  font-weight: 500;
+}
+body.bean-app .pp-feed-rating {
+  font-size: 12px;
+  color: var(--accent-yellow-deep);
+  letter-spacing: 0.04em;
+}
+body.bean-app .pp-feed-notes {
+  font-size: 13px;
+  color: var(--text-on-light-muted);
+  line-height: 1.5;
+}
+body.bean-app .pp-feed-share {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+body.bean-app .pp-share-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--text-on-light);
+  border: 0;
+  cursor: pointer;
+  font-family: var(--bean-body);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+body.bean-app .pp-share-btn:hover { background: rgba(0, 0, 0, 0.10); }
+body.bean-app .pp-share-btn:active { transform: scale(0.92); }
+body.bean-app .pp-share-twitter:hover { background: var(--text-on-light); color: #FFFFFF; }
+body.bean-app .pp-share-instagram:hover { background: linear-gradient(135deg, #FE8A4A 0%, #DD2A7B 50%, #7A45A8 100%); color: #FFFFFF; }
+
+/* Shop Cuisinart — DTC link card */
+body.bean-app .pp-dtc {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, var(--accent-yellow-soft) 0%, var(--accent-yellow) 100%);
+  color: var(--text-on-light);
+  border-radius: 16px;
+  padding: 18px 18px 18px 20px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 2px rgba(232, 179, 60, 0.18), 0 14px 28px -14px rgba(232, 179, 60, 0.45);
+}
+body.bean-app .pp-dtc:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(232, 179, 60, 0.24), 0 22px 40px -16px rgba(232, 179, 60, 0.55);
+}
+body.bean-app .pp-dtc-text { flex: 1; min-width: 0; }
+body.bean-app .pp-dtc-eyebrow {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(64, 36, 2, 0.7);
+  margin-bottom: 4px;
+}
+body.bean-app .pp-dtc-title {
+  font-family: var(--bean-display);
+  font-size: 19px;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+body.bean-app .pp-dtc-sub {
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(64, 36, 2, 0.82);
+}
+body.bean-app .pp-dtc-arrow {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--text-on-light);
+  color: var(--accent-yellow);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
 
 /* YouTube fallback link below the embed */
 body.bean-app .learn-modal-yt-link {

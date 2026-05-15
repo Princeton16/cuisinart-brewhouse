@@ -64,10 +64,164 @@ function renderLearn(main) {
   tracks.forEach(t => tracksSection.appendChild(buildTrackBlock(t)));
   page.appendChild(tracksSection);
 
-  /* 3. Certifications */
+  /* 3. Creator content — coffee influencers teaching their craft */
+  page.appendChild(buildCreatorSection());
+
+  /* 4. Gear that goes with the lesson — links to Cuisinart products */
+  page.appendChild(buildGearSection());
+
+  /* 5. Certifications */
   page.appendChild(buildCertSection());
 
   main.appendChild(page);
+
+  // Make horizontal rails wheel-scroll on desktop
+  if (typeof enableHorizontalWheelScroll === 'function') enableHorizontalWheelScroll(page);
+}
+
+/* ---------- Creator content ----------
+   A horizontal scroll of well-known coffee influencers + brand experts.
+   Each card opens their channel in a new tab. Curated set; would be CMS-
+   driven in production. */
+const LEARN_CREATORS = [
+  {
+    name: 'James Hoffmann',
+    role: 'World Barista Champion',
+    topic: 'The definitive coffee channel',
+    bg: 'linear-gradient(135deg,#3D2818 0%, #1A0D06 100%)',
+    initials: 'JH',
+    url: 'https://www.youtube.com/@jameshoffmann'
+  },
+  {
+    name: 'Lance Hedrick',
+    role: 'Espresso educator',
+    topic: 'Latte art + dialing in espresso',
+    bg: 'linear-gradient(135deg,#5C2E2A 0%, #2A100C 100%)',
+    initials: 'LH',
+    url: 'https://www.youtube.com/@LanceHedrick'
+  },
+  {
+    name: 'Hoffmann × Cuisinart',
+    role: 'Cuisinart Test Kitchen',
+    topic: 'Brewing on every Cuisinart machine',
+    bg: 'linear-gradient(135deg,#B68A1A 0%, #6E5311 100%)',
+    initials: 'CU',
+    url: 'https://www.cuisinart.com/'
+  },
+  {
+    name: 'Morgan Eckroth',
+    role: 'Barista champion',
+    topic: 'Coffee shop life + technique',
+    bg: 'linear-gradient(135deg,#2D7A6B 0%, #14443B 100%)',
+    initials: 'ME',
+    url: 'https://www.youtube.com/@morgandrinkscoffee'
+  },
+  {
+    name: 'Mikael Cho',
+    role: 'Cinematic origin films',
+    topic: 'Inside Ethiopian washing stations',
+    bg: 'linear-gradient(135deg,#2A6B3D 0%, #0E2A18 100%)',
+    initials: 'MC',
+    url: 'https://www.youtube.com/'
+  }
+];
+
+function buildCreatorSection() {
+  const section = el('div', { class: 'learn-creators' });
+  section.appendChild(el('div', { class: 'learn-creators-head' },
+    el('div', { class: 'you-eyebrow you-eyebrow-yellow' }, 'CREATORS WE WATCH'),
+    el('span', { class: 'learn-creators-meta' }, 'Cuisinart Test Kitchen + world-class baristas')
+  ));
+  const scroller = el('div', { class: 'learn-creators-scroll' });
+  LEARN_CREATORS.forEach((c, i) => scroller.appendChild(buildCreatorCard(c, i === 0)));
+  section.appendChild(scroller);
+  return section;
+}
+
+function buildCreatorCard(c, isFeatured) {
+  const card = el('a', {
+    class: 'learn-creator-card' + (isFeatured ? ' is-featured' : ''),
+    href: c.url,
+    target: '_blank',
+    rel: 'noopener noreferrer'
+  });
+  card.appendChild(el('div', {
+    class: 'learn-creator-photo',
+    style: 'background:' + c.bg
+  },
+    el('div', { class: 'learn-creator-avatar' }, c.initials),
+    el('div', { class: 'learn-creator-play' }, '▶')
+  ));
+  card.appendChild(el('div', { class: 'learn-creator-body' },
+    el('div', { class: 'learn-creator-name' }, c.name),
+    el('div', { class: 'learn-creator-role' }, c.role),
+    el('div', { class: 'learn-creator-topic' }, c.topic)
+  ));
+  return card;
+}
+
+/* ---------- Gear section ----------
+   Curated Cuisinart machines paired to the tracks the user is learning.
+   Click → Cuisinart DTC product page in a new tab. */
+const LEARN_GEAR = [
+  {
+    name: 'Cuisinart EM-200 Espresso Maker',
+    sub: 'Programmable double-shot. Used in espresso fundamentals.',
+    pillar: 'Espresso',
+    photo: 'https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=600&q=80',
+    url: 'https://www.cuisinart.com/shopping/appliances/coffee_makers/'
+  },
+  {
+    name: 'Cuisinart PerfecTemp 14-Cup',
+    sub: 'Programmable drip. Featured in The Brew curriculum.',
+    pillar: 'Drip',
+    photo: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80',
+    url: 'https://www.cuisinart.com/shopping/appliances/coffee_makers/'
+  },
+  {
+    name: 'Cuisinart Burr Grind & Brew',
+    sub: 'Built-in conical burr grinder. Perfect for grind-size lessons.',
+    pillar: 'Grind',
+    photo: 'https://images.unsplash.com/photo-1518057111178-44a106bad636?w=600&q=80',
+    url: 'https://www.cuisinart.com/shopping/appliances/coffee_makers/'
+  },
+  {
+    name: 'Cuisinart Automatic Cold Brew',
+    sub: 'Cold brew in as little as 25 minutes. For Cold Brew Mastery.',
+    pillar: 'Cold brew',
+    photo: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=600&q=80',
+    url: 'https://www.cuisinart.com/shopping/appliances/coffee_makers/'
+  }
+];
+
+function buildGearSection() {
+  const section = el('div', { class: 'learn-gear' });
+  section.appendChild(el('div', { class: 'learn-gear-head' },
+    el('div', { class: 'you-eyebrow you-eyebrow-yellow' }, 'GEAR FOR THIS PATH'),
+    el('span', { class: 'learn-gear-meta' }, 'Calibrated by Cuisinart')
+  ));
+  const scroller = el('div', { class: 'learn-gear-scroll' });
+  LEARN_GEAR.forEach(g => scroller.appendChild(buildGearCard(g)));
+  section.appendChild(scroller);
+  return section;
+}
+
+function buildGearCard(g) {
+  return el('a', {
+    class: 'learn-gear-card',
+    href: g.url,
+    target: '_blank',
+    rel: 'noopener noreferrer'
+  },
+    el('div', { class: 'learn-gear-photo', style: 'background-image:url(\'' + g.photo + '\')' },
+      el('span', { class: 'learn-gear-pillar' }, g.pillar)
+    ),
+    el('div', { class: 'learn-gear-body' },
+      el('div', { class: 'learn-gear-name' }, g.name),
+      el('div', { class: 'learn-gear-sub' }, g.sub),
+      el('div', { class: 'learn-gear-shop' }, 'Shop on Cuisinart →')
+    )
+  );
 }
 
 /* "Pick up where you left off" featured card. Walks the tracks looking for

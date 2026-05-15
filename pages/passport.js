@@ -90,11 +90,196 @@ function renderPassport(main) {
   const stage = el('div', { class: 'pp-stage', id: 'pp-stage' });
   page.appendChild(stage);
 
+  /* 5. Connections — friends and people you follow */
+  page.appendChild(buildConnectionsCard());
+
+  /* 6. Connections feed — what friends are visiting + Cuisinart DTC link */
+  page.appendChild(buildVisitFeedCard());
+
+  /* 7. Shop Cuisinart — direct-to-consumer link */
+  page.appendChild(buildShopCuisinartCard());
+
   main.appendChild(page);
   paintStage();
-  // Desktop wheel-to-horizontal for the Next stops rail (must happen after
-  // paintStage runs so the rail is in the DOM).
   if (typeof enableHorizontalWheelScroll === 'function') enableHorizontalWheelScroll(page);
+}
+
+/* ---------- Connections card ----------
+   A horizontal scroll of the user's coffee community. Tap any avatar to
+   peek at their last visit. Add-friend tile at the end. */
+const PP_CONNECTIONS = [
+  { name: 'Maya Okafor',   handle: '@maya.brews', color: '#B68A1A', lastVisit: 'Sey Coffee · Brooklyn' },
+  { name: 'Theo Lin',      handle: '@theolin',    color: '#2D7A6B', lastVisit: 'George Howell · Boston' },
+  { name: 'Carla Mendoza', handle: '@carlam',     color: '#3F5B8A', lastVisit: 'Panther · Miami' },
+  { name: 'Devon Park',    handle: '@devonpark',  color: '#8B4F2A', lastVisit: 'Devoción · Brooklyn' },
+  { name: 'Hana Kim',      handle: '@hanak',      color: '#A04848', lastVisit: 'Stumptown · Portland' },
+  { name: 'Ari Singh',     handle: '@arisingh',   color: '#6B5FA8', lastVisit: 'Blue Bottle · SF' },
+  { name: 'Quinn Moss',    handle: '@quinnmoss',  color: '#2D4A3A', lastVisit: 'Intelligentsia · Chicago' }
+];
+
+function buildConnectionsCard() {
+  const card = el('div', { class: 'pp-connections' });
+  card.appendChild(el('div', { class: 'pp-connections-head' },
+    el('span', { class: 'pp-eyebrow' }, 'YOUR CONNECTIONS'),
+    el('span', { class: 'pp-rail-meta' }, PP_CONNECTIONS.length + ' coffee friends')
+  ));
+  const scroller = el('div', { class: 'pp-connections-scroll' });
+  PP_CONNECTIONS.forEach(c => scroller.appendChild(buildConnectionTile(c)));
+  // Add-friend tile
+  scroller.appendChild(el('button', {
+    type: 'button',
+    class: 'pp-connection-tile pp-connection-add',
+    onclick: () => alert('Invite a friend — coming soon')
+  },
+    el('div', { class: 'pp-connection-avatar pp-connection-avatar-add' }, '+'),
+    el('div', { class: 'pp-connection-name' }, 'Add friend')
+  ));
+  card.appendChild(scroller);
+  return card;
+}
+
+function buildConnectionTile(c) {
+  const initials = c.name.split(/\s+/).map(p => p[0]).join('').slice(0, 2);
+  return el('button', {
+    type: 'button',
+    class: 'pp-connection-tile',
+    onclick: () => alert(c.name + '\n\nLast visit: ' + c.lastVisit)
+  },
+    el('div', {
+      class: 'pp-connection-avatar',
+      style: 'background:' + c.color
+    }, initials),
+    el('div', { class: 'pp-connection-name' }, c.name.split(/\s+/)[0]),
+    el('div', { class: 'pp-connection-handle' }, c.handle)
+  );
+}
+
+/* ---------- Visit feed card ----------
+   The user's own visits + their connections' recent visits, mixed by
+   recency. Each item has share-to-social buttons (Twitter, Instagram). */
+function buildVisitFeedCard() {
+  const card = el('div', { class: 'pp-feed' });
+  card.appendChild(el('div', { class: 'pp-feed-head' },
+    el('span', { class: 'pp-eyebrow' }, 'WHAT FRIENDS ARE SIPPING'),
+    el('span', { class: 'pp-rail-meta' }, 'Latest from your connections')
+  ));
+
+  // Mock a feed by combining the user's visits with their friends'.
+  const items = composeVisitFeed();
+  if (!items.length) {
+    card.appendChild(el('p', { class: 'pp-feed-empty' }, 'No visits yet. Log a coffee shop and it lands here for your friends to see.'));
+    return card;
+  }
+
+  const list = el('div', { class: 'pp-feed-list' });
+  items.forEach(item => list.appendChild(buildVisitFeedItem(item)));
+  card.appendChild(list);
+  return card;
+}
+
+/* Merge own visits + curated friend visits into a recency-sorted feed. */
+function composeVisitFeed() {
+  const own = (typeof loadBeanVisits === 'function' ? loadBeanVisits() : []).slice();
+  const ownItems = own.map(v => {
+    const cafe = (typeof getCafeById === 'function' && getCafeById(v.cafeId)) || (v.userCafe ? v.userCafe : null);
+    if (!cafe) return null;
+    return {
+      who: 'You',
+      avatarColor: '#B68A1A',
+      cafe: cafe,
+      dateISO: v.dateISO,
+      rating: v.rating || 0,
+      notes: v.notes || '',
+      isYou: true
+    };
+  }).filter(Boolean);
+
+  // Curated friend visits — sample data, refreshes the feed even for a
+  // brand-new user.
+  const friendItems = [
+    { who: 'Hana Kim',      avatarColor: '#A04848', cafe: { name: 'Stumptown Coffee', city: 'Portland',  state: 'Oregon',     photoUrl: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=400&q=80' }, dateISO: new Date(Date.now() - 1.5 * 3600 * 1000).toISOString(), rating: 5, notes: 'Hair Bender on the espresso machine. Best shot of the week.' },
+    { who: 'Devon Park',    avatarColor: '#8B4F2A', cafe: { name: 'Sey Coffee',       city: 'Brooklyn',  state: 'New York',   photoUrl: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=400&q=80' }, dateISO: new Date(Date.now() - 5 * 3600 * 1000).toISOString(), rating: 5, notes: 'Karatu AA filter — tomato-bright and clean.' },
+    { who: 'Theo Lin',      avatarColor: '#2D7A6B', cafe: { name: 'George Howell',    city: 'Boston',    state: 'Massachusetts', photoUrl: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=400&q=80' }, dateISO: new Date(Date.now() - 9 * 3600 * 1000).toISOString(), rating: 4, notes: 'Smooth Costa Rican filter. Good sit-down spot.' },
+    { who: 'Ari Singh',     avatarColor: '#6B5FA8', cafe: { name: 'Blue Bottle Coffee', city: 'San Francisco', state: 'California', photoUrl: 'https://images.unsplash.com/photo-1507133750040-4a8f57021571?w=400&q=80' }, dateISO: new Date(Date.now() - 1 * 86400 * 1000).toISOString(), rating: 5, notes: 'Gibraltar lives up. Thick crema, sweet finish.' },
+    { who: 'Carla Mendoza', avatarColor: '#3F5B8A', cafe: { name: 'Panther Coffee',   city: 'Miami',     state: 'Florida',    photoUrl: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&q=80' }, dateISO: new Date(Date.now() - 1.5 * 86400 * 1000).toISOString(), rating: 4, notes: 'Cortado plus a cold brew. Perfect Wynwood morning.' }
+  ];
+
+  const merged = ownItems.concat(friendItems).sort((a, b) => new Date(b.dateISO) - new Date(a.dateISO));
+  return merged.slice(0, 8);
+}
+
+function buildVisitFeedItem(item) {
+  const tile = el('div', { class: 'pp-feed-item' });
+  const initials = item.who.split(/\s+/).map(p => p[0]).join('').slice(0, 2);
+  tile.appendChild(el('div', { class: 'pp-feed-head-row' },
+    el('div', { class: 'pp-feed-avatar', style: 'background:' + item.avatarColor }, initials),
+    el('div', { class: 'pp-feed-meta' },
+      el('div', { class: 'pp-feed-who' }, item.who, item.isYou ? el('span', { class: 'pp-feed-you-tag' }, 'YOU') : null),
+      el('div', { class: 'pp-feed-when' }, _ppRelativeDate(item.dateISO) + ' · ' + item.cafe.name)
+    )
+  ));
+  if (item.cafe.photoUrl) {
+    tile.appendChild(el('div', {
+      class: 'pp-feed-photo',
+      style: 'background-image:url(\'' + item.cafe.photoUrl + '\')'
+    }));
+  }
+  tile.appendChild(el('div', { class: 'pp-feed-body' },
+    el('div', { class: 'pp-feed-cafe-row' },
+      el('span', { class: 'pp-feed-cafe' }, item.cafe.name),
+      el('span', { class: 'pp-feed-loc' }, (item.cafe.city || '') + (item.cafe.state ? ', ' + item.cafe.state : ''))
+    ),
+    item.rating ? el('div', { class: 'pp-feed-rating' }, '★'.repeat(item.rating) + '☆'.repeat(5 - item.rating)) : null,
+    item.notes ? el('p', { class: 'pp-feed-notes' }, item.notes) : null
+  ));
+  // Share row — Twitter / Instagram / copy link
+  const shareText = encodeURIComponent((item.isYou ? 'I just visited ' : item.who + ' visited ') + item.cafe.name + ' — found via Brew Lab by Cuisinart');
+  tile.appendChild(el('div', { class: 'pp-feed-share' },
+    el('a', {
+      class: 'pp-share-btn pp-share-twitter',
+      href: 'https://twitter.com/intent/tweet?text=' + shareText,
+      target: '_blank',
+      rel: 'noopener noreferrer',
+      'aria-label': 'Share on X'
+    }, 'X'),
+    el('a', {
+      class: 'pp-share-btn pp-share-instagram',
+      href: 'https://www.instagram.com/',
+      target: '_blank',
+      rel: 'noopener noreferrer',
+      'aria-label': 'Share on Instagram'
+    }, 'IG'),
+    el('button', {
+      type: 'button',
+      class: 'pp-share-btn pp-share-link',
+      onclick: () => {
+        const url = window.location.href.split('#')[0] + '#/passport';
+        try { navigator.clipboard.writeText(url); if (typeof toast === 'function') toast('Link copied'); }
+        catch (_) { alert('Copy: ' + url); }
+      },
+      'aria-label': 'Copy link'
+    }, '🔗')
+  ));
+  return tile;
+}
+
+/* ---------- Shop Cuisinart — DTC link card ----------
+   Pushes members to the Cuisinart direct-to-consumer page after they've
+   spent time in their passport. Positioned as a member benefit. */
+function buildShopCuisinartCard() {
+  return el('a', {
+    class: 'pp-dtc',
+    href: 'https://www.cuisinart.com/shopping/appliances/coffee_makers/',
+    target: '_blank',
+    rel: 'noopener noreferrer'
+  },
+    el('div', { class: 'pp-dtc-text' },
+      el('div', { class: 'pp-dtc-eyebrow' }, 'SHOP CUISINART'),
+      el('div', { class: 'pp-dtc-title' }, 'Upgrade your home setup'),
+      el('div', { class: 'pp-dtc-sub' }, 'Connected espresso machines, drip brewers, and cold-brew makers — calibrated to recipes you find here.')
+    ),
+    el('div', { class: 'pp-dtc-arrow' }, '→')
+  );
 }
 
 function paintStage() {

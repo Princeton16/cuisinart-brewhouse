@@ -118,12 +118,15 @@ function renderHome(main) {
   if (typeof revealNewAchievements === 'function') revealNewAchievements(achievements);
 }
 
-/* Profile tab — identity surface. Profile header (avatar, name, tier, bio,
-   stats), palate analysis, connected devices, and sign-out. */
+/* Profile tab — the user's connected Cuisinart hub.
+   Identity header, then a "Your Cuisinart" panel with remote-start (pod
+   or carafe) + self-cleaning, then the personalized streak, log-brew CTA,
+   recommendations, palate ("calibrated to your taste"), past brews, badges. */
 function renderProfile(main) {
   const user = getBeanUser() || { name: 'You', email: '', createdAt: Date.now() };
   const isDemo = !!user.isDemo;
   const brews = loadBeanBrews();
+  const recommendations = pickRecommendedBrews(5);
 
   const cs = currentStreak(brews);
   const bs = bestStreak(brews);
@@ -138,13 +141,109 @@ function renderProfile(main) {
 
   const page = el('div', { class: 'bean-page you-page profile-page' });
   page.appendChild(youProfileHeader(user, brews, bs, unlockedCount));
+  page.appendChild(profileDeviceControlCard(devices[0]));
+  page.appendChild(youStreakCard(cs, bs, brews));
+  page.appendChild(youLogCta(cs));
+  page.appendChild(youRecommendedRow(recommendations));
   page.appendChild(youPalateCardCompact(palate, brews));
-  page.appendChild(youDevicesCard(devices));
+  page.appendChild(youPastBrewsCard(brews));
+  page.appendChild(youBadgesLinkCard(achievements, unlockedCount));
   main.appendChild(page);
+
+  requestAnimationFrame(() => animateStreakValue(cs));
+  enableHorizontalWheelScroll(page);
+  if (typeof revealNewAchievements === 'function') revealNewAchievements(achievements);
 }
 
-/* Backwards-compat alias — older internal links may still reference renderYou. */
-function renderYou(main) { return renderHome(main); }
+/* Backwards-compat aliases — old internal links still call these. */
+function renderYou(main) { return renderProfile(main); }
+function renderHome(main) { return renderProfile(main); }
+
+/* Connected Cuisinart device control panel.
+   Shows the paired machine, one-tap remote-start for pod or carafe, and a
+   self-cleaning cycle. Cuisinart is positioned as the calibration authority. */
+function profileDeviceControlCard(device) {
+  const card = el('div', { class: 'you-card you-card-dark cuisinart-device' });
+  card.appendChild(el('div', { class: 'cuisinart-device-head' },
+    el('div', { class: 'you-eyebrow you-eyebrow-yellow' }, 'YOUR CUISINART'),
+    el('span', { class: 'cuisinart-device-meta' }, device ? 'Connected · ready to brew' : 'Not paired yet')
+  ));
+
+  if (!device) {
+    card.appendChild(el('p', { class: 'cuisinart-device-empty' },
+      'Pair your Cuisinart smart coffee machine to unlock one-tap brewing, palate-tuned recipes, and remote self-cleaning.'
+    ));
+    card.appendChild(el('button', {
+      class: 'cuisinart-pair-cta',
+      type: 'button',
+      onclick: () => (typeof openPairDeviceModal === 'function' ? openPairDeviceModal() : alert('Pairing coming soon'))
+    }, '+ Pair your Cuisinart'));
+    return card;
+  }
+
+  card.appendChild(el('div', { class: 'cuisinart-device-row' },
+    el('div', {
+      class: 'cuisinart-device-photo',
+      style: device.photoUrl ? 'background-image:url(\'' + device.photoUrl + '\')' : ''
+    }),
+    el('div', { class: 'cuisinart-device-meta-wrap' },
+      el('div', { class: 'cuisinart-device-name' }, device.name),
+      el('div', { class: 'cuisinart-device-status' },
+        el('span', { class: 'cuisinart-device-dot' }),
+        el('span', {}, device.status || 'Online')
+      )
+    )
+  ));
+
+  card.appendChild(el('div', { class: 'cuisinart-controls' },
+    el('button', {
+      type: 'button',
+      class: 'cuisinart-control cuisinart-control-pod',
+      onclick: () => openCuisinartBrewConfirm('pod')
+    },
+      el('div', { class: 'cuisinart-control-icon' }, '☕'),
+      el('div', { class: 'cuisinart-control-title' }, 'Brew a pod'),
+      el('div', { class: 'cuisinart-control-sub' }, 'Single cup · 2 min')
+    ),
+    el('button', {
+      type: 'button',
+      class: 'cuisinart-control cuisinart-control-carafe',
+      onclick: () => openCuisinartBrewConfirm('carafe')
+    },
+      el('div', { class: 'cuisinart-control-icon' }, '🫖'),
+      el('div', { class: 'cuisinart-control-title' }, 'Brew a carafe'),
+      el('div', { class: 'cuisinart-control-sub' }, '12 cups · 8 min')
+    )
+  ));
+
+  card.appendChild(el('div', { class: 'cuisinart-secondary' },
+    el('button', {
+      type: 'button',
+      class: 'cuisinart-clean',
+      onclick: () => openCuisinartCleanConfirm()
+    },
+      el('span', { class: 'cuisinart-clean-icon' }, '✦'),
+      el('span', {}, 'Run self-cleaning cycle')
+    )
+  ));
+
+  card.appendChild(el('div', { class: 'cuisinart-tuned' },
+    el('span', { class: 'cuisinart-tuned-dot' }),
+    el('span', {}, 'Brew profile calibrated to your palate by Cuisinart')
+  ));
+
+  return card;
+}
+
+function openCuisinartBrewConfirm(kind) {
+  const isPod = kind === 'pod';
+  if (!confirm((isPod ? 'Start a single-pod brew' : 'Start a 12-cup carafe brew') + ' on your Cuisinart?')) return;
+  if (typeof toast === 'function') toast(isPod ? 'Brewing your pod…' : 'Carafe heating up…');
+}
+function openCuisinartCleanConfirm() {
+  if (!confirm('Run a self-cleaning cycle on your Cuisinart? Takes about 10 minutes.')) return;
+  if (typeof toast === 'function') toast('Self-cleaning cycle started');
+}
 
 /* Find every horizontal scroll container in the subtree and let a vertical
    mouse wheel translate to horizontal scroll. Without this, desktop users
