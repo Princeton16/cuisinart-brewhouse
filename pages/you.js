@@ -151,7 +151,11 @@ function renderProfile(main) {
   const xp = (typeof getXP === 'function') ? getXP() : 0;
   const achievements = computeAchievements(brews, cs, palate.coverage, origins, userPosts, kudosGiven, xp);
   const unlockedCount = achievements.filter(a => a.unlocked).length;
-  const devices = isDemo ? DEMO_DEVICES : [];
+  // A real signed-up user starts with no paired device. The "Pair your
+  // Cuisinart" CTA persists DEMO_DEVICES[0] to localStorage so the demo
+  // features unlock for everyone, not just the explicit demo session.
+  const pairedFromStore = loadPairedDevice();
+  const devices = pairedFromStore ? [pairedFromStore] : (isDemo ? DEMO_DEVICES : []);
 
   const page = el('div', { class: 'bean-page you-page profile-page' });
   page.appendChild(youProfileHeader(user, brews, bs, unlockedCount));
@@ -196,7 +200,7 @@ function profileDeviceControlCard(device) {
     empty.appendChild(el('button', {
       class: 'cuisinart-pair-cta',
       type: 'button',
-      onclick: () => (typeof openPairDeviceModal === 'function' ? openPairDeviceModal() : alert('Pairing coming soon'))
+      onclick: () => openCuisinartPairWizard()
     }, '+ Pair your Cuisinart'));
     card.appendChild(empty);
     return card;
@@ -352,6 +356,136 @@ function openCuisinartScheduleModal(device) {
   const when = prompt('When should the next brew run? (e.g. 5:55 AM)', (device && device.nextBrew) ? device.nextBrew.when : '5:55 AM');
   if (!when) return;
   if (typeof toast === 'function') toast('Schedule saved · ' + when);
+}
+
+/* ---------- Paired-device storage ----------
+   Persist a paired device to localStorage so the connected features stay
+   on across page loads for any signed-up user. The pair wizard writes
+   DEMO_DEVICES[0]; "Unpair" clears the key. */
+const BEAN_PAIRED_KEY = 'beanapp_paired_device';
+function loadPairedDevice() {
+  try {
+    const raw = localStorage.getItem(BEAN_PAIRED_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (_) { return null; }
+}
+function savePairedDevice(d) { localStorage.setItem(BEAN_PAIRED_KEY, JSON.stringify(d || null)); }
+function clearPairedDevice() { localStorage.removeItem(BEAN_PAIRED_KEY); }
+
+/* ---------- Pair wizard ----------
+   Fake but believable: bottom-sheet modal walks through searching →
+   found → paired. Each step swaps the modal body instead of nesting
+   modals. The "Pair" tap persists DEMO_DEVICES[0] and re-renders Profile. */
+function openCuisinartPairWizard() {
+  if (document.getElementById('cuisinart-pair-backdrop')) return;
+  const card = el('div', { class: 'cuisinart-pair-card', onclick: (e) => e.stopPropagation() });
+  card.appendChild(el('button', {
+    type: 'button',
+    class: 'brewlog-close cuisinart-pair-close',
+    'aria-label': 'Close',
+    onclick: close
+  }, _svgEl(YOU_ICONS.close)));
+
+  const body = el('div', { class: 'cuisinart-pair-body' });
+  card.appendChild(body);
+  renderStep('discover');
+
+  const backdrop = el('div', {
+    id: 'cuisinart-pair-backdrop',
+    class: 'brewlog-backdrop',
+    onclick: close
+  }, card);
+  document.body.appendChild(backdrop);
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => backdrop.classList.add('open'), 10);
+  document.addEventListener('keydown', onKey);
+
+  function onKey(e) { if (e.key === 'Escape') close(); }
+  function close() {
+    document.removeEventListener('keydown', onKey);
+    backdrop.classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(() => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); }, 180);
+  }
+
+  function renderStep(step) {
+    body.innerHTML = '';
+    if (step === 'discover') {
+      body.appendChild(el('div', { class: 'cuisinart-pair-eyebrow' }, 'CUISINART · CONNECT YOUR MACHINE'));
+      body.appendChild(el('h2', { class: 'cuisinart-pair-title' }, 'Searching for your Cuisinart…'));
+      body.appendChild(el('p', { class: 'cuisinart-pair-sub' }, 'Press and hold the Wi-Fi button on your Smart Grind & Brew + Pod for three seconds. The light will pulse amber when it’s ready to pair.'));
+      const pulse = el('div', { class: 'cuisinart-pair-pulse' },
+        el('span', { class: 'cuisinart-pair-pulse-ring' }),
+        el('span', { class: 'cuisinart-pair-pulse-core' }, '☕')
+      );
+      body.appendChild(pulse);
+      body.appendChild(el('p', { class: 'cuisinart-pair-hint' }, 'Looking for nearby devices on your network…'));
+      // Auto-advance to "found" after a believable beat
+      setTimeout(() => { if (body.parentNode) renderStep('found'); }, 2200);
+    }
+    else if (step === 'found') {
+      body.appendChild(el('div', { class: 'cuisinart-pair-eyebrow' }, '◆ FOUND ONE DEVICE'));
+      body.appendChild(el('h2', { class: 'cuisinart-pair-title' }, 'Cuisinart Smart Grind & Brew + Pod'));
+      body.appendChild(el('p', { class: 'cuisinart-pair-sub' }, 'Model SGBP-1500 · serial ends 4F-9C. Confirm this is your machine to finish pairing.'));
+      body.appendChild(el('div', {
+        class: 'cuisinart-pair-photo',
+        style: 'background-image:url(\'' + DEMO_DEVICES[0].photoUrl + '\')'
+      }));
+      body.appendChild(el('div', { class: 'cuisinart-pair-features' },
+        el('span', { class: 'cuisinart-pair-feature' }, '✓ Wi-Fi connected'),
+        el('span', { class: 'cuisinart-pair-feature' }, '✓ Voice ready'),
+        el('span', { class: 'cuisinart-pair-feature' }, '✓ Pod + Carafe + Grind')
+      ));
+      body.appendChild(el('div', { class: 'cuisinart-pair-actions' },
+        el('button', {
+          type: 'button',
+          class: 'cuisinart-pair-secondary',
+          onclick: () => renderStep('discover')
+        }, 'Not mine'),
+        el('button', {
+          type: 'button',
+          class: 'cuisinart-pair-primary',
+          onclick: () => renderStep('pairing')
+        }, 'Pair this Cuisinart')
+      ));
+    }
+    else if (step === 'pairing') {
+      body.appendChild(el('div', { class: 'cuisinart-pair-eyebrow' }, 'CONNECTING'));
+      body.appendChild(el('h2', { class: 'cuisinart-pair-title' }, 'Setting up your profile…'));
+      body.appendChild(el('p', { class: 'cuisinart-pair-sub' }, 'Syncing brew profiles, schedules, and your palate. Your Cuisinart is calibrating.'));
+      const bar = el('div', { class: 'cuisinart-pair-progress' },
+        el('div', { class: 'cuisinart-pair-progress-fill' })
+      );
+      body.appendChild(bar);
+      // Animate fill, then advance
+      requestAnimationFrame(() => {
+        const fill = bar.firstChild;
+        fill.style.width = '100%';
+      });
+      setTimeout(() => {
+        // Persist + finalize
+        savePairedDevice(DEMO_DEVICES[0]);
+        renderStep('done');
+      }, 1600);
+    }
+    else if (step === 'done') {
+      body.appendChild(el('div', { class: 'cuisinart-pair-check' }, '✓'));
+      body.appendChild(el('h2', { class: 'cuisinart-pair-title' }, 'Connected.'));
+      body.appendChild(el('p', { class: 'cuisinart-pair-sub' }, 'Your Smart Grind & Brew + Pod is online and ready. Brew remotely, schedule a wake-up cup, or run a self-clean — all from this app.'));
+      body.appendChild(el('div', { class: 'cuisinart-pair-actions cuisinart-pair-actions-single' },
+        el('button', {
+          type: 'button',
+          class: 'cuisinart-pair-primary',
+          onclick: () => {
+            close();
+            if (typeof toast === 'function') toast('Cuisinart paired · welcome to the community');
+            // Re-render Profile so the connected device card shows live data
+            if (typeof beanRender === 'function') setTimeout(beanRender, 200);
+          }
+        }, 'Brew my first cup')
+      ));
+    }
+  }
 }
 
 function openCuisinartBrewConfirm(kind) {
