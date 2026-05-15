@@ -5885,54 +5885,96 @@ body.bean-app .learn-path-foot svg { width: 14px; height: 18px; }
    ============================================================ */
 
 /* ============================================================
-   CUISINART DEVICE CONTROL — the Profile tab's hero panel
-   "Your Cuisinart" with photo, remote-start (pod / carafe), self-clean,
-   palate calibration line. Positions Cuisinart as the coffee authority.
+   CUISINART SMART GRIND & BREW + POD — premium connected-device hero
+   Modeled on the Final Ghost Deck (Connect · Brew · Belong).
+   Three brew modes, per-user profiles, scheduling, self-clean, voice.
    ============================================================ */
-body.bean-app .cuisinart-device { padding: 18px 20px 16px; }
-body.bean-app .cuisinart-device-head {
+body.bean-app .cuisinart-hero {
+  position: relative;
+  border-radius: 22px;
+  padding: 0;
+  overflow: hidden;
+  /* Layered radial highlight + deep-roast gradient gives the card a real
+     "product" feel — premium without being heavy. */
+  background:
+    radial-gradient(circle at 80% -10%, rgba(232, 179, 60, 0.22) 0%, transparent 55%),
+    radial-gradient(circle at -10% 90%, rgba(45, 122, 107, 0.18) 0%, transparent 55%),
+    linear-gradient(160deg, #1F3528 0%, #0F1F14 70%);
+  color: var(--text-on-dark);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.20),
+    0 22px 44px -22px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+body.bean-app .cuisinart-hero-empty {
+  padding: 24px 22px 22px;
+  text-align: center;
+}
+body.bean-app .cuisinart-hero-h-empty {
+  font-family: var(--bean-display);
+  font-size: 22px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 10px 0 8px;
+}
+body.bean-app .cuisinart-hero-sub-empty {
+  font-size: 13px;
+  color: var(--text-on-dark-muted);
+  line-height: 1.55;
+  margin-bottom: 16px;
+}
+
+/* Wordmark + tagline */
+body.bean-app .cuisinart-hero-wordmark-row {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 14px;
+  align-items: center;
+  padding: 16px 20px 0;
 }
-body.bean-app .cuisinart-device-meta {
+body.bean-app .cuisinart-hero-wordmark {
+  font-family: var(--bean-body);
+  font-weight: 800;
   font-size: 11px;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.32em;
+  color: var(--accent-yellow);
+}
+body.bean-app .cuisinart-hero-tagline {
+  font-family: var(--bean-body);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
   color: var(--text-on-dark-muted);
 }
-body.bean-app .cuisinart-device-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding-bottom: 16px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid var(--border-on-dark);
-}
-body.bean-app .cuisinart-device-photo {
-  width: 64px;
-  height: 64px;
-  border-radius: 14px;
+
+/* Product photo with status pill */
+body.bean-app .cuisinart-hero-photo {
+  position: relative;
+  margin: 14px 20px 0;
+  aspect-ratio: 16/9;
   background-size: cover;
   background-position: center;
-  background-color: rgba(255, 255, 255, 0.04);
-  flex-shrink: 0;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.30), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
-body.bean-app .cuisinart-device-meta-wrap { flex: 1; min-width: 0; }
-body.bean-app .cuisinart-device-name {
-  font-family: var(--bean-display);
-  font-size: 16px;
-  line-height: 1.15;
-  color: var(--text-on-dark);
-  letter-spacing: -0.005em;
-}
-body.bean-app .cuisinart-device-status {
+body.bean-app .cuisinart-hero-status {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  padding: 5px 11px 5px 9px;
+  background: rgba(15, 31, 20, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 999px;
   font-size: 11px;
-  color: var(--text-on-dark-muted);
-  margin-top: 4px;
+  font-weight: 600;
+  color: var(--text-on-dark);
 }
 body.bean-app .cuisinart-device-dot {
   width: 7px; height: 7px;
@@ -5941,114 +5983,260 @@ body.bean-app .cuisinart-device-dot {
   box-shadow: 0 0 0 0 rgba(93, 170, 110, 0.55);
   animation: bean-pulse 2.4s ease-in-out infinite;
 }
-body.bean-app .cuisinart-device-empty {
-  font-size: 13px;
+
+/* Product name + model + voice integrations */
+body.bean-app .cuisinart-hero-name-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 20px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+body.bean-app .cuisinart-hero-name {
+  font-family: var(--bean-display);
+  font-size: 19px;
+  line-height: 1.1;
+  letter-spacing: -0.012em;
+  color: var(--text-on-dark);
+}
+body.bean-app .cuisinart-hero-model {
+  font-size: 11px;
   color: var(--text-on-dark-muted);
-  line-height: 1.5;
-  margin: 4px 0 12px;
-}
-body.bean-app .cuisinart-pair-cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
+  letter-spacing: 0.04em;
   margin-top: 4px;
-  padding: 12px 16px;
-  background: rgba(232, 179, 60, 0.10);
-  border: 1px dashed rgba(232, 179, 60, 0.45);
-  color: var(--accent-yellow);
-  border-radius: 12px;
-  font-family: var(--bean-body);
-  font-weight: 600;
-  font-size: 13px;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
 }
-body.bean-app .cuisinart-pair-cta:hover {
-  background: rgba(232, 179, 60, 0.16);
-  border-color: var(--accent-yellow);
+body.bean-app .cuisinart-hero-voice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: flex-end;
+  max-width: 140px;
+}
+body.bean-app .cuisinart-hero-voice-pill {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  color: var(--text-on-dark-muted);
+  white-space: nowrap;
 }
 
-/* Remote-start controls — two big tappable tiles. */
-body.bean-app .cuisinart-controls {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 12px;
+/* Next scheduled brew banner */
+body.bean-app .cuisinart-next {
+  margin: 14px 20px 0;
+  padding: 12px 14px;
+  background: rgba(232, 179, 60, 0.08);
+  border: 1px solid rgba(232, 179, 60, 0.22);
+  border-radius: 12px;
 }
-body.bean-app .cuisinart-control {
+body.bean-app .cuisinart-next-eyebrow {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-yellow);
+  margin-bottom: 4px;
+}
+body.bean-app .cuisinart-next-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+body.bean-app .cuisinart-next-who {
+  font-family: var(--bean-display);
+  font-size: 15px;
+  line-height: 1.15;
+  letter-spacing: -0.005em;
+}
+body.bean-app .cuisinart-next-when {
+  font-size: 11px;
+  color: var(--text-on-dark-muted);
+  margin-top: 2px;
+}
+body.bean-app .cuisinart-next-edit {
+  padding: 6px 12px;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  border: 0;
+  border-radius: 999px;
+  font-family: var(--bean-body);
+  font-weight: 700;
+  font-size: 11px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+}
+
+/* Three brew-mode tiles */
+body.bean-app .cuisinart-modes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 14px 20px 0;
+}
+body.bean-app .cuisinart-mode {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 4px;
-  padding: 16px 10px 14px;
+  padding: 14px 8px 12px;
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border-on-dark);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 14px;
   color: var(--text-on-dark);
   cursor: pointer;
   font: inherit;
   transition: background 0.18s ease, transform 0.15s ease, border-color 0.18s ease;
 }
-body.bean-app .cuisinart-control:hover {
+body.bean-app .cuisinart-mode:hover {
   background: rgba(232, 179, 60, 0.10);
-  border-color: rgba(232, 179, 60, 0.45);
+  border-color: rgba(232, 179, 60, 0.40);
 }
-body.bean-app .cuisinart-control:active { transform: scale(0.97); }
-body.bean-app .cuisinart-control-icon {
-  font-size: 26px;
+body.bean-app .cuisinart-mode:active { transform: scale(0.96); }
+body.bean-app .cuisinart-mode-icon {
+  font-size: 22px;
   line-height: 1;
 }
-body.bean-app .cuisinart-control-title {
+body.bean-app .cuisinart-mode-title {
   font-family: var(--bean-display);
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.1;
   letter-spacing: -0.005em;
   margin-top: 2px;
 }
-body.bean-app .cuisinart-control-sub {
-  font-size: 10px;
-  letter-spacing: 0.08em;
+body.bean-app .cuisinart-mode-sub {
+  font-size: 9px;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
   color: var(--text-on-dark-muted);
   font-weight: 600;
 }
 
-/* Self-cleaning button */
-body.bean-app .cuisinart-secondary { margin-bottom: 12px; }
-body.bean-app .cuisinart-clean {
+/* Household profiles */
+body.bean-app .cuisinart-profiles {
+  margin: 14px 20px 0;
+  padding: 14px 14px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+}
+body.bean-app .cuisinart-profiles-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+  gap: 10px;
+}
+body.bean-app .cuisinart-profiles-eyebrow {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-yellow);
+}
+body.bean-app .cuisinart-profiles-meta {
+  font-size: 10px;
+  color: var(--text-on-dark-muted);
+  text-align: right;
+  max-width: 60%;
+}
+body.bean-app .cuisinart-profiles-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+body.bean-app .cuisinart-profiles-row::-webkit-scrollbar { display: none; }
+body.bean-app .cuisinart-profile {
+  flex: 0 0 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: center;
+  font: inherit;
+  padding: 4px 0;
+  transition: transform 0.15s ease;
+}
+body.bean-app .cuisinart-profile:active { transform: scale(0.95); }
+body.bean-app .cuisinart-profile-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--accent-yellow);
+  color: #FFFFFF;
+  font-family: var(--bean-display);
+  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.30);
+}
+body.bean-app .cuisinart-profile-add .cuisinart-profile-avatar {
+  background: transparent;
+  border: 1px dashed rgba(232, 179, 60, 0.55);
+  color: var(--accent-yellow);
+  font-size: 22px;
+  box-shadow: none;
+}
+body.bean-app .cuisinart-profile-name {
+  font-size: 12px;
+  color: var(--text-on-dark);
+  font-weight: 600;
+}
+body.bean-app .cuisinart-profile-meta {
+  font-size: 9px;
+  color: var(--text-on-dark-muted);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+/* Secondary actions: schedule + self-clean */
+body.bean-app .cuisinart-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 12px 20px 0;
+}
+body.bean-app .cuisinart-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  width: 100%;
   padding: 12px 14px;
   background: transparent;
-  border: 1px solid var(--border-on-dark);
+  border: 1px solid rgba(255, 255, 255, 0.10);
   color: var(--text-on-dark);
   border-radius: 12px;
   font-family: var(--bean-body);
   font-weight: 600;
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
 }
-body.bean-app .cuisinart-clean:hover {
+body.bean-app .cuisinart-action:hover {
   background: rgba(255, 255, 255, 0.05);
   border-color: var(--accent-yellow);
 }
-body.bean-app .cuisinart-clean-icon {
+body.bean-app .cuisinart-action-icon {
   color: var(--accent-yellow);
   font-size: 14px;
 }
 
-/* "Calibrated by Cuisinart" trust line */
-body.bean-app .cuisinart-tuned {
+/* Foot trust line */
+body.bean-app .cuisinart-foot {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  margin: 14px 20px 18px;
   font-size: 11px;
   color: var(--text-on-dark-muted);
   font-weight: 500;
@@ -6058,6 +6246,30 @@ body.bean-app .cuisinart-tuned-dot {
   width: 6px; height: 6px;
   border-radius: 50%;
   background: var(--accent-yellow);
+}
+
+/* Pair CTA used in the empty state */
+body.bean-app .cuisinart-pair-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 13px 16px;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  border: 0;
+  border-radius: 12px;
+  font-family: var(--bean-body);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  box-shadow: 0 1px 2px rgba(232, 179, 60, 0.20), 0 10px 22px -10px rgba(232, 179, 60, 0.50);
+}
+body.bean-app .cuisinart-pair-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(232, 179, 60, 0.26), 0 14px 28px -12px rgba(232, 179, 60, 0.60);
 }
 
 /* Home hub greeting line */

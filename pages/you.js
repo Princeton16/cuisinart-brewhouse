@@ -74,8 +74,22 @@ function _star(filled) {
 
 /* ---------- Demo device seed ---------- */
 const DEMO_DEVICES = [
-  { name: 'PerfecTemp 14-Cup Drip',       status: 'Synced 2 hours ago',    photoUrl: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=200&q=80' },
-  { name: 'Grind & Brew Smart',           status: 'Synced 14 minutes ago', photoUrl: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=200&q=80' }
+  {
+    // The "Smart Grind & Brew and Pod" SKU from the deck — the connected
+    // top-of-line Cuisinart that the Profile tab is built around.
+    id: 'sgbp-001',
+    name: 'Cuisinart Smart Grind & Brew + Pod',
+    model: 'SGBP-1500',
+    status: 'Online · ready to brew',
+    photoUrl: 'https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=800&q=85',
+    voice: ['Alexa', 'Google Home', 'Apple Home'],
+    profiles: [
+      { name: 'Maya',  initials: 'M',  color: '#B68A1A', size: '10 oz', strength: 'Bold',    roast: 'Medium-dark' },
+      { name: 'Theo',  initials: 'T',  color: '#2D7A6B', size: '12 oz', strength: 'Regular', roast: 'Medium' },
+      { name: 'Guest', initials: '+',  color: 'transparent', isAdd: true }
+    ],
+    nextBrew: { who: 'Maya', when: 'Tomorrow · 5:55 AM', size: '10 oz · Bold' }
+  }
 ];
 
 /* ---------- Top-level renders ---------- */
@@ -159,80 +173,185 @@ function renderProfile(main) {
 function renderYou(main) { return renderProfile(main); }
 function renderHome(main) { return renderProfile(main); }
 
-/* Connected Cuisinart device control panel.
-   Shows the paired machine, one-tap remote-start for pod or carafe, and a
-   self-cleaning cycle. Cuisinart is positioned as the calibration authority. */
+/* ----------------------------------------------------------------
+   Cuisinart Smart Grind & Brew + Pod — the connected device hero.
+   Reflects the Final Ghost Deck:
+     • Three brew modes: Pod / Carafe / Grind & Brew
+     • Per-user brew profiles (multi-drinker household)
+     • Scheduling + remote start
+     • Self-cleaning cycle
+     • Voice integrations (Alexa, Google Home, Apple Home)
+     • Tagline: Connect. Brew. Belong.
+   ---------------------------------------------------------------- */
 function profileDeviceControlCard(device) {
-  const card = el('div', { class: 'you-card you-card-dark cuisinart-device' });
-  card.appendChild(el('div', { class: 'cuisinart-device-head' },
-    el('div', { class: 'you-eyebrow you-eyebrow-yellow' }, 'YOUR CUISINART'),
-    el('span', { class: 'cuisinart-device-meta' }, device ? 'Connected · ready to brew' : 'Not paired yet')
-  ));
+  const card = el('div', { class: 'cuisinart-hero' });
 
+  // -- Empty state — no machine paired yet
   if (!device) {
-    card.appendChild(el('p', { class: 'cuisinart-device-empty' },
-      'Pair your Cuisinart smart coffee machine to unlock one-tap brewing, palate-tuned recipes, and remote self-cleaning.'
-    ));
-    card.appendChild(el('button', {
+    const empty = el('div', { class: 'cuisinart-hero-empty' });
+    empty.appendChild(el('div', { class: 'cuisinart-hero-wordmark' }, 'CUISINART'));
+    empty.appendChild(el('div', { class: 'cuisinart-hero-tagline' }, 'Connect. Brew. Belong.'));
+    empty.appendChild(el('h2', { class: 'cuisinart-hero-h-empty' }, 'Pair your Smart Grind & Brew + Pod.'));
+    empty.appendChild(el('p', { class: 'cuisinart-hero-sub-empty' }, 'One footprint, three modes: pod, carafe, and grind-and-brew. Connected to your phone, voice, and your morning ritual.'));
+    empty.appendChild(el('button', {
       class: 'cuisinart-pair-cta',
       type: 'button',
       onclick: () => (typeof openPairDeviceModal === 'function' ? openPairDeviceModal() : alert('Pairing coming soon'))
     }, '+ Pair your Cuisinart'));
+    card.appendChild(empty);
     return card;
   }
 
-  card.appendChild(el('div', { class: 'cuisinart-device-row' },
-    el('div', {
-      class: 'cuisinart-device-photo',
-      style: device.photoUrl ? 'background-image:url(\'' + device.photoUrl + '\')' : ''
-    }),
-    el('div', { class: 'cuisinart-device-meta-wrap' },
-      el('div', { class: 'cuisinart-device-name' }, device.name),
-      el('div', { class: 'cuisinart-device-status' },
-        el('span', { class: 'cuisinart-device-dot' }),
-        el('span', {}, device.status || 'Online')
-      )
+  // -- Hero header: product photo, name, model, online state
+  const header = el('div', { class: 'cuisinart-hero-head' });
+  header.appendChild(el('div', { class: 'cuisinart-hero-wordmark-row' },
+    el('span', { class: 'cuisinart-hero-wordmark' }, 'CUISINART'),
+    el('span', { class: 'cuisinart-hero-tagline' }, 'Connect · Brew · Belong')
+  ));
+  header.appendChild(el('div', {
+    class: 'cuisinart-hero-photo',
+    style: 'background-image:url(\'' + device.photoUrl + '\')'
+  },
+    el('div', { class: 'cuisinart-hero-status' },
+      el('span', { class: 'cuisinart-device-dot' }),
+      el('span', {}, device.status)
     )
   ));
+  header.appendChild(el('div', { class: 'cuisinart-hero-name-row' },
+    el('div', {},
+      el('div', { class: 'cuisinart-hero-name' }, 'Smart Grind & Brew + Pod'),
+      el('div', { class: 'cuisinart-hero-model' }, 'Model ' + (device.model || 'SGBP-1500') + ' · Wi-Fi + Voice')
+    ),
+    el('div', { class: 'cuisinart-hero-voice' },
+      (device.voice || []).map(v => el('span', { class: 'cuisinart-hero-voice-pill' }, v))
+    )
+  ));
+  card.appendChild(header);
 
-  card.appendChild(el('div', { class: 'cuisinart-controls' },
+  // -- Next-up brew schedule banner
+  if (device.nextBrew) {
+    card.appendChild(el('div', { class: 'cuisinart-next' },
+      el('div', { class: 'cuisinart-next-eyebrow' }, 'NEXT SCHEDULED BREW'),
+      el('div', { class: 'cuisinart-next-row' },
+        el('div', {},
+          el('div', { class: 'cuisinart-next-who' }, device.nextBrew.who + '’s morning cup'),
+          el('div', { class: 'cuisinart-next-when' }, device.nextBrew.when + ' · ' + device.nextBrew.size)
+        ),
+        el('button', {
+          type: 'button',
+          class: 'cuisinart-next-edit',
+          onclick: () => openCuisinartScheduleModal(device)
+        }, 'Edit')
+      )
+    ));
+  }
+
+  // -- Three brew modes — Pod / Carafe / Grind & Brew
+  const modes = el('div', { class: 'cuisinart-modes' });
+  modes.appendChild(buildBrewModeTile('pod',    '☕', 'Pod',           'Single cup · 2 min'));
+  modes.appendChild(buildBrewModeTile('carafe', '🫖', 'Carafe',        '12 cups · 8 min'));
+  modes.appendChild(buildBrewModeTile('grind',  '⚙︎', 'Grind & Brew',  'Whole bean · 6 min'));
+  card.appendChild(modes);
+
+  // -- Household profiles — one tap to switch the active drinker
+  if (device.profiles && device.profiles.length) {
+    const profilesCard = el('div', { class: 'cuisinart-profiles' });
+    profilesCard.appendChild(el('div', { class: 'cuisinart-profiles-head' },
+      el('div', { class: 'cuisinart-profiles-eyebrow' }, 'HOUSEHOLD PROFILES'),
+      el('span', { class: 'cuisinart-profiles-meta' }, 'One Cuisinart, every cup tuned to its drinker')
+    ));
+    const row = el('div', { class: 'cuisinart-profiles-row' });
+    device.profiles.forEach(p => row.appendChild(buildProfileTile(p)));
+    profilesCard.appendChild(row);
+    card.appendChild(profilesCard);
+  }
+
+  // -- Secondary actions: schedule + self-clean
+  card.appendChild(el('div', { class: 'cuisinart-actions' },
     el('button', {
       type: 'button',
-      class: 'cuisinart-control cuisinart-control-pod',
-      onclick: () => openCuisinartBrewConfirm('pod')
+      class: 'cuisinart-action',
+      onclick: () => openCuisinartScheduleModal(device)
     },
-      el('div', { class: 'cuisinart-control-icon' }, '☕'),
-      el('div', { class: 'cuisinart-control-title' }, 'Brew a pod'),
-      el('div', { class: 'cuisinart-control-sub' }, 'Single cup · 2 min')
+      el('span', { class: 'cuisinart-action-icon' }, '⏰'),
+      el('span', {}, 'Schedule a brew')
     ),
     el('button', {
       type: 'button',
-      class: 'cuisinart-control cuisinart-control-carafe',
-      onclick: () => openCuisinartBrewConfirm('carafe')
-    },
-      el('div', { class: 'cuisinart-control-icon' }, '🫖'),
-      el('div', { class: 'cuisinart-control-title' }, 'Brew a carafe'),
-      el('div', { class: 'cuisinart-control-sub' }, '12 cups · 8 min')
-    )
-  ));
-
-  card.appendChild(el('div', { class: 'cuisinart-secondary' },
-    el('button', {
-      type: 'button',
-      class: 'cuisinart-clean',
+      class: 'cuisinart-action',
       onclick: () => openCuisinartCleanConfirm()
     },
-      el('span', { class: 'cuisinart-clean-icon' }, '✦'),
-      el('span', {}, 'Run self-cleaning cycle')
+      el('span', { class: 'cuisinart-action-icon' }, '✦'),
+      el('span', {}, 'Run self-clean')
     )
   ));
 
-  card.appendChild(el('div', { class: 'cuisinart-tuned' },
+  card.appendChild(el('div', { class: 'cuisinart-foot' },
     el('span', { class: 'cuisinart-tuned-dot' }),
-    el('span', {}, 'Brew profile calibrated to your palate by Cuisinart')
+    el('span', {}, 'Calibrated to your palate · powered by the Cuisinart Coffee Cloud')
   ));
 
   return card;
+}
+
+function buildBrewModeTile(kind, glyph, title, sub) {
+  return el('button', {
+    type: 'button',
+    class: 'cuisinart-mode',
+    'data-mode': kind,
+    onclick: () => openCuisinartBrewConfirm(kind)
+  },
+    el('div', { class: 'cuisinart-mode-icon' }, glyph),
+    el('div', { class: 'cuisinart-mode-title' }, title),
+    el('div', { class: 'cuisinart-mode-sub' }, sub)
+  );
+}
+
+function buildProfileTile(p) {
+  if (p.isAdd) {
+    return el('button', {
+      type: 'button',
+      class: 'cuisinart-profile cuisinart-profile-add',
+      onclick: () => alert('Add a household profile — coming soon')
+    },
+      el('div', { class: 'cuisinart-profile-avatar' }, '+'),
+      el('div', { class: 'cuisinart-profile-name' }, 'Add'),
+      el('div', { class: 'cuisinart-profile-meta' }, 'New drinker')
+    );
+  }
+  return el('button', {
+    type: 'button',
+    class: 'cuisinart-profile',
+    onclick: () => alert('Switch active drinker to ' + p.name + '\n\n' + p.size + ' · ' + p.strength + ' · ' + p.roast)
+  },
+    el('div', {
+      class: 'cuisinart-profile-avatar',
+      style: 'background:' + p.color
+    }, p.initials),
+    el('div', { class: 'cuisinart-profile-name' }, p.name),
+    el('div', { class: 'cuisinart-profile-meta' }, p.size + ' · ' + p.strength)
+  );
+}
+
+function openCuisinartBrewConfirm(kind) {
+  const labels = {
+    pod:    { confirm: 'Start a single-pod brew on your Cuisinart?',         toast: 'Brewing your pod…' },
+    carafe: { confirm: 'Start a 12-cup carafe brew on your Cuisinart?',      toast: 'Carafe heating up…' },
+    grind:  { confirm: 'Grind whole beans and brew on your Cuisinart?',      toast: 'Grinding now…' }
+  };
+  const cfg = labels[kind] || labels.pod;
+  if (!confirm(cfg.confirm)) return;
+  if (typeof toast === 'function') toast(cfg.toast);
+}
+function openCuisinartCleanConfirm() {
+  if (!confirm('Run a self-cleaning cycle on your Cuisinart? Takes about 10 minutes.')) return;
+  if (typeof toast === 'function') toast('Self-cleaning cycle started');
+}
+function openCuisinartScheduleModal(device) {
+  // Placeholder schedule modal — production would write to the device.
+  const when = prompt('When should the next brew run? (e.g. 5:55 AM)', (device && device.nextBrew) ? device.nextBrew.when : '5:55 AM');
+  if (!when) return;
+  if (typeof toast === 'function') toast('Schedule saved · ' + when);
 }
 
 function openCuisinartBrewConfirm(kind) {
