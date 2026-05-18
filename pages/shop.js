@@ -13,41 +13,68 @@ const SHOP_CATEGORIES = [
   { key: 'cleaning', label: 'Cleaning' }
 ];
 
+/* Real Cuisinart coffee SKUs + adjacent replacement parts. Names and model
+   numbers reflect the actual product lineup. URLs point at the Cuisinart
+   coffee category landing page (the Smart Grind & Brew + Pod proposal lives
+   above the existing lineup per the Final Ghost Deck). Swap the photo
+   fields for local images under `images/` whenever you want — every other
+   field stays the same. */
+const SHOP_BASE  = 'https://www.cuisinart.com/shopping/appliances/coffee_makers/';
+const SHOP_PARTS = 'https://www.cuisinart.com/shopping/replacement_parts/';
+
 const SHOP_PRODUCTS = [
-  // FEATURED — palate match leads with the user's match if the quiz has run
+  // FEATURED — the proposed connected Cuisinart from the Ghost Deck
   {
     id: 'feat-1',
-    name: 'Cuisinart Smart Grind & Brew + Pod',
-    sub: 'Wi-Fi, voice, three brew modes',
+    name: 'Smart Grind & Brew + Pod',
+    sub: 'Connected · Wi-Fi · Pod, Carafe, Grind',
+    model: 'SGBP-1500',
     price: '$329',
     cat: 'gear',
     badge: 'TOP TIER',
-    photo: 'https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=800&q=80',
-    url: 'https://www.cuisinart.com/shopping/appliances/coffee_makers/'
+    photo: 'https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=900&q=85',
+    url: SHOP_BASE
   },
-  // BEANS
-  { id: 'b-1', name: 'Counter Culture Hologram', sub: 'Blend · balanced · syrupy',  price: '$20', cat: 'beans', photo: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&q=80', url: 'https://counterculturecoffee.com/' },
-  { id: 'b-2', name: 'Onyx Monarch',             sub: 'Ethiopia · floral · bright', price: '$24', cat: 'beans', photo: 'https://images.unsplash.com/photo-1516559828984-fb3b99548b21?w=600&q=80', url: 'https://onyxcoffeelab.com/' },
-  { id: 'b-3', name: 'Stumptown Hair Bender',    sub: 'Espresso · classic · syrupy',price: '$18', cat: 'beans', photo: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=600&q=80', url: 'https://www.stumptowncoffee.com/' },
-  { id: 'b-4', name: 'Blue Bottle Bella Donovan',sub: 'Chocolate · plum · classic', price: '$22', cat: 'beans', photo: 'https://images.unsplash.com/photo-1507133750040-4a8f57021571?w=600&q=80', url: 'https://bluebottlecoffee.com/' },
-  // GEAR
-  { id: 'g-1', name: 'Cuisinart Burr Grind & Brew',     sub: 'Built-in conical burr',     price: '$199', cat: 'gear', photo: 'https://images.unsplash.com/photo-1518057111178-44a106bad636?w=600&q=80', url: 'https://www.cuisinart.com/shopping/appliances/coffee_makers/' },
-  { id: 'g-2', name: 'Cuisinart EM-200 Espresso',       sub: 'Programmable double shot',  price: '$249', cat: 'gear', photo: 'https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=600&q=80', url: 'https://www.cuisinart.com/shopping/appliances/coffee_makers/' },
-  { id: 'g-3', name: 'Cuisinart Automatic Cold Brew',   sub: 'Cold brew in 25 min',       price: '$129', cat: 'gear', photo: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=600&q=80', url: 'https://www.cuisinart.com/shopping/appliances/coffee_makers/' },
-  { id: 'g-4', name: 'Fellow Stagg EKG Kettle',         sub: 'Variable temp pour-over',   price: '$169', cat: 'gear', photo: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80', url: 'https://fellowproducts.com/' },
+
+  // BEANS — Cuisinart-partnered roasters
+  { id: 'b-1', name: 'Onyx Monarch Blend',         sub: 'Ethiopia · floral · bright',          price: '$24', cat: 'beans', photo: 'https://images.unsplash.com/photo-1516559828984-fb3b99548b21?w=600&q=80', url: 'https://onyxcoffeelab.com/' },
+  { id: 'b-2', name: 'Counter Culture Hologram',   sub: 'Blend · balanced · syrupy',           price: '$20', cat: 'beans', photo: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&q=80', url: 'https://counterculturecoffee.com/' },
+  { id: 'b-3', name: 'Stumptown Hair Bender',      sub: 'Espresso · classic · syrupy',         price: '$18', cat: 'beans', photo: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=600&q=80', url: 'https://www.stumptowncoffee.com/' },
+  { id: 'b-4', name: 'Blue Bottle Bella Donovan',  sub: 'Blend · chocolate · plum',            price: '$22', cat: 'beans', photo: 'https://images.unsplash.com/photo-1507133750040-4a8f57021571?w=600&q=80', url: 'https://bluebottlecoffee.com/' },
+  { id: 'b-5', name: 'Intelligentsia Black Cat',   sub: 'Espresso · cocoa · structured',       price: '$22', cat: 'beans', photo: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80', url: 'https://www.intelligentsia.com/' },
+  { id: 'b-6', name: 'Verve Streetlevel Espresso', sub: 'Espresso · crema-forward',            price: '$21', cat: 'beans', photo: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=600&q=80', url: 'https://www.vervecoffee.com/' },
+
+  // GEAR — actual Cuisinart coffee SKUs
+  { id: 'g-1', name: 'DGB-2 Grind & Brew Single-Serve',  sub: 'Built-in grinder · single-serve',    model: 'DGB-2',      price: '$179', cat: 'gear', photo: 'https://images.unsplash.com/photo-1518057111178-44a106bad636?w=600&q=80', url: SHOP_BASE },
+  { id: 'g-2', name: 'DGB-700BC Grind & Brew 12-Cup',    sub: 'Thermal carafe · built-in burr',     model: 'DGB-700BC',  price: '$199', cat: 'gear', photo: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80', url: SHOP_BASE },
+  { id: 'g-3', name: 'SS-15P1 Coffee Center',            sub: 'Carafe + single-serve combo',         model: 'SS-15P1',    price: '$229', cat: 'gear', photo: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=600&q=80', url: SHOP_BASE },
+  { id: 'g-4', name: 'EM-200 Programmable Espresso',     sub: '15-bar pump · double shot',           model: 'EM-200',     price: '$249', cat: 'gear', photo: 'https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=600&q=80', url: SHOP_BASE },
+  { id: 'g-5', name: 'EM-25 Manual Espresso Maker',      sub: 'Stovetop-style · manual',             model: 'EM-25',      price: '$149', cat: 'gear', photo: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=600&q=80', url: SHOP_BASE },
+  { id: 'g-6', name: 'DCC-3200P1 PerfecTemp 14-Cup',     sub: 'Programmable · 14-cup glass carafe',  model: 'DCC-3200P1', price: '$99',  cat: 'gear', photo: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=600&q=80', url: SHOP_BASE },
+  { id: 'g-7', name: 'CCB-650 Automatic Cold Brew',      sub: 'Cold brew in 25 min · 7-cup',         model: 'CCB-650',    price: '$129', cat: 'gear', photo: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=600&q=80', url: SHOP_BASE },
+  { id: 'g-8', name: 'DBM-8 Supreme Grind Burr Mill',    sub: '18 grind settings · 8oz hopper',      model: 'DBM-8',      price: '$59',  cat: 'gear', photo: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=600&q=80', url: SHOP_BASE },
+
   // PARTS — replacement
-  { id: 'p-1', name: 'Charcoal water filter (3-pack)',   sub: 'Fits PerfecTemp & Grind & Brew', price: '$14', cat: 'parts', photo: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=600&q=80', url: 'https://www.cuisinart.com/' },
-  { id: 'p-2', name: 'Glass carafe replacement (12-cup)', sub: 'Drip-free, dishwasher safe',     price: '$28', cat: 'parts', photo: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80', url: 'https://www.cuisinart.com/' },
-  { id: 'p-3', name: 'Permanent gold-tone filter',        sub: 'Reusable, fits 8–12 cup',        price: '$18', cat: 'parts', photo: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=600&q=80', url: 'https://www.cuisinart.com/' },
-  { id: 'p-4', name: 'Replacement portafilter basket',    sub: 'EM-200 double basket',           price: '$22', cat: 'parts', photo: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=600&q=80', url: 'https://www.cuisinart.com/' },
-  // CLEANING
-  { id: 'c-1', name: 'Descaling solution (12 oz)',  sub: 'Run every 3 months',         price: '$12', cat: 'cleaning', photo: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=600&q=80', url: 'https://www.cuisinart.com/' },
-  { id: 'c-2', name: 'Espresso machine cleaning tablets', sub: '40 ct · for EM-200 line', price: '$9',  cat: 'cleaning', photo: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&q=80', url: 'https://www.cuisinart.com/' }
+  { id: 'p-1', name: 'Charcoal Water Filters',        sub: 'CCM-16PCFR · pack of 12 · for PerfecTemp & Grind & Brew', model: 'CCM-16PCFR', price: '$15', cat: 'parts', photo: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=600&q=80', url: SHOP_PARTS },
+  { id: 'p-2', name: 'Glass Carafe Replacement',      sub: 'DCC-RC · 12-cup drip-free',                                model: 'DCC-RC',     price: '$28', cat: 'parts', photo: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80', url: SHOP_PARTS },
+  { id: 'p-3', name: 'Gold-Tone Reusable Filter',     sub: 'GTF · fits 8–12 cup coffeemakers',                         model: 'GTF',        price: '$18', cat: 'parts', photo: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=600&q=80', url: SHOP_PARTS },
+  { id: 'p-4', name: 'EM-200 Portafilter Basket',     sub: 'Replacement double-shot basket',                            model: 'EM-200-BSK', price: '$22', cat: 'parts', photo: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=600&q=80', url: SHOP_PARTS },
+  { id: 'p-5', name: 'Thermal Carafe Replacement',    sub: 'DGB-700-CRF · 12-cup thermal',                              model: 'DGB-700-CRF',price: '$32', cat: 'parts', photo: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&q=80', url: SHOP_PARTS },
+  { id: 'p-6', name: 'Burr Hopper Replacement',       sub: 'DBM-8-HOP · 8oz hopper',                                    model: 'DBM-8-HOP',  price: '$19', cat: 'parts', photo: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=600&q=80', url: SHOP_PARTS },
+
+  // CLEANING — care & maintenance
+  { id: 'c-1', name: 'Cuisinart Descaling Solution',    sub: '12 oz · run every 3 months',         model: 'DCC-DSCL',   price: '$12', cat: 'cleaning', photo: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=600&q=80', url: SHOP_PARTS },
+  { id: 'c-2', name: 'Espresso Cleaning Tablets',       sub: '40 count · for EM-200 line',         model: 'EM-CLN-40',  price: '$9',  cat: 'cleaning', photo: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&q=80', url: SHOP_PARTS },
+  { id: 'c-3', name: 'Coffee Maker Cleaning Brush',     sub: 'Soft bristle · cleans grind chute',  model: 'BRSH-2',     price: '$8',  cat: 'cleaning', photo: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=600&q=80', url: SHOP_PARTS },
+  { id: 'c-4', name: 'Milk Frother Cleaner',            sub: 'Liquid · 8 oz · for steam wands',    model: 'EM-FRTH-CL', price: '$10', cat: 'cleaning', photo: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=600&q=80', url: SHOP_PARTS }
 ];
 
 let _shopState = { cat: 'all' };
 
 function renderShop(main) {
+  // Re-renders are triggered from the filter pills themselves, so clear
+  // the host first or the page accumulates duplicate copies of itself.
+  if (main) main.innerHTML = '';
   const match = (typeof loadPalateMatch === 'function') ? loadPalateMatch() : null;
   const page = el('div', { class: 'bean-page bean-shop' });
 
@@ -158,7 +185,9 @@ function buildShopCard(p) {
     el('div', {
       class: 'shop-card-photo',
       style: 'background-image:url(\'' + p.photo + '\')'
-    }),
+    },
+      p.model ? el('span', { class: 'shop-card-model' }, p.model) : null
+    ),
     el('div', { class: 'shop-card-body' },
       el('div', { class: 'shop-card-name' }, p.name),
       el('div', { class: 'shop-card-sub' }, p.sub),

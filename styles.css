@@ -6872,7 +6872,16 @@ body.bean-app .cuisinart-pair-cta:hover {
 /* ============================================================
    HOME TAB — discovery entry for everyone
    ============================================================ */
-body.bean-app .bean-home { padding-bottom: 100px; }
+body.bean-app .bean-home {
+  padding: 20px 16px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+body.bean-app .bean-home > * { margin: 0 !important; }
+body.bean-app .bean-home .home-hello { padding: 0 4px; }
+body.bean-app .bean-home .home-hello-greeting { font-size: 28px; line-height: 1.05; }
+body.bean-app .bean-home .home-hello-sub { font-size: 14px; }
 
 /* Flavor quiz CTA card (pre-quiz) */
 body.bean-app .home-quiz {
@@ -6884,38 +6893,47 @@ body.bean-app .home-quiz {
   cursor: pointer;
   padding: 22px;
   font: inherit;
-  margin-bottom: 14px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 body.bean-app .home-quiz-cta {
   background:
-    radial-gradient(circle at 90% -10%, rgba(255, 255, 255, 0.18) 0%, transparent 50%),
-    linear-gradient(135deg, var(--accent-yellow) 0%, var(--accent-yellow-deep) 100%);
-  color: var(--text-on-light);
-  box-shadow: 0 1px 2px rgba(232, 179, 60, 0.20), 0 18px 36px -16px rgba(232, 179, 60, 0.50);
+    radial-gradient(circle at 80% -10%, rgba(232, 179, 60, 0.22) 0%, transparent 55%),
+    radial-gradient(circle at -10% 110%, rgba(45, 122, 107, 0.18) 0%, transparent 55%),
+    linear-gradient(160deg, #1F3528 0%, #0F1F14 75%);
+  color: var(--text-on-dark);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18), 0 22px 44px -20px rgba(15, 31, 20, 0.55);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  padding: 24px 22px;
 }
-body.bean-app .home-quiz-cta:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(232, 179, 60, 0.24), 0 26px 48px -18px rgba(232, 179, 60, 0.60); }
+body.bean-app .home-quiz-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.22), 0 30px 56px -22px rgba(15, 31, 20, 0.60);
+}
 body.bean-app .home-quiz-cta-eyebrow {
   font-size: 10px;
   font-weight: 800;
-  letter-spacing: 0.16em;
-  color: rgba(64, 36, 2, 0.78);
+  letter-spacing: 0.18em;
+  color: var(--accent-yellow);
 }
 body.bean-app .home-quiz-cta-title {
   font-family: var(--bean-display);
-  font-size: 28px;
+  font-size: 32px;
   line-height: 1.05;
   letter-spacing: -0.018em;
+  color: #FFF6E1;
 }
-body.bean-app .home-quiz-cta-title em { font-style: italic; }
+body.bean-app .home-quiz-cta-title em {
+  font-style: italic;
+  color: var(--accent-yellow);
+}
 body.bean-app .home-quiz-cta-sub {
   font-size: 13px;
   line-height: 1.5;
-  color: rgba(64, 36, 2, 0.82);
-  margin-bottom: 6px;
+  color: rgba(255, 246, 225, 0.72);
+  margin-bottom: 4px;
+  max-width: 360px;
 }
 body.bean-app .home-quiz-cta-row {
   display: flex;
@@ -6925,20 +6943,21 @@ body.bean-app .home-quiz-cta-row {
   margin-top: 4px;
 }
 body.bean-app .home-quiz-cta-pill {
-  background: var(--text-on-light);
-  color: var(--accent-yellow);
-  padding: 8px 14px;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  padding: 10px 16px;
   border-radius: 999px;
   font-weight: 700;
   font-size: 13px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  box-shadow: 0 6px 14px -6px rgba(232, 179, 60, 0.55);
 }
 body.bean-app .home-quiz-cta-mini {
   font-size: 11px;
   font-weight: 600;
-  color: rgba(64, 36, 2, 0.7);
+  color: rgba(255, 246, 225, 0.58);
   letter-spacing: 0.04em;
 }
 
@@ -7617,10 +7636,26 @@ body.bean-app .shop-card {
 }
 body.bean-app .shop-card:hover { transform: translateY(-2px); }
 body.bean-app .shop-card-photo {
+  position: relative;
   aspect-ratio: 1;
   background-size: cover;
   background-position: center;
   background-color: rgba(0,0,0,0.04);
+}
+body.bean-app .shop-card-model {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  background: rgba(15, 31, 20, 0.78);
+  color: #FFF6E1;
+  font-family: var(--bean-mono, 'JetBrains Mono', monospace);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 3px 7px 2px;
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 body.bean-app .shop-card-body { padding: 10px 12px 12px; }
 body.bean-app .shop-card-name {
