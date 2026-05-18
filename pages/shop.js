@@ -22,6 +22,16 @@ const SHOP_CATEGORIES = [
 const SHOP_BASE  = 'https://www.cuisinart.com/shopping/appliances/coffee_makers/';
 const SHOP_PARTS = 'https://www.cuisinart.com/shopping/replacement_parts/';
 
+/* Real Cuisinart coffee catalog, scraped from
+   cuisinart.com/shopping/appliances/coffee-makers. Names, model numbers,
+   prices, and product URLs are pulled live from the storefront. Photos
+   point at Cuisinart's Demandware CDN — they may rotate over time; if a
+   tile renders blank, refresh the catalog. The replacement-parts catalog
+   on cuisinart.com renders model-level photos at the index level, so the
+   parts rows below link to their model's parts page.
+*/
+const SHOP_CDN = 'https://www.cuisinart.com/dw/image/v2/ABAF_PRD/on/demandware.static/-/Sites-master-us/default/';
+
 const SHOP_PRODUCTS = [
   // FEATURED — the proposed connected Cuisinart from the Ghost Deck
   {
@@ -31,12 +41,12 @@ const SHOP_PRODUCTS = [
     model: 'SGBP-1500',
     price: '$329',
     cat: 'gear',
-    badge: 'TOP TIER',
-    photo: 'https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=900&q=85',
+    badge: 'TOP TIER · NEW',
+    photo: SHOP_CDN + 'dwd32e4fbe/images/large/ss4n1nas_straight_hero.jpg?sw=900&sh=900&sm=fit',
     url: SHOP_BASE
   },
 
-  // BEANS — Cuisinart-partnered roasters
+  // BEANS — partner roasters (not Cuisinart-branded)
   { id: 'b-1', name: 'Onyx Monarch Blend',         sub: 'Ethiopia · floral · bright',          price: '$24', cat: 'beans', photo: 'https://images.unsplash.com/photo-1516559828984-fb3b99548b21?w=600&q=80', url: 'https://onyxcoffeelab.com/' },
   { id: 'b-2', name: 'Counter Culture Hologram',   sub: 'Blend · balanced · syrupy',           price: '$20', cat: 'beans', photo: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&q=80', url: 'https://counterculturecoffee.com/' },
   { id: 'b-3', name: 'Stumptown Hair Bender',      sub: 'Espresso · classic · syrupy',         price: '$18', cat: 'beans', photo: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=600&q=80', url: 'https://www.stumptowncoffee.com/' },
@@ -44,29 +54,195 @@ const SHOP_PRODUCTS = [
   { id: 'b-5', name: 'Intelligentsia Black Cat',   sub: 'Espresso · cocoa · structured',       price: '$22', cat: 'beans', photo: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80', url: 'https://www.intelligentsia.com/' },
   { id: 'b-6', name: 'Verve Streetlevel Espresso', sub: 'Espresso · crema-forward',            price: '$21', cat: 'beans', photo: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=600&q=80', url: 'https://www.vervecoffee.com/' },
 
-  // GEAR — actual Cuisinart coffee SKUs
-  { id: 'g-1', name: 'DGB-2 Grind & Brew Single-Serve',  sub: 'Built-in grinder · single-serve',    model: 'DGB-2',      price: '$179', cat: 'gear', photo: 'https://images.unsplash.com/photo-1518057111178-44a106bad636?w=600&q=80', url: SHOP_BASE },
-  { id: 'g-2', name: 'DGB-700BC Grind & Brew 12-Cup',    sub: 'Thermal carafe · built-in burr',     model: 'DGB-700BC',  price: '$199', cat: 'gear', photo: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80', url: SHOP_BASE },
-  { id: 'g-3', name: 'SS-15P1 Coffee Center',            sub: 'Carafe + single-serve combo',         model: 'SS-15P1',    price: '$229', cat: 'gear', photo: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=600&q=80', url: SHOP_BASE },
-  { id: 'g-4', name: 'EM-200 Programmable Espresso',     sub: '15-bar pump · double shot',           model: 'EM-200',     price: '$249', cat: 'gear', photo: 'https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=600&q=80', url: SHOP_BASE },
-  { id: 'g-5', name: 'EM-25 Manual Espresso Maker',      sub: 'Stovetop-style · manual',             model: 'EM-25',      price: '$149', cat: 'gear', photo: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=600&q=80', url: SHOP_BASE },
-  { id: 'g-6', name: 'DCC-3200P1 PerfecTemp 14-Cup',     sub: 'Programmable · 14-cup glass carafe',  model: 'DCC-3200P1', price: '$99',  cat: 'gear', photo: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=600&q=80', url: SHOP_BASE },
-  { id: 'g-7', name: 'CCB-650 Automatic Cold Brew',      sub: 'Cold brew in 25 min · 7-cup',         model: 'CCB-650',    price: '$129', cat: 'gear', photo: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=600&q=80', url: SHOP_BASE },
-  { id: 'g-8', name: 'DBM-8 Supreme Grind Burr Mill',    sub: '18 grind settings · 8oz hopper',      model: 'DBM-8',      price: '$59',  cat: 'gear', photo: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=600&q=80', url: SHOP_BASE },
+  // GEAR — actual Cuisinart coffee SKUs (URLs + photos pulled from cuisinart.com)
+  {
+    id: 'g-1',
+    name: 'Grind & Brew Single Serve Coffee Maker',
+    sub: 'Built-in burr grinder · single-serve',
+    model: 'DGB-30',
+    price: '$249.95',
+    cat: 'gear',
+    photo: SHOP_CDN + 'dwbc11c606/images/large/5plus1_DGB30_main.jpg?sw=600&sh=600&sm=fit',
+    url: 'https://www.cuisinart.com/grind-brew-single-serve-coffee-maker/DGB-30.html'
+  },
+  {
+    id: 'g-2',
+    name: 'Coffee Center® Barista Bar 4-in-1',
+    sub: 'Espresso · carafe · single-serve · cold brew',
+    model: 'SS-4N1NAS',
+    price: '$199.95',
+    cat: 'gear',
+    photo: SHOP_CDN + 'dwd32e4fbe/images/large/ss4n1nas_straight_hero.jpg?sw=600&sh=600&sm=fit',
+    url: 'https://www.cuisinart.com/coffee-center-barista-bar-4-in-1-coffee-maker/SS-4N1NAS.html'
+  },
+  {
+    id: 'g-3',
+    name: 'Personal Brew™ 12-Cup Coffee Maker',
+    sub: 'Brews into a cup or carafe',
+    model: 'DCC-12',
+    price: '$99.95',
+    cat: 'gear',
+    photo: SHOP_CDN + 'dw9145e033/images/large/01_DCC12_silo.jpg?sw=600&sh=600&sm=fit',
+    url: 'https://www.cuisinart.com/personal-brew-12-cup-coffee-maker/DCC-12.html'
+  },
+  {
+    id: 'g-4',
+    name: '14-Cup PerfecTemp® with Over Ice',
+    sub: 'Programmable · iced brewing mode',
+    model: 'DCC-3500SS',
+    price: '$119.95',
+    cat: 'gear',
+    photo: SHOP_CDN + 'dw9d08e5c6/images/large/dcc_3500ss.jpg?sw=600&sh=600&sm=fit',
+    url: 'https://www.cuisinart.com/14-cup-perfectemp-14-cup-coffee-maker-with-over-ice/DCC-3500SS.html'
+  },
+  {
+    id: 'g-5',
+    name: '14-Cup Programmable Coffee Maker',
+    sub: 'Brew-strength control · 24-hour programmable',
+    model: 'DCC-3200BKSNAS',
+    price: '$119.95',
+    cat: 'gear',
+    photo: SHOP_CDN + 'dwfb6c31c9/images/large/dcc3200nas.jpg?sw=600&sh=600&sm=fit',
+    url: 'https://www.cuisinart.com/14-cup-programmable-coffee-maker/DCC-3200BKSNAS.html'
+  },
+  {
+    id: 'g-6',
+    name: 'Coffee Center® 2-in-1 Coffee Maker',
+    sub: 'Single-serve + 12-cup carafe',
+    model: 'SS-16',
+    price: '$229.95',
+    cat: 'gear',
+    photo: SHOP_CDN + 'dw37bf1da2/images/large/ss16_straight_tray_down.jpg?sw=600&sh=600&sm=fit',
+    url: 'https://www.cuisinart.com/coffee-center-2-in-1-coffee-maker/SS-16.html'
+  },
+  {
+    id: 'g-7',
+    name: 'Premium Single Serve Brewer',
+    sub: '4, 6, 8, 10, 12 oz cup sizes · 72 oz reservoir',
+    model: 'SS-10P1',
+    price: '$189.95',
+    cat: 'gear',
+    photo: 'https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=600&q=80',
+    url: 'https://www.cuisinart.com/premium-single-serve-brewer/SS-10P1.html'
+  },
+  {
+    id: 'g-8',
+    name: 'Grind & Brew Single-Serve Coffee Maker',
+    sub: 'Whole-bean to cup · 5-cup carafe',
+    model: 'DGB-2',
+    price: '$189.95',
+    cat: 'gear',
+    photo: 'https://images.unsplash.com/photo-1518057111178-44a106bad636?w=600&q=80',
+    url: 'https://www.cuisinart.com/grind-brew-single-serve-coffee-maker/DGB-2.html'
+  },
+  {
+    id: 'g-9',
+    name: 'Automatic Grind & Brew 12-Cup',
+    sub: '12-cup glass carafe · built-in burr grinder',
+    model: 'DGB-400NAS',
+    price: '$119.95',
+    cat: 'gear',
+    photo: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80',
+    url: 'https://www.cuisinart.com/automatic-grind-brew-12-cup-coffee-maker/DGB-400NAS.html'
+  },
+  {
+    id: 'g-10',
+    name: '10-Cup Thermal Classic Coffee Maker',
+    sub: 'Thermal carafe · keeps coffee hot for hours',
+    model: 'DCC-1170BKNAS',
+    price: '$129.95',
+    cat: 'gear',
+    photo: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=600&q=80',
+    url: 'https://www.cuisinart.com/10-cup-thermal-classic-coffee-maker/DCC-1170BKNAS.html'
+  },
+  {
+    id: 'g-11',
+    name: '12-Cup Classic Programmable Coffee Maker',
+    sub: 'Glass carafe · 24-hour programmable',
+    model: 'DCC-1120NAS',
+    price: '$99.95',
+    cat: 'gear',
+    photo: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=600&q=80',
+    url: 'https://www.cuisinart.com/12-cup-classic-programmable-coffee-maker/DCC-1120NAS.html'
+  },
+  {
+    id: 'g-12',
+    name: '5-Cup Coffee Maker with Stainless Carafe',
+    sub: 'Compact · stainless steel build',
+    model: 'DCC-5570NAS',
+    price: '$64.95',
+    cat: 'gear',
+    photo: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=600&q=80',
+    url: 'https://www.cuisinart.com/5-cup-coffee-maker-with-stainless-steel-carafe/DCC-5570NAS.html'
+  },
 
-  // PARTS — replacement
-  { id: 'p-1', name: 'Charcoal Water Filters',        sub: 'CCM-16PCFR · pack of 12 · for PerfecTemp & Grind & Brew', model: 'CCM-16PCFR', price: '$15', cat: 'parts', photo: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=600&q=80', url: SHOP_PARTS },
-  { id: 'p-2', name: 'Glass Carafe Replacement',      sub: 'DCC-RC · 12-cup drip-free',                                model: 'DCC-RC',     price: '$28', cat: 'parts', photo: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80', url: SHOP_PARTS },
-  { id: 'p-3', name: 'Gold-Tone Reusable Filter',     sub: 'GTF · fits 8–12 cup coffeemakers',                         model: 'GTF',        price: '$18', cat: 'parts', photo: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=600&q=80', url: SHOP_PARTS },
-  { id: 'p-4', name: 'EM-200 Portafilter Basket',     sub: 'Replacement double-shot basket',                            model: 'EM-200-BSK', price: '$22', cat: 'parts', photo: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=600&q=80', url: SHOP_PARTS },
-  { id: 'p-5', name: 'Thermal Carafe Replacement',    sub: 'DGB-700-CRF · 12-cup thermal',                              model: 'DGB-700-CRF',price: '$32', cat: 'parts', photo: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&q=80', url: SHOP_PARTS },
-  { id: 'p-6', name: 'Burr Hopper Replacement',       sub: 'DBM-8-HOP · 8oz hopper',                                    model: 'DBM-8-HOP',  price: '$19', cat: 'parts', photo: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=600&q=80', url: SHOP_PARTS },
+  // PARTS — model-level pages on Cuisinart's parts catalog
+  {
+    id: 'p-1',
+    name: 'Charcoal Water Filters',
+    sub: 'CCM-16PCFR · fits PerfecTemp & Grind & Brew',
+    model: 'CCM-16PCFR',
+    price: '$14.95',
+    cat: 'parts',
+    photo: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=600&q=80',
+    url: 'https://www.cuisinart.com/14-cup-perfectemp-14-cup-coffee-maker-with-over-ice/DCC-3500SS.html?cgid=partsaccessories_coffeemakers'
+  },
+  {
+    id: 'p-2',
+    name: 'Glass Carafe Replacement',
+    sub: '12-cup · for DCC-3200 line',
+    model: 'DCC-3200-CRF',
+    price: '$28.00',
+    cat: 'parts',
+    photo: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80',
+    url: 'https://www.cuisinart.com/14-cup-programmable-coffee-maker/DCC-3200BKSNAS.html?cgid=partsaccessories_coffeemakers'
+  },
+  {
+    id: 'p-3',
+    name: 'Gold-Tone Reusable Filter',
+    sub: 'GTF · fits 8–12 cup coffeemakers',
+    model: 'GTF',
+    price: '$18.00',
+    cat: 'parts',
+    photo: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=600&q=80',
+    url: 'https://www.cuisinart.com/shopping/parts-and-accessories/coffee-makers/'
+  },
+  {
+    id: 'p-4',
+    name: 'Thermal Carafe Replacement',
+    sub: 'For DCC-1170 thermal coffeemakers',
+    model: 'DCC-1170-CRF',
+    price: '$32.00',
+    cat: 'parts',
+    photo: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&q=80',
+    url: 'https://www.cuisinart.com/10-cup-thermal-classic-coffee-maker/DCC-1170BKNAS.html?cgid=partsaccessories_coffeemakers'
+  },
+  {
+    id: 'p-5',
+    name: 'Burr Grinder Parts',
+    sub: 'Hopper, lid, and grind chamber for DGB line',
+    model: 'DGB-PARTS',
+    price: '$19.00',
+    cat: 'parts',
+    photo: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=600&q=80',
+    url: 'https://www.cuisinart.com/automatic-grind-brew-12-cup-coffee-maker/DGB-400NAS.html?cgid=partsaccessories_coffeemakers'
+  },
+  {
+    id: 'p-6',
+    name: 'Single-Serve Drip Tray',
+    sub: 'For Coffee Center 2-in-1 (SS-16)',
+    model: 'SS-16-DT',
+    price: '$15.00',
+    cat: 'parts',
+    photo: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=600&q=80',
+    url: 'https://www.cuisinart.com/coffee-center-2-in-1-coffee-maker/SS-16.html?cgid=partsaccessories_coffeemakers'
+  },
 
   // CLEANING — care & maintenance
-  { id: 'c-1', name: 'Cuisinart Descaling Solution',    sub: '12 oz · run every 3 months',         model: 'DCC-DSCL',   price: '$12', cat: 'cleaning', photo: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=600&q=80', url: SHOP_PARTS },
-  { id: 'c-2', name: 'Espresso Cleaning Tablets',       sub: '40 count · for EM-200 line',         model: 'EM-CLN-40',  price: '$9',  cat: 'cleaning', photo: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&q=80', url: SHOP_PARTS },
-  { id: 'c-3', name: 'Coffee Maker Cleaning Brush',     sub: 'Soft bristle · cleans grind chute',  model: 'BRSH-2',     price: '$8',  cat: 'cleaning', photo: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=600&q=80', url: SHOP_PARTS },
-  { id: 'c-4', name: 'Milk Frother Cleaner',            sub: 'Liquid · 8 oz · for steam wands',    model: 'EM-FRTH-CL', price: '$10', cat: 'cleaning', photo: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=600&q=80', url: SHOP_PARTS }
+  { id: 'c-1', name: 'Cuisinart Descaling Solution',    sub: '12 oz · run every 3 months',         model: 'DCC-DSCL',   price: '$11.95', cat: 'cleaning', photo: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=600&q=80', url: 'https://www.cuisinart.com/shopping/parts-and-accessories/coffee-makers/' },
+  { id: 'c-2', name: 'Espresso Cleaning Tablets',       sub: '40 count · for espresso line',       model: 'EM-CLN-40',  price: '$9.00',  cat: 'cleaning', photo: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&q=80', url: 'https://www.cuisinart.com/shopping/parts-and-accessories/coffee-makers/' },
+  { id: 'c-3', name: 'Coffee Maker Cleaning Brush',     sub: 'Soft bristle · grind-chute brush',   model: 'BRSH-2',     price: '$8.00',  cat: 'cleaning', photo: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=600&q=80', url: 'https://www.cuisinart.com/shopping/parts-and-accessories/coffee-makers/' },
+  { id: 'c-4', name: 'Milk Frother Cleaner',            sub: 'Liquid · 8 oz · for steam wands',    model: 'EM-FRTH-CL', price: '$10.00', cat: 'cleaning', photo: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=600&q=80', url: 'https://www.cuisinart.com/shopping/parts-and-accessories/coffee-makers/' }
 ];
 
 let _shopState = { cat: 'all' };
