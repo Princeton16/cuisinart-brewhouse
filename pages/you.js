@@ -166,10 +166,10 @@ function renderProfile(main) {
 
   const page = el('div', { class: 'bean-page you-page profile-page' });
   page.appendChild(youProfileHeader(user, brews, bs, unlockedCount));
+  page.appendChild(youBadgesLinkCard(achievements, unlockedCount));
   page.appendChild(profileDeviceControlCard(devices[0]));
   page.appendChild(youRecommendedRow(recommendations));
   page.appendChild(youPalateCardCompact(palate, brews));
-  page.appendChild(youBadgesLinkCard(achievements, unlockedCount));
   main.appendChild(page);
 
   enableHorizontalWheelScroll(page);
