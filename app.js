@@ -6539,9 +6539,11 @@ const BEAN_USER_KEY = 'beanapp_user';
 const BEAN_BREWS_KEY = 'beanapp_brews';
 const BEAN_DEMO_SEEDED_KEY = 'beanapp_demo_seeded';
 const BEAN_TABS = [
-  { route: 'profile',  label: 'Profile',  icon: 'user' },
+  { route: 'home',     label: 'Home',     icon: 'home' },
   { route: 'passport', label: 'Passport', icon: 'globe' },
-  { route: 'learning', label: 'Learning', icon: 'book' }
+  { route: 'learning', label: 'Learning', icon: 'book' },
+  { route: 'shop',     label: 'Shop',     icon: 'bag' },
+  { route: 'profile',  label: 'Profile',  icon: 'user' }
 ];
 const BEAN_STUBS = {
   recipes:  { title: 'Recipes',  sub: 'Phase 6 builds the recipes browser.' },
@@ -6655,7 +6657,8 @@ const BEAN_NAV_ICONS = {
   user:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21 a8 8 0 0 1 16 0"/></svg>',
   feed:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5 h16 a2 2 0 0 1 2 2 v9 a2 2 0 0 1 -2 2 H8 l-4 4 V7 a2 2 0 0 1 2 -2 Z"/></svg>',
   book:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5 a2 2 0 0 1 2 -2 h6 v17 H5 a2 2 0 0 0 -2 2 Z"/><path d="M21 5 a2 2 0 0 0 -2 -2 h-6 v17 h6 a2 2 0 0 1 2 2 Z"/></svg>',
-  globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12 h18"/><path d="M12 3 a13 13 0 0 1 0 18 a13 13 0 0 1 0 -18 Z"/></svg>'
+  globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12 h18"/><path d="M12 3 a13 13 0 0 1 0 18 a13 13 0 0 1 0 -18 Z"/></svg>',
+  bag:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8 h14 l-1 12 a2 2 0 0 1 -2 2 H8 a2 2 0 0 1 -2 -2 Z"/><path d="M9 8 V6 a3 3 0 0 1 6 0 V8"/></svg>'
 };
 
 /* ----- Mount + render ----- */
@@ -6716,13 +6719,11 @@ function beanRender() {
     if (window.location.hash !== '#/auth') { window.location.hash = '#/auth'; return; }
   }
   if (user && (route === '' || route === 'auth')) {
-    if (window.location.hash !== '#/profile') { window.location.hash = '#/profile'; return; }
+    if (window.location.hash !== '#/home') { window.location.hash = '#/home'; return; }
   }
   if (!user && route === '') { window.location.hash = '#/auth'; return; }
-  // Legacy routes — bounce to their new home in the 3-tab layout.
-  if (route === 'you' || route === 'home' || route === 'feed') {
-    window.location.hash = '#/profile'; return;
-  }
+  // Legacy routes — bounce to the new structure.
+  if (route === 'you' || route === 'feed') { window.location.hash = '#/home'; return; }
   if (route === 'learn') { window.location.hash = '#/learning'; return; }
 
   const main = document.getElementById('bean-main');
@@ -6731,23 +6732,26 @@ function beanRender() {
 
   if (route === 'auth') {
     renderBeanAuth(main);
+  } else if (route === 'home' && typeof renderBeanHome === 'function') {
+    renderBeanHome(main);
   } else if (route === 'profile' && typeof renderProfile === 'function') {
     renderProfile(main);
   } else if (route === 'learning' && typeof renderLearn === 'function') {
     renderLearn(main);
   } else if (route === 'passport' && typeof renderPassport === 'function') {
     renderPassport(main);
+  } else if (route === 'shop' && typeof renderShop === 'function') {
+    renderShop(main);
   } else if (route === 'badges' && typeof renderBadges === 'function') {
     renderBadges(main);
   } else if (BEAN_STUBS[route]) {
     renderBeanStub(main, BEAN_STUBS[route]);
   } else {
-    window.location.hash = user ? '#/profile' : '#/auth';
+    window.location.hash = user ? '#/home' : '#/auth';
     return;
   }
 
-  // Hide nav on auth, show + highlight elsewhere. Sub-routes inherit their
-  // parent tab's highlight.
+  // Sub-routes inherit their parent tab's highlight.
   const SUBROUTE_PARENT = { badges: 'profile', palate: 'profile' };
   const activeRoute = SUBROUTE_PARENT[route] || route;
   const nav = document.getElementById('bean-nav');
@@ -6830,7 +6834,7 @@ function renderBeanAuth(main) {
     class: 'btn-ghost full',
     onclick: () => {
       setBeanUser({ email: 'demo@brew.coffee', name: 'Maya Okafor', isDemo: true, createdAt: Date.now() });
-      window.location.hash = '#/profile';
+      window.location.hash = '#/home';
     }
   }, 'Explore as demo user'));
 
@@ -6895,6 +6899,11 @@ function renderBeanAuth(main) {
         };
         setBeanUser(localUser);
         window.location.hash = '#/home';
+        // Auto-prompt the flavor quiz for brand-new users so onboarding flows
+        // straight into a calibrated palate without an extra tap.
+        if (mode === 'signup' && typeof openFlavorQuiz === 'function') {
+          setTimeout(() => openFlavorQuiz({ firstTime: true }), 300);
+        }
       })
       .catch((err) => {
         // Auth-specific error — surface it inline; keep the form usable.

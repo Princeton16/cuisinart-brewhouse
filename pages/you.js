@@ -88,9 +88,16 @@ const DEMO_DEVICES = [
       { name: 'Theo',  initials: 'T',  color: '#2D7A6B', size: '12 oz', strength: 'Regular', roast: 'Medium' },
       { name: 'Guest', initials: '+',  color: 'transparent', isAdd: true }
     ],
-    nextBrew: { who: 'Maya', when: 'Tomorrow · 5:55 AM', size: '10 oz · Bold' }
+    nextBrew: { who: 'Maya', when: 'Tomorrow · 5:55 AM', size: '10 oz · Bold' },
+    supplies: { hopper: 78, pods: 12, water: 85 }
   }
 ];
+
+/* In-memory brew state. Cleared when the user navigates away — that's fine
+   for the demo, the brew "completes" inside the same render lifecycle. */
+let _cuisinartBrewState = null;
+function getBrewState() { return _cuisinartBrewState; }
+function setBrewState(s) { _cuisinartBrewState = s; }
 
 /* ---------- Top-level renders ---------- */
 /* Home tab — the user's daily activity hub. Holds streak, log brew CTA,
@@ -160,15 +167,11 @@ function renderProfile(main) {
   const page = el('div', { class: 'bean-page you-page profile-page' });
   page.appendChild(youProfileHeader(user, brews, bs, unlockedCount));
   page.appendChild(profileDeviceControlCard(devices[0]));
-  page.appendChild(youStreakCard(cs, bs, brews));
-  page.appendChild(youLogCta(cs));
   page.appendChild(youRecommendedRow(recommendations));
   page.appendChild(youPalateCardCompact(palate, brews));
-  page.appendChild(youPastBrewsCard(brews));
   page.appendChild(youBadgesLinkCard(achievements, unlockedCount));
   main.appendChild(page);
 
-  requestAnimationFrame(() => animateStreakValue(cs));
   enableHorizontalWheelScroll(page);
   if (typeof revealNewAchievements === 'function') revealNewAchievements(achievements);
 }
@@ -232,8 +235,15 @@ function profileDeviceControlCard(device) {
   ));
   card.appendChild(header);
 
-  // -- Next-up brew schedule banner
-  if (device.nextBrew) {
+  // -- Live brew progress banner (only when active)
+  const brew = getBrewState();
+  if (brew && brew.active) {
+    card.appendChild(buildBrewProgressBanner(brew));
+  }
+
+  // -- Next-up brew schedule banner (hidden while a brew is in progress so
+  // it doesn't compete with the live progress)
+  if (device.nextBrew && !(brew && brew.active)) {
     card.appendChild(el('div', { class: 'cuisinart-next' },
       el('div', { class: 'cuisinart-next-eyebrow' }, 'NEXT SCHEDULED BREW'),
       el('div', { class: 'cuisinart-next-row' },
@@ -257,15 +267,24 @@ function profileDeviceControlCard(device) {
   modes.appendChild(buildBrewModeTile('grind',  '⚙︎', 'Grind & Brew',  'Whole bean · 6 min'));
   card.appendChild(modes);
 
-  // -- Household profiles — one tap to switch the active drinker
+  // -- Household profiles — one tap to switch the active drinker.
+  // The active profile gets a highlighted ring + ACTIVE badge. Tapping the
+  // active profile opens the edit modal; tapping any other profile sets it
+  // as active and re-renders.
   if (device.profiles && device.profiles.length) {
+    const realProfiles = device.profiles.filter(p => !p.isAdd);
+    if (!device.activeProfileName && realProfiles.length) {
+      device.activeProfileName = realProfiles[0].name;
+      savePairedDevice(device);
+    }
+    const activeName = device.activeProfileName;
     const profilesCard = el('div', { class: 'cuisinart-profiles' });
     profilesCard.appendChild(el('div', { class: 'cuisinart-profiles-head' },
       el('div', { class: 'cuisinart-profiles-eyebrow' }, 'HOUSEHOLD PROFILES'),
-      el('span', { class: 'cuisinart-profiles-meta' }, 'One Cuisinart, every cup tuned to its drinker')
+      el('span', { class: 'cuisinart-profiles-meta' }, 'Tap to switch the active drinker')
     ));
     const row = el('div', { class: 'cuisinart-profiles-row' });
-    device.profiles.forEach(p => row.appendChild(buildProfileTile(p)));
+    device.profiles.forEach(p => row.appendChild(buildProfileTile(p, activeName)));
     profilesCard.appendChild(row);
     card.appendChild(profilesCard);
   }
@@ -290,12 +309,96 @@ function profileDeviceControlCard(device) {
     )
   ));
 
+  // -- Supplies (bean hopper, pods, water reservoir)
+  card.appendChild(buildSuppliesCard(device));
+
   card.appendChild(el('div', { class: 'cuisinart-foot' },
     el('span', { class: 'cuisinart-tuned-dot' }),
     el('span', {}, 'Calibrated to your palate · powered by the Cuisinart Coffee Cloud')
   ));
 
   return card;
+}
+
+/* Brew progress banner — shows while a brew is in flight.
+   Drinker + mode title, an emoji glyph, a filling progress bar, and an
+   "elapsed / total" line. The fill is driven by CSS transition; the JS
+   just sets target widths at the right moments. */
+function buildBrewProgressBanner(brew) {
+  const banner = el('div', { class: 'cuisinart-brewing' });
+  banner.appendChild(el('div', { class: 'cuisinart-brewing-head' },
+    el('div', { class: 'cuisinart-brewing-icon' }, brew.glyph || '☕'),
+    el('div', { class: 'cuisinart-brewing-meta' },
+      el('div', { class: 'cuisinart-brewing-eyebrow' }, 'BREWING NOW'),
+      el('div', { class: 'cuisinart-brewing-title' }, brew.title)
+    ),
+    el('button', {
+      type: 'button',
+      class: 'cuisinart-brewing-cancel',
+      onclick: () => cancelCuisinartBrew()
+    }, 'Cancel')
+  ));
+  banner.appendChild(el('div', { class: 'cuisinart-brewing-bar' },
+    el('div', {
+      class: 'cuisinart-brewing-fill',
+      id: 'cuisinart-brewing-fill',
+      style: 'width:' + (brew.startPct || 4) + '%'
+    })
+  ));
+  banner.appendChild(el('div', { class: 'cuisinart-brewing-foot' },
+    el('span', { id: 'cuisinart-brewing-elapsed' }, brew.subline || 'Heating water…'),
+    el('span', { class: 'cuisinart-brewing-eta' }, brew.etaLabel || (brew.duration / 1000) + 's')
+  ));
+  return banner;
+}
+
+/* Supplies card — bean hopper, pods, water reservoir.
+   Each row has a label, an emoji glyph, the level bar, and a value.
+   Tapping a row opens a "refill" toast (placeholder). Low supplies turn
+   the bar amber to draw attention. */
+function buildSuppliesCard(device) {
+  const supplies = (device && device.supplies) || { hopper: 78, pods: 12, water: 85 };
+  const card = el('div', { class: 'cuisinart-supplies' });
+  card.appendChild(el('div', { class: 'cuisinart-supplies-head' },
+    el('div', { class: 'cuisinart-supplies-eyebrow' }, 'SUPPLIES'),
+    el('button', {
+      type: 'button',
+      class: 'cuisinart-supplies-shop',
+      onclick: () => window.open('https://www.cuisinart.com/shopping/appliances/coffee_makers/', '_blank', 'noopener')
+    }, 'Restock →')
+  ));
+
+  card.appendChild(buildSupplyRow('Bean hopper', '🌰', supplies.hopper, '%', 'Whole beans for grind-and-brew'));
+  card.appendChild(buildSupplyRow('Pods',        '🥡', supplies.pods,    ' left', 'Single-cup pod tray'));
+  card.appendChild(buildSupplyRow('Water',       '💧', supplies.water,   '%', 'Reservoir level'));
+  return card;
+}
+
+function buildSupplyRow(label, glyph, value, unit, sub) {
+  // Pods row uses count out of 24-capacity tray; hopper + water are %.
+  const isCount = unit === ' left';
+  const max = isCount ? 24 : 100;
+  const pct = Math.max(0, Math.min(100, Math.round((value / max) * 100)));
+  const isLow = pct <= 25;
+  const row = el('div', { class: 'cuisinart-supply' + (isLow ? ' is-low' : '') });
+  row.appendChild(el('div', { class: 'cuisinart-supply-glyph' }, glyph));
+  row.appendChild(el('div', { class: 'cuisinart-supply-body' },
+    el('div', { class: 'cuisinart-supply-top' },
+      el('span', { class: 'cuisinart-supply-label' }, label),
+      el('span', { class: 'cuisinart-supply-value' }, value + unit)
+    ),
+    el('div', { class: 'cuisinart-supply-track' },
+      el('div', {
+        class: 'cuisinart-supply-fill',
+        style: 'width:' + pct + '%'
+      })
+    ),
+    el('div', { class: 'cuisinart-supply-sub' }, isLow ? 'Running low · tap to reorder' : sub)
+  ));
+  row.addEventListener('click', () => {
+    if (typeof toast === 'function') toast('Reorder ' + label.toLowerCase() + ' coming soon');
+  });
+  return row;
 }
 
 function buildBrewModeTile(kind, glyph, title, sub) {
@@ -311,41 +414,131 @@ function buildBrewModeTile(kind, glyph, title, sub) {
   );
 }
 
-function buildProfileTile(p) {
+function buildProfileTile(p, activeName) {
   if (p.isAdd) {
     return el('button', {
       type: 'button',
       class: 'cuisinart-profile cuisinart-profile-add',
-      onclick: () => alert('Add a household profile — coming soon')
+      onclick: () => openProfileEditModal(null)
     },
       el('div', { class: 'cuisinart-profile-avatar' }, '+'),
       el('div', { class: 'cuisinart-profile-name' }, 'Add'),
       el('div', { class: 'cuisinart-profile-meta' }, 'New drinker')
     );
   }
+  const isActive = p.name === activeName;
   return el('button', {
     type: 'button',
-    class: 'cuisinart-profile',
-    onclick: () => alert('Switch active drinker to ' + p.name + '\n\n' + p.size + ' · ' + p.strength + ' · ' + p.roast)
+    class: 'cuisinart-profile' + (isActive ? ' is-active' : ''),
+    onclick: () => {
+      if (isActive) {
+        // Already active — open the editor.
+        openProfileEditModal(p);
+      } else {
+        // Switch the active drinker, persist, re-render.
+        setActiveProfile(p.name);
+      }
+    }
   },
     el('div', {
       class: 'cuisinart-profile-avatar',
       style: 'background:' + p.color
-    }, p.initials),
+    },
+      p.initials,
+      isActive ? el('span', { class: 'cuisinart-profile-check' }, '✓') : null
+    ),
     el('div', { class: 'cuisinart-profile-name' }, p.name),
-    el('div', { class: 'cuisinart-profile-meta' }, p.size + ' · ' + p.strength)
+    el('div', { class: 'cuisinart-profile-meta' }, p.size + ' · ' + p.strength),
+    isActive ? el('div', { class: 'cuisinart-profile-badge' }, 'ACTIVE') : null
   );
 }
 
+function setActiveProfile(name) {
+  const device = loadPairedDevice();
+  if (!device) return;
+  device.activeProfileName = name;
+  // Reflect the active drinker in the next-scheduled banner too.
+  if (device.nextBrew) device.nextBrew.who = name;
+  savePairedDevice(device);
+  if (typeof toast === 'function') toast(name + ' is now the active drinker');
+  if (typeof beanRender === 'function') beanRender();
+}
+
+/* Start a brew on the connected Cuisinart.
+   Sets the in-memory brew state, re-renders Profile so the progress
+   banner appears, then drives the bar's CSS transition with a couple of
+   setTimeouts. Realistic-feeling durations: pod 25s, carafe 60s,
+   grind-and-brew 45s. Compressed for demo. */
+const BREW_RECIPES = {
+  pod:    { title: 'Pod for the active drinker',     glyph: '☕', duration: 25000, subline: 'Heating water…' },
+  carafe: { title: '12-cup carafe',                  glyph: '🫖', duration: 60000, subline: 'Pre-heating reservoir…' },
+  grind:  { title: 'Grind & brew · whole bean',      glyph: '⚙︎', duration: 45000, subline: 'Grinding beans…' }
+};
+
 function openCuisinartBrewConfirm(kind) {
-  const labels = {
-    pod:    { confirm: 'Start a single-pod brew on your Cuisinart?',         toast: 'Brewing your pod…' },
-    carafe: { confirm: 'Start a 12-cup carafe brew on your Cuisinart?',      toast: 'Carafe heating up…' },
-    grind:  { confirm: 'Grind whole beans and brew on your Cuisinart?',      toast: 'Grinding now…' }
-  };
-  const cfg = labels[kind] || labels.pod;
-  if (!confirm(cfg.confirm)) return;
-  if (typeof toast === 'function') toast(cfg.toast);
+  const cfg = BREW_RECIPES[kind] || BREW_RECIPES.pod;
+  if (getBrewState() && getBrewState().active) {
+    if (typeof toast === 'function') toast('A brew is already in progress');
+    return;
+  }
+  if (!confirm('Start ' + cfg.title.toLowerCase() + ' on your Cuisinart?')) return;
+  startCuisinartBrew(kind, cfg);
+}
+
+function startCuisinartBrew(kind, cfg) {
+  // Compress the duration for demo so the bar actually completes during a
+  // single session. Real-world seconds shown in the ETA label.
+  const realDuration = cfg.duration;
+  const demoDuration = Math.min(8000, realDuration);
+  setBrewState({
+    active: true,
+    kind: kind,
+    glyph: cfg.glyph,
+    title: cfg.title,
+    subline: cfg.subline,
+    etaLabel: Math.round(realDuration / 1000) + 's',
+    duration: demoDuration,
+    startedAt: Date.now(),
+    startPct: 4
+  });
+
+  // First render — bar appears at 4% so the transition has somewhere to go.
+  if (typeof beanRender === 'function') beanRender();
+
+  // Step 1: kick the fill toward 100% over the demo duration.
+  setTimeout(() => {
+    const fill = document.getElementById('cuisinart-brewing-fill');
+    if (fill) {
+      fill.style.transition = 'width ' + (demoDuration - 200) + 'ms linear';
+      fill.style.width = '100%';
+    }
+    // Also rotate through copy so the elapsed line feels live.
+    const cycles = ['Heating water…', 'Saturating grounds…', 'Pouring through…', 'Almost ready…'];
+    let i = 0;
+    const elapsed = document.getElementById('cuisinart-brewing-elapsed');
+    const tick = setInterval(() => {
+      i++;
+      const node = document.getElementById('cuisinart-brewing-elapsed');
+      if (!node) { clearInterval(tick); return; }
+      node.textContent = cycles[Math.min(i, cycles.length - 1)];
+      if (i >= cycles.length - 1) clearInterval(tick);
+    }, demoDuration / cycles.length);
+  }, 100);
+
+  // Step 2: complete the brew. Toast + re-render so the banner clears.
+  setTimeout(() => {
+    setBrewState(null);
+    if (typeof toast === 'function') toast('Ready · enjoy ☕');
+    if (typeof beanRender === 'function') beanRender();
+  }, demoDuration + 200);
+}
+
+function cancelCuisinartBrew() {
+  if (!getBrewState()) return;
+  if (!confirm('Cancel the current brew?')) return;
+  setBrewState(null);
+  if (typeof toast === 'function') toast('Brew cancelled');
+  if (typeof beanRender === 'function') beanRender();
 }
 function openCuisinartCleanConfirm() {
   if (!confirm('Run a self-cleaning cycle on your Cuisinart? Takes about 10 minutes.')) return;
@@ -356,6 +549,180 @@ function openCuisinartScheduleModal(device) {
   const when = prompt('When should the next brew run? (e.g. 5:55 AM)', (device && device.nextBrew) ? device.nextBrew.when : '5:55 AM');
   if (!when) return;
   if (typeof toast === 'function') toast('Schedule saved · ' + when);
+}
+
+/* ---------- Editable household profiles ----------
+   Each drinker in the household has their own brew profile: name, roast,
+   strength, water temperature, cup size. The modal swaps to "edit" mode
+   when an existing profile is passed in, or "create" when null. Saves
+   back to the paired-device record and re-renders Profile. */
+const PROFILE_ROASTS    = ['Light', 'Medium', 'Medium-dark', 'Dark'];
+const PROFILE_STRENGTHS = ['Mild', 'Regular', 'Bold', 'Extra bold'];
+const PROFILE_TEMPS     = ['195°F', '200°F', '205°F'];
+const PROFILE_SIZES     = ['6 oz', '8 oz', '10 oz', '12 oz', 'Carafe'];
+const PROFILE_COLORS    = ['#B68A1A', '#2D7A6B', '#A04848', '#3F5B8A', '#6B5FA8', '#8B4F2A', '#2D4A3A', '#C99B1A'];
+
+function openProfileEditModal(existing) {
+  if (document.getElementById('profile-edit-backdrop')) return;
+  const isNew = !existing;
+  // Working copy — applied on save, dropped on cancel.
+  const draft = Object.assign({
+    id: 'p' + Date.now(),
+    name: '',
+    initials: '?',
+    color: PROFILE_COLORS[Math.floor(Math.random() * PROFILE_COLORS.length)],
+    roast: 'Medium',
+    strength: 'Regular',
+    temp: '200°F',
+    size: '10 oz'
+  }, existing || {});
+
+  const card = el('div', { class: 'profile-edit-card', onclick: (e) => e.stopPropagation() });
+  card.appendChild(el('button', {
+    type: 'button',
+    class: 'brewlog-close cuisinart-pair-close',
+    'aria-label': 'Close',
+    onclick: close
+  }, _svgEl(YOU_ICONS.close)));
+
+  card.appendChild(el('div', { class: 'profile-edit-eyebrow' }, isNew ? '◆ NEW HOUSEHOLD PROFILE' : '◆ EDIT PROFILE'));
+
+  // Avatar + name field
+  const avatar = el('div', { class: 'profile-edit-avatar', style: 'background:' + draft.color }, draft.initials || '?');
+  const nameInput = el('input', {
+    type: 'text',
+    class: 'profile-edit-name-input',
+    placeholder: 'Drinker name',
+    value: draft.name
+  });
+  nameInput.addEventListener('input', () => {
+    draft.name = nameInput.value.trim();
+    draft.initials = (draft.name || '?').split(/\s+/).map(s => s[0]).join('').slice(0, 2).toUpperCase() || '?';
+    avatar.textContent = draft.initials;
+  });
+
+  card.appendChild(el('div', { class: 'profile-edit-head' },
+    avatar,
+    el('div', { style: 'flex:1;min-width:0' }, nameInput)
+  ));
+
+  // Color picker — quick swatches under the avatar
+  const colorRow = el('div', { class: 'profile-edit-colors' });
+  PROFILE_COLORS.forEach(c => {
+    const swatch = el('button', {
+      type: 'button',
+      class: 'profile-edit-swatch' + (c === draft.color ? ' on' : ''),
+      style: 'background:' + c,
+      'data-color': c,
+      onclick: () => {
+        draft.color = c;
+        avatar.style.background = c;
+        colorRow.querySelectorAll('.profile-edit-swatch').forEach(s => s.classList.toggle('on', s.dataset.color === c));
+      }
+    });
+    colorRow.appendChild(swatch);
+  });
+  card.appendChild(colorRow);
+
+  // Helper to build a labeled pill row
+  function pillRow(label, options, key) {
+    const wrap = el('div', { class: 'profile-edit-section' });
+    wrap.appendChild(el('div', { class: 'brewlog-label' }, label));
+    const row = el('div', { class: 'profile-edit-pills' });
+    options.forEach(opt => {
+      const pill = el('button', {
+        type: 'button',
+        class: 'profile-edit-pill' + (opt === draft[key] ? ' active' : ''),
+        'data-val': opt,
+        onclick: () => {
+          draft[key] = opt;
+          row.querySelectorAll('.profile-edit-pill').forEach(p => p.classList.toggle('active', p.dataset.val === opt));
+        }
+      }, opt);
+      row.appendChild(pill);
+    });
+    wrap.appendChild(row);
+    return wrap;
+  }
+
+  card.appendChild(pillRow('ROAST',        PROFILE_ROASTS,    'roast'));
+  card.appendChild(pillRow('STRENGTH',     PROFILE_STRENGTHS, 'strength'));
+  card.appendChild(pillRow('WATER TEMP',   PROFILE_TEMPS,     'temp'));
+  card.appendChild(pillRow('CUP SIZE',     PROFILE_SIZES,     'size'));
+
+  // Save + (optional) delete
+  const actions = el('div', { class: 'profile-edit-actions' });
+  if (!isNew) {
+    actions.appendChild(el('button', {
+      type: 'button',
+      class: 'profile-edit-delete',
+      onclick: () => {
+        if (!confirm('Remove ' + (draft.name || 'this profile') + '?')) return;
+        const device = loadPairedDevice();
+        if (device && Array.isArray(device.profiles)) {
+          device.profiles = device.profiles.filter(p => !p.isAdd && p.name !== existing.name);
+          // Make sure the add tile is still last
+          if (!device.profiles.some(p => p.isAdd)) {
+            device.profiles.push({ name: 'Guest', initials: '+', color: 'transparent', isAdd: true });
+          }
+          savePairedDevice(device);
+        }
+        close();
+        if (typeof beanRender === 'function') beanRender();
+      }
+    }, 'Delete'));
+  }
+  actions.appendChild(el('button', {
+    type: 'button',
+    class: 'profile-edit-save',
+    onclick: () => {
+      if (!draft.name) {
+        nameInput.style.borderColor = '#C9352F';
+        nameInput.focus();
+        return;
+      }
+      const device = loadPairedDevice();
+      if (!device) {
+        if (typeof toast === 'function') toast('Pair a Cuisinart first');
+        close();
+        return;
+      }
+      device.profiles = device.profiles || [];
+      // Strip the add tile, edit-or-insert, then re-append the add tile
+      device.profiles = device.profiles.filter(p => !p.isAdd);
+      if (isNew) {
+        device.profiles.push(draft);
+      } else {
+        const idx = device.profiles.findIndex(p => p.name === existing.name);
+        if (idx >= 0) device.profiles[idx] = draft;
+        else device.profiles.push(draft);
+      }
+      device.profiles.push({ name: 'Guest', initials: '+', color: 'transparent', isAdd: true });
+      savePairedDevice(device);
+      close();
+      if (typeof toast === 'function') toast('Profile saved · ' + draft.name);
+      if (typeof beanRender === 'function') beanRender();
+    }
+  }, isNew ? 'Add profile' : 'Save changes'));
+  card.appendChild(actions);
+
+  const backdrop = el('div', {
+    id: 'profile-edit-backdrop',
+    class: 'brewlog-backdrop',
+    onclick: close
+  }, card);
+  document.body.appendChild(backdrop);
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => backdrop.classList.add('open'), 10);
+  document.addEventListener('keydown', onKey);
+
+  function onKey(e) { if (e.key === 'Escape') close(); }
+  function close() {
+    document.removeEventListener('keydown', onKey);
+    backdrop.classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(() => { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); }, 180);
+  }
 }
 
 /* ---------- Paired-device storage ----------

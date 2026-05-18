@@ -6153,7 +6153,8 @@ body.bean-app .cuisinart-profiles-row {
 }
 body.bean-app .cuisinart-profiles-row::-webkit-scrollbar { display: none; }
 body.bean-app .cuisinart-profile {
-  flex: 0 0 92px;
+  position: relative;
+  flex: 0 0 96px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -6163,11 +6164,18 @@ body.bean-app .cuisinart-profile {
   cursor: pointer;
   text-align: center;
   font: inherit;
-  padding: 4px 0;
-  transition: transform 0.15s ease;
+  padding: 8px 4px 14px;
+  border-radius: 14px;
+  transition: transform 0.15s ease, background 0.18s ease;
 }
+body.bean-app .cuisinart-profile:hover { background: rgba(255, 255, 255, 0.04); }
 body.bean-app .cuisinart-profile:active { transform: scale(0.95); }
+body.bean-app .cuisinart-profile.is-active {
+  background: rgba(232, 179, 60, 0.10);
+  box-shadow: inset 0 0 0 1px rgba(232, 179, 60, 0.40);
+}
 body.bean-app .cuisinart-profile-avatar {
+  position: relative;
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -6179,6 +6187,50 @@ body.bean-app .cuisinart-profile-avatar {
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.30);
+  transition: box-shadow 0.18s ease;
+}
+body.bean-app .cuisinart-profile.is-active .cuisinart-profile-avatar {
+  box-shadow:
+    0 0 0 2px var(--bg-base),
+    0 0 0 4px var(--accent-yellow),
+    0 4px 12px rgba(232, 179, 60, 0.45);
+}
+body.bean-app .cuisinart-profile-check {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #5DAA6E;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-base);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.30);
+}
+body.bean-app .cuisinart-profile-badge {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--accent-yellow);
+  background: rgba(232, 179, 60, 0.18);
+  border: 1px solid rgba(232, 179, 60, 0.40);
+  border-radius: 999px;
+  padding: 2px 8px 1px;
+  line-height: 1;
+  white-space: nowrap;
+}
+body.bean-app .cuisinart-profile.is-active .cuisinart-profile-name {
+  color: var(--text-on-dark);
+  font-weight: 700;
 }
 body.bean-app .cuisinart-profile-add .cuisinart-profile-avatar {
   background: transparent;
@@ -6229,6 +6281,213 @@ body.bean-app .cuisinart-action:hover {
 body.bean-app .cuisinart-action-icon {
   color: var(--accent-yellow);
   font-size: 14px;
+}
+
+/* Live brewing progress banner — replaces "next scheduled" while active */
+body.bean-app .cuisinart-brewing {
+  margin: 14px 20px 0;
+  padding: 14px;
+  background: rgba(232, 179, 60, 0.10);
+  border: 1px solid rgba(232, 179, 60, 0.32);
+  border-radius: 14px;
+  animation: brewing-glow 2.4s ease-in-out infinite;
+}
+@keyframes brewing-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(232, 179, 60, 0.0); }
+  50%      { box-shadow: 0 0 0 4px rgba(232, 179, 60, 0.18); }
+}
+body.bean-app .cuisinart-brewing-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+body.bean-app .cuisinart-brewing-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(232, 179, 60, 0.35);
+  animation: brewing-icon 2.2s ease-in-out infinite;
+}
+@keyframes brewing-icon {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.06); }
+}
+body.bean-app .cuisinart-brewing-meta { flex: 1; min-width: 0; }
+body.bean-app .cuisinart-brewing-eyebrow {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--accent-yellow);
+}
+body.bean-app .cuisinart-brewing-title {
+  font-family: var(--bean-display);
+  font-size: 15px;
+  line-height: 1.15;
+  letter-spacing: -0.005em;
+  margin-top: 2px;
+  color: var(--text-on-dark);
+}
+body.bean-app .cuisinart-brewing-cancel {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: var(--text-on-dark-muted);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+body.bean-app .cuisinart-brewing-cancel:hover { background: rgba(255,255,255,0.05); color: var(--text-on-dark); }
+body.bean-app .cuisinart-brewing-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+body.bean-app .cuisinart-brewing-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-yellow-deep), var(--accent-yellow));
+  border-radius: 999px;
+  transition: width 0.6s linear;
+  position: relative;
+  overflow: hidden;
+}
+body.bean-app .cuisinart-brewing-fill::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.40) 50%, transparent 100%);
+  animation: brewing-shimmer 1.6s linear infinite;
+}
+@keyframes brewing-shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+body.bean-app .cuisinart-brewing-foot {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-on-dark-muted);
+  letter-spacing: 0.02em;
+}
+body.bean-app .cuisinart-brewing-eta {
+  font-family: var(--bean-mono, 'JetBrains Mono', monospace);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--accent-yellow);
+}
+
+/* Supplies — bean hopper / pods / water reservoir */
+body.bean-app .cuisinart-supplies {
+  margin: 14px 20px 0;
+  padding: 14px 14px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+}
+body.bean-app .cuisinart-supplies-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+body.bean-app .cuisinart-supplies-eyebrow {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-yellow);
+}
+body.bean-app .cuisinart-supplies-shop {
+  background: transparent;
+  border: 0;
+  color: var(--accent-yellow);
+  font-family: var(--bean-body);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  padding: 0;
+}
+body.bean-app .cuisinart-supplies-shop:hover { text-decoration: underline; }
+body.bean-app .cuisinart-supply {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+body.bean-app .cuisinart-supply:last-child { border-bottom: 0; }
+body.bean-app .cuisinart-supply:hover { background: rgba(255, 255, 255, 0.03); }
+body.bean-app .cuisinart-supply-glyph {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+body.bean-app .cuisinart-supply-body { flex: 1; min-width: 0; }
+body.bean-app .cuisinart-supply-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+body.bean-app .cuisinart-supply-label {
+  font-family: var(--bean-body);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-on-dark);
+}
+body.bean-app .cuisinart-supply-value {
+  font-family: var(--bean-display);
+  font-size: 14px;
+  color: var(--text-on-dark);
+  font-variant-numeric: tabular-nums;
+}
+body.bean-app .cuisinart-supply-track {
+  height: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+body.bean-app .cuisinart-supply-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #5DAA6E, #84C490);
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+body.bean-app .cuisinart-supply.is-low .cuisinart-supply-fill {
+  background: linear-gradient(90deg, #C9352F, var(--accent-yellow));
+}
+body.bean-app .cuisinart-supply.is-low .cuisinart-supply-value {
+  color: var(--accent-yellow);
+}
+body.bean-app .cuisinart-supply-sub {
+  font-size: 10px;
+  color: var(--text-on-dark-muted);
+  letter-spacing: 0.02em;
+}
+body.bean-app .cuisinart-supply.is-low .cuisinart-supply-sub {
+  color: var(--accent-yellow);
+  font-weight: 600;
 }
 
 /* Foot trust line */
@@ -6441,6 +6700,151 @@ body.bean-app .cuisinart-pair-check {
   100% { transform: scale(1);   opacity: 1; }
 }
 
+/* Profile edit modal */
+body.bean-app .profile-edit-card {
+  position: relative;
+  background: var(--bg-card);
+  color: var(--text-on-light);
+  border-radius: 22px;
+  padding: 28px 22px 22px;
+  max-width: 460px;
+  width: 100%;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+}
+body.bean-app .profile-edit-card .cuisinart-pair-close {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-on-light);
+}
+body.bean-app .profile-edit-card .cuisinart-pair-close:hover {
+  background: rgba(0, 0, 0, 0.12);
+}
+body.bean-app .profile-edit-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--accent-yellow-deep);
+  margin-bottom: 14px;
+}
+body.bean-app .profile-edit-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+body.bean-app .profile-edit-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent-yellow);
+  color: #FFFFFF;
+  font-family: var(--bean-display);
+  font-size: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+body.bean-app .profile-edit-name-input {
+  width: 100%;
+  height: 44px;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-on-light);
+  border-radius: 10px;
+  font-family: var(--bean-display);
+  font-size: 18px;
+  letter-spacing: -0.005em;
+  color: var(--text-on-light);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+body.bean-app .profile-edit-name-input:focus {
+  border-color: var(--accent-yellow);
+  background: #FFFFFF;
+}
+body.bean-app .profile-edit-colors {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+body.bean-app .profile-edit-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+body.bean-app .profile-edit-swatch:hover { transform: scale(1.1); }
+body.bean-app .profile-edit-swatch.on { border-color: var(--text-on-light); transform: scale(1.1); }
+body.bean-app .profile-edit-section {
+  margin-bottom: 14px;
+}
+body.bean-app .profile-edit-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+body.bean-app .profile-edit-pill {
+  padding: 8px 14px;
+  background: transparent;
+  border: 1px solid var(--border-on-light);
+  border-radius: 999px;
+  color: var(--text-on-light);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+body.bean-app .profile-edit-pill:hover { background: rgba(0, 0, 0, 0.04); }
+body.bean-app .profile-edit-pill:active { transform: scale(0.96); }
+body.bean-app .profile-edit-pill.active {
+  background: var(--accent-yellow);
+  border-color: transparent;
+  color: var(--text-on-light);
+  box-shadow: 0 1px 2px rgba(232, 179, 60, 0.20), 0 6px 14px -6px rgba(232, 179, 60, 0.45);
+}
+body.bean-app .profile-edit-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+body.bean-app .profile-edit-delete {
+  padding: 13px 18px;
+  background: transparent;
+  border: 1px solid var(--border-on-light);
+  color: #C9352F;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+body.bean-app .profile-edit-delete:hover { background: rgba(201, 53, 47, 0.06); border-color: #C9352F; }
+body.bean-app .profile-edit-save {
+  flex: 1;
+  padding: 13px 18px;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  border: 0;
+  border-radius: 12px;
+  font-family: var(--bean-body);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 1px 2px rgba(232, 179, 60, 0.18), 0 10px 22px -10px rgba(232, 179, 60, 0.50);
+}
+body.bean-app .profile-edit-save:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(232, 179, 60, 0.22), 0 14px 28px -12px rgba(232, 179, 60, 0.60);
+}
+
 /* Pair CTA used in the empty state */
 body.bean-app .cuisinart-pair-cta {
   display: inline-flex;
@@ -6463,6 +6867,810 @@ body.bean-app .cuisinart-pair-cta {
 body.bean-app .cuisinart-pair-cta:hover {
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(232, 179, 60, 0.26), 0 14px 28px -12px rgba(232, 179, 60, 0.60);
+}
+
+/* ============================================================
+   HOME TAB — discovery entry for everyone
+   ============================================================ */
+body.bean-app .bean-home { padding-bottom: 100px; }
+
+/* Flavor quiz CTA card (pre-quiz) */
+body.bean-app .home-quiz {
+  position: relative;
+  width: 100%;
+  border: 0;
+  border-radius: 20px;
+  text-align: left;
+  cursor: pointer;
+  padding: 22px;
+  font: inherit;
+  margin-bottom: 14px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+body.bean-app .home-quiz-cta {
+  background:
+    radial-gradient(circle at 90% -10%, rgba(255, 255, 255, 0.18) 0%, transparent 50%),
+    linear-gradient(135deg, var(--accent-yellow) 0%, var(--accent-yellow-deep) 100%);
+  color: var(--text-on-light);
+  box-shadow: 0 1px 2px rgba(232, 179, 60, 0.20), 0 18px 36px -16px rgba(232, 179, 60, 0.50);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+body.bean-app .home-quiz-cta:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(232, 179, 60, 0.24), 0 26px 48px -18px rgba(232, 179, 60, 0.60); }
+body.bean-app .home-quiz-cta-eyebrow {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: rgba(64, 36, 2, 0.78);
+}
+body.bean-app .home-quiz-cta-title {
+  font-family: var(--bean-display);
+  font-size: 28px;
+  line-height: 1.05;
+  letter-spacing: -0.018em;
+}
+body.bean-app .home-quiz-cta-title em { font-style: italic; }
+body.bean-app .home-quiz-cta-sub {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(64, 36, 2, 0.82);
+  margin-bottom: 6px;
+}
+body.bean-app .home-quiz-cta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+body.bean-app .home-quiz-cta-pill {
+  background: var(--text-on-light);
+  color: var(--accent-yellow);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+body.bean-app .home-quiz-cta-mini {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(64, 36, 2, 0.7);
+  letter-spacing: 0.04em;
+}
+
+/* Flavor quiz CTA (post-quiz result card) */
+body.bean-app .home-quiz-done {
+  background: var(--bg-card);
+  color: var(--text-on-light);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 14px 28px -16px rgba(0,0,0,0.20);
+}
+body.bean-app .home-quiz-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--accent-yellow-deep);
+  margin-bottom: 8px;
+}
+body.bean-app .home-quiz-vibe {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+body.bean-app .home-quiz-vibe-emoji {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(232, 179, 60, 0.16);
+  font-size: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+body.bean-app .home-quiz-vibe-label {
+  font-family: var(--bean-display);
+  font-size: 19px;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+body.bean-app .home-quiz-vibe-sub {
+  font-size: 11px;
+  color: var(--text-on-light-muted);
+  margin-top: 2px;
+}
+body.bean-app .home-quiz-picks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+body.bean-app .home-quiz-pick {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--bg-card-warm);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+body.bean-app .home-quiz-pick:hover { transform: translateY(-1px); background: rgba(232, 179, 60, 0.08); }
+body.bean-app .home-quiz-pick-photo {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+body.bean-app .home-quiz-pick-body { flex: 1; min-width: 0; }
+body.bean-app .home-quiz-pick-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--accent-yellow-deep);
+  margin-bottom: 2px;
+}
+body.bean-app .home-quiz-pick-name {
+  font-family: var(--bean-display);
+  font-size: 14px;
+  line-height: 1.15;
+  margin-bottom: 2px;
+}
+body.bean-app .home-quiz-pick-roaster {
+  font-size: 11px;
+  color: var(--text-on-light-muted);
+}
+body.bean-app .home-quiz-pick-price {
+  font-family: var(--bean-display);
+  font-size: 13px;
+  color: var(--accent-yellow-deep);
+  margin-top: 2px;
+}
+body.bean-app .home-quiz-retake {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 1px solid var(--border-on-light);
+  color: var(--text-on-light);
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+}
+body.bean-app .home-quiz-retake:hover { background: rgba(0, 0, 0, 0.04); }
+
+/* Today's pick card */
+body.bean-app .home-today {
+  display: block;
+  background: var(--bg-card);
+  color: var(--text-on-light);
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 14px 28px -16px rgba(0,0,0,0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+body.bean-app .home-today:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(0,0,0,0.05), 0 22px 40px -18px rgba(0,0,0,0.28); }
+body.bean-app .home-today-photo {
+  position: relative;
+  aspect-ratio: 16/9;
+  background-size: cover;
+  background-position: center;
+}
+body.bean-app .home-today-flag {
+  position: absolute;
+  top: 10px; left: 10px;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  padding: 4px 10px 3px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+body.bean-app .home-today-body { padding: 14px 16px 16px; }
+body.bean-app .home-today-name {
+  font-family: var(--bean-display);
+  font-size: 19px;
+  line-height: 1.1;
+  letter-spacing: -0.012em;
+  margin-bottom: 4px;
+}
+body.bean-app .home-today-desc {
+  font-size: 13px;
+  color: var(--text-on-light-muted);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+body.bean-app .home-today-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-on-light-muted);
+  font-weight: 600;
+}
+body.bean-app .home-today-dot {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.25);
+}
+
+/* Community pulse */
+body.bean-app .home-community {
+  margin-bottom: 14px;
+  padding: 16px 18px;
+}
+body.bean-app .home-community-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+body.bean-app .home-community-link {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-yellow-deep);
+  text-decoration: none;
+}
+body.bean-app .home-community-empty {
+  font-size: 13px;
+  color: var(--text-on-light-muted);
+  font-style: italic;
+}
+body.bean-app .home-community-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+body.bean-app .home-pulse {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+body.bean-app .home-pulse-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-family: var(--bean-display);
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+body.bean-app .home-pulse-body { flex: 1; min-width: 0; }
+body.bean-app .home-pulse-author {
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--text-on-light);
+}
+body.bean-app .home-pulse-content {
+  font-size: 12px;
+  color: var(--text-on-light-muted);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+body.bean-app .home-pulse-kudos {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-yellow-deep);
+  white-space: nowrap;
+}
+
+/* Device hint (paired or unpaired) */
+body.bean-app .home-device-hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  text-decoration: none;
+  margin-top: 4px;
+  margin-bottom: 14px;
+  transition: transform 0.2s ease;
+}
+body.bean-app .home-device-hint:hover { transform: translateY(-1px); }
+body.bean-app .home-device-hint-paired {
+  background: rgba(232, 179, 60, 0.10);
+  border: 1px solid rgba(232, 179, 60, 0.25);
+  color: var(--text-on-dark);
+}
+body.bean-app .home-device-hint-unpaired {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  color: var(--text-on-dark);
+}
+body.bean-app .home-device-hint-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #5DAA6E;
+  box-shadow: 0 0 0 0 rgba(93, 170, 110, 0.55);
+  animation: bean-pulse 2.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+body.bean-app .home-device-hint-text { flex: 1; min-width: 0; }
+body.bean-app .home-device-hint-title {
+  font-family: var(--bean-display);
+  font-size: 14px;
+  letter-spacing: -0.005em;
+}
+body.bean-app .home-device-hint-sub {
+  font-size: 11px;
+  color: var(--text-on-dark-muted);
+  margin-top: 2px;
+}
+body.bean-app .home-device-hint-arrow {
+  font-size: 18px;
+  color: var(--accent-yellow);
+}
+
+/* ============================================================
+   FLAVOR QUIZ MODAL
+   ============================================================ */
+body.bean-app .flavor-quiz-card {
+  position: relative;
+  background: var(--bg-card);
+  color: var(--text-on-light);
+  border-radius: 22px;
+  padding: 28px 22px 22px;
+  max-width: 460px;
+  width: 100%;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+}
+body.bean-app .flavor-quiz-close {
+  position: absolute;
+  top: 12px; right: 12px;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.06);
+  color: var(--text-on-light);
+  border: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+}
+body.bean-app .flavor-quiz-progress {
+  height: 4px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+body.bean-app .flavor-quiz-progress-fill {
+  height: 100%;
+  width: 20%;
+  background: linear-gradient(90deg, var(--accent-yellow-deep), var(--accent-yellow));
+  border-radius: 999px;
+  transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+body.bean-app .flavor-quiz-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--accent-yellow-deep);
+  margin-bottom: 8px;
+}
+body.bean-app .flavor-quiz-title {
+  font-family: var(--bean-display);
+  font-size: 24px;
+  line-height: 1.1;
+  letter-spacing: -0.012em;
+  margin-bottom: 6px;
+}
+body.bean-app .flavor-quiz-sub {
+  font-size: 13px;
+  color: var(--text-on-light-muted);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+body.bean-app .flavor-quiz-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+body.bean-app .flavor-quiz-grid-2 { grid-template-columns: repeat(2, 1fr); }
+body.bean-app .flavor-quiz-grid-3 { grid-template-columns: repeat(3, 1fr); }
+body.bean-app .flavor-quiz-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  padding: 14px 8px 12px;
+  background: var(--bg-card-warm);
+  border: 1.5px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  font: inherit;
+  color: var(--text-on-light);
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+body.bean-app .flavor-quiz-tile:hover { background: rgba(232, 179, 60, 0.10); }
+body.bean-app .flavor-quiz-tile:active { transform: scale(0.96); }
+body.bean-app .flavor-quiz-tile.on {
+  background: rgba(232, 179, 60, 0.18);
+  border-color: var(--accent-yellow);
+}
+body.bean-app .flavor-quiz-tile-emoji {
+  font-size: 26px;
+  line-height: 1;
+}
+body.bean-app .flavor-quiz-tile-label {
+  font-family: var(--bean-display);
+  font-size: 14px;
+  line-height: 1.1;
+  letter-spacing: -0.005em;
+}
+body.bean-app .flavor-quiz-tile-sub {
+  font-size: 10px;
+  color: var(--text-on-light-muted);
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+body.bean-app .flavor-quiz-tile-wide {
+  padding: 16px 14px;
+  align-items: flex-start;
+  text-align: left;
+}
+body.bean-app .flavor-quiz-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+body.bean-app .flavor-quiz-back {
+  background: transparent;
+  border: 0;
+  color: var(--text-on-light-muted);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 8px 0;
+}
+body.bean-app .flavor-quiz-next {
+  padding: 12px 22px;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  border: 0;
+  border-radius: 999px;
+  font-family: var(--bean-body);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  box-shadow: 0 1px 2px rgba(232, 179, 60, 0.18), 0 8px 18px -8px rgba(232, 179, 60, 0.45);
+}
+body.bean-app .flavor-quiz-next:hover { transform: translateY(-1px); }
+body.bean-app .flavor-quiz-next[disabled] {
+  background: rgba(232, 179, 60, 0.35);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+body.bean-app .flavor-quiz-result {
+  text-align: center;
+  margin-bottom: 14px;
+}
+body.bean-app .flavor-quiz-result-emoji { font-size: 48px; line-height: 1; margin-bottom: 8px; }
+body.bean-app .flavor-quiz-result-vibe {
+  font-family: var(--bean-display);
+  font-size: 26px;
+  line-height: 1.1;
+  letter-spacing: -0.012em;
+}
+body.bean-app .flavor-quiz-result-sub {
+  font-size: 13px;
+  color: var(--text-on-light-muted);
+  margin-top: 4px;
+}
+body.bean-app .flavor-quiz-profile { margin-bottom: 16px; }
+body.bean-app .flavor-quiz-profile-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--text-on-light-muted);
+  margin-bottom: 8px;
+}
+body.bean-app .flavor-quiz-profile-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+body.bean-app .flavor-quiz-profile-tile {
+  text-align: center;
+  padding: 10px 4px;
+  background: var(--bg-card-warm);
+  border-radius: 10px;
+}
+body.bean-app .flavor-quiz-profile-tile > div {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  color: var(--text-on-light-muted);
+  margin-bottom: 4px;
+}
+body.bean-app .flavor-quiz-profile-tile strong {
+  font-family: var(--bean-display);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  color: var(--text-on-light);
+}
+body.bean-app .flavor-quiz-picks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+body.bean-app .flavor-quiz-done {
+  width: 100%;
+  padding: 14px;
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  border: 0;
+  border-radius: 12px;
+  font-family: var(--bean-body);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ============================================================
+   SHOP TAB
+   ============================================================ */
+body.bean-app .bean-shop { padding-bottom: 100px; }
+body.bean-app .shop-head { margin-bottom: 14px; padding: 0 4px; }
+body.bean-app .shop-title {
+  font-family: var(--bean-display);
+  font-size: 32px;
+  letter-spacing: -0.018em;
+  margin-bottom: 4px;
+}
+body.bean-app .shop-sub {
+  font-size: 13px;
+  color: var(--text-on-dark-muted);
+  line-height: 1.45;
+}
+
+/* Palate-matched hero */
+body.bean-app .shop-palate {
+  background: linear-gradient(135deg, var(--accent-yellow-soft) 0%, var(--accent-yellow) 100%);
+  color: var(--text-on-light);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 2px rgba(232, 179, 60, 0.18), 0 14px 28px -14px rgba(232, 179, 60, 0.45);
+}
+body.bean-app .shop-palate-eyebrow {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: rgba(64, 36, 2, 0.78);
+  margin-bottom: 6px;
+}
+body.bean-app .shop-palate-vibe {
+  font-family: var(--bean-display);
+  font-size: 22px;
+  letter-spacing: -0.012em;
+  margin-bottom: 12px;
+}
+body.bean-app .shop-palate-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+body.bean-app .shop-palate-pick {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  color: var(--text-on-light);
+  text-decoration: none;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.15s ease;
+}
+body.bean-app .shop-palate-pick:hover { transform: translateY(-2px); }
+body.bean-app .shop-palate-pick-photo {
+  aspect-ratio: 4/3;
+  background-size: cover;
+  background-position: center;
+}
+body.bean-app .shop-palate-pick-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--accent-yellow-deep);
+  padding: 8px 10px 0;
+}
+body.bean-app .shop-palate-pick-name {
+  font-family: var(--bean-display);
+  font-size: 13px;
+  letter-spacing: -0.005em;
+  padding: 2px 10px 0;
+  line-height: 1.15;
+}
+body.bean-app .shop-palate-pick-roaster {
+  font-size: 10px;
+  color: var(--text-on-light-muted);
+  padding: 2px 10px 10px;
+}
+
+/* Category pills */
+body.bean-app .shop-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+body.bean-app .shop-pill {
+  padding: 8px 14px;
+  border: 1px solid var(--border-on-dark);
+  background: transparent;
+  color: var(--text-on-dark-muted);
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+body.bean-app .shop-pill:hover { color: var(--text-on-dark); }
+body.bean-app .shop-pill.active {
+  background: var(--accent-yellow);
+  color: var(--text-on-light);
+  border-color: transparent;
+  font-weight: 700;
+}
+
+/* Feature card */
+body.bean-app .shop-feature {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  color: var(--text-on-light);
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 14px 28px -16px rgba(0,0,0,0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+body.bean-app .shop-feature:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(0,0,0,0.06), 0 22px 40px -18px rgba(0,0,0,0.28); }
+body.bean-app .shop-feature-photo {
+  position: relative;
+  aspect-ratio: 16/9;
+  background-size: cover;
+  background-position: center;
+}
+body.bean-app .shop-feature-flag {
+  position: absolute;
+  top: 10px; left: 10px;
+  background: var(--text-on-light);
+  color: var(--accent-yellow);
+  padding: 4px 10px 3px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+body.bean-app .shop-feature-body { padding: 14px 16px 16px; }
+body.bean-app .shop-feature-eyebrow {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--accent-yellow-deep);
+  margin-bottom: 4px;
+}
+body.bean-app .shop-feature-name {
+  font-family: var(--bean-display);
+  font-size: 20px;
+  letter-spacing: -0.012em;
+  margin-bottom: 4px;
+}
+body.bean-app .shop-feature-sub {
+  font-size: 13px;
+  color: var(--text-on-light-muted);
+  margin-bottom: 8px;
+}
+body.bean-app .shop-feature-price {
+  font-family: var(--bean-display);
+  font-size: 18px;
+  color: var(--text-on-light);
+}
+
+/* Product grid */
+body.bean-app .shop-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+body.bean-app .shop-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  color: var(--text-on-light);
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 18px -10px rgba(0,0,0,0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+body.bean-app .shop-card:hover { transform: translateY(-2px); }
+body.bean-app .shop-card-photo {
+  aspect-ratio: 1;
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(0,0,0,0.04);
+}
+body.bean-app .shop-card-body { padding: 10px 12px 12px; }
+body.bean-app .shop-card-name {
+  font-family: var(--bean-display);
+  font-size: 13px;
+  line-height: 1.15;
+  letter-spacing: -0.005em;
+  margin-bottom: 2px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+body.bean-app .shop-card-sub {
+  font-size: 10px;
+  color: var(--text-on-light-muted);
+  letter-spacing: 0.02em;
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+body.bean-app .shop-card-price {
+  font-family: var(--bean-display);
+  font-size: 13px;
+  color: var(--accent-yellow-deep);
+  font-weight: 400;
+}
+
+/* Shop foot */
+body.bean-app .shop-foot {
+  text-align: center;
+  padding: 18px 8px;
+  margin-top: 8px;
+  border-top: 1px solid var(--border-on-dark);
+}
+body.bean-app .shop-foot-title {
+  font-family: var(--bean-display);
+  font-size: 14px;
+  letter-spacing: -0.005em;
+  color: var(--text-on-dark);
+  margin-bottom: 4px;
+}
+body.bean-app .shop-foot-sub {
+  font-size: 11px;
+  color: var(--text-on-dark-muted);
+  line-height: 1.5;
+  max-width: 320px;
+  margin: 0 auto;
 }
 
 /* Home hub greeting line */
